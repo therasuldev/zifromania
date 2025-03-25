@@ -1,10 +1,108 @@
-// ignore_for_file: constant_identifier_names
 import 'dart:async';
 import 'dart:math';
+// import 'package:flame/components.dart' hide Timer;
+// import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:confetti/confetti.dart';
 
 void main() {
   runApp(const MathGameApp());
+}
+
+class MathGameApp extends StatelessWidget {
+  const MathGameApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Math Master',
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+        fontFamily: 'Montserrat',
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const GameIntroScreen(),
+    );
+  }
+}
+
+class GameIntroScreen extends StatelessWidget {
+  const GameIntroScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.indigo.shade300, Colors.purple.shade300],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Math Master',
+                style: TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 10.0,
+                      color: Colors.black45,
+                      offset: Offset(5.0, 5.0),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 50),
+              _buildDifficultyButton(context, 'Easy Mode', Colors.green.shade400, GameDifficulty.easy),
+              const SizedBox(height: 20),
+              _buildDifficultyButton(context, 'Medium Mode', Colors.orange.shade400, GameDifficulty.medium),
+              const SizedBox(height: 20),
+              _buildDifficultyButton(context, 'Hard Mode', Colors.red.shade400, GameDifficulty.hard),
+              const SizedBox(height: 20),
+              _buildDifficultyButton(context, 'Master Mode', Colors.deepPurple.shade400, GameDifficulty.veryDifficult),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDifficultyButton(BuildContext context, String title, Color color, GameDifficulty difficulty) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        elevation: 5,
+      ),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GameScreen(difficulty: difficulty),
+          ),
+        );
+      },
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
 }
 
 // Enum for Game Difficulty Levels
@@ -13,142 +111,42 @@ enum GameDifficulty { easy, medium, hard, veryDifficult, mix }
 // Enum for Operation Types with Extended Operations
 enum OperationType { addition, subtraction, multiplication, division, squareRoot, modulo, exponentiation, logarithm }
 
-class MathGameApp extends StatelessWidget {
-  const MathGameApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Riyazi Oyun',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Roboto',
-      ),
-      home: const CategorySelectionScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
-// Category Selection Screen
-class CategorySelectionScreen extends StatelessWidget {
-  const CategorySelectionScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Riyazi Oyun - Kateqoriyalar'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildCategoryButton(
-                context,
-                'Səviyyə 1: Sadə',
-                'Əsas riyazi əməllər (1-100)',
-                GameDifficulty.easy,
-              ),
-              const SizedBox(height: 20),
-              _buildCategoryButton(
-                context,
-                'Səviyyə 2: Orta',
-                'Mürəkkəb riyazi əməllər (100-1000)',
-                GameDifficulty.medium,
-              ),
-              const SizedBox(height: 20),
-              _buildCategoryButton(
-                context,
-                'Səviyyə 3: Çətin',
-                'Mürəkkəb hesablamalar (1000-10000)',
-                GameDifficulty.hard,
-              ),
-              const SizedBox(height: 20),
-              _buildCategoryButton(
-                context,
-                'Səviyyə 4: Çox Çətin',
-                'Yüksək səviyyəli riyazi problemlər',
-                GameDifficulty.veryDifficult,
-              ),
-              const SizedBox(height: 20),
-              _buildCategoryButton(
-                context,
-                'Səviyyə 5: Qarışıq',
-                'Çoxəməlli kompleks məsələlər',
-                GameDifficulty.mix,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryButton(BuildContext context, String title, String subtitle, GameDifficulty difficulty) {
-    return SizedBox(
-      width: 300,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => GameScreen(difficulty: difficulty),
-            ),
-          );
-        },
-        child: Column(
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Main Game Screen
 class GameScreen extends StatefulWidget {
   final GameDifficulty difficulty;
 
   const GameScreen({super.key, required this.difficulty});
 
   @override
-  State<GameScreen> createState() => _GameScreenState();
+  _GameScreenState createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateMixin {
   late int score = 0;
   late int secondsRemaining = 60;
   Timer? timer;
   late String currentQuestion;
   late int correctAnswer;
   late List<int> answerOptions;
-  bool isCorrect = false;
   bool isGameActive = true;
   int incorrectAnswersCount = 0;
   static const int MAX_INCORRECT_ANSWERS = 4;
 
+  int? _lastSelectedAnswer;
+
+  // Sound and animation controllers
+  late AudioPlayer _audioPlayer;
+  late ConfettiController _confettiController;
+  late AnimationController _shakeController;
+
   @override
   void initState() {
     super.initState();
+    _audioPlayer = AudioPlayer();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 1));
+    _shakeController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
     startGame();
   }
 
@@ -336,43 +334,59 @@ class _GameScreenState extends State<GameScreen> {
     // Cavab seçimlərini strategik şəkildə yaradılması
     answerOptions = [correctAnswer];
 
-    while (answerOptions.length < 3) {
-      print('Answer Options Length: ${answerOptions.length}');
+    int maxAttempts = 20;
+    int attempts = 0;
+
+    while (answerOptions.length < 4 && attempts < maxAttempts) {
+      int errorMargin = ((correctAnswer.abs()) * 0.2).ceil() + 1;
+
+      // Farklı stratejilerle yanlış cevap üretme
       int wrongAnswer;
 
-      // Doğru cavabın ±20%-lik səhv marginindən istifadə olunur
-      int errorMargin = ((correctAnswer.abs()) * 0.2).ceil() + 1;
-      wrongAnswer = correctAnswer + (random.nextBool() ? random.nextInt(errorMargin) : -random.nextInt(errorMargin));
+      switch (attempts % 3) {
+        case 0:
+          // Doğru cevabın etrafında ±20% aralığında
+          wrongAnswer = correctAnswer + (random.nextBool() ? random.nextInt(errorMargin) : -random.nextInt(errorMargin));
+          break;
+        case 1:
+          // Doğru cevaptan belirgin şekilde farklı
+          wrongAnswer = correctAnswer + (random.nextBool() ? errorMargin * 2 : -errorMargin * 2);
+          break;
+        default:
+          // Tamamen rastgele ama sınırlı
+          wrongAnswer = (correctAnswer + random.nextInt(errorMargin * 3) - (errorMargin * 1.5).toInt());
+      }
 
-      // Mənalı yanlış cavabların seçilməsi üçün əlavə yoxlamalar
-      if (wrongAnswer > 0 &&
-          wrongAnswer != correctAnswer &&
-          !answerOptions.contains(wrongAnswer) &&
-          !_hasMultipleEndingDigit(answerOptions, wrongAnswer % 10)) {
+      // Güvenlik kontrolleri
+      if (wrongAnswer != correctAnswer && wrongAnswer > 0 && !answerOptions.contains(wrongAnswer)) {
         answerOptions.add(wrongAnswer);
       }
+
+      attempts++;
     }
 
+    while (answerOptions.length < 4) {
+      int fallbackWrongAnswer = correctAnswer + random.nextInt(10) + 1;
+      if (!answerOptions.contains(fallbackWrongAnswer)) {
+        answerOptions.add(fallbackWrongAnswer);
+      }
+    }
     answerOptions.shuffle();
-  }
-
-// Eyni son rəqəmli cavabların çoxluğunu önləyən funksiya
-  bool _hasMultipleEndingDigit(List<int> currentOptions, int endDigit) {
-    return currentOptions.where((option) => option % 10 == endDigit).length >= 2;
   }
 
   void checkAnswer(int selectedAnswer) {
     if (!isGameActive) return;
 
-    isCorrect = selectedAnswer == correctAnswer;
+    // Store the selected answer
+    setState(() => _lastSelectedAnswer = selectedAnswer);
 
+    bool isCorrect = selectedAnswer == correctAnswer;
     if (isCorrect) {
       setState(() => score++);
     } else {
       setState(() {
         incorrectAnswersCount++;
-
-        // 4 ardıcıl səhv cavabda 1 xal çıxılır
+        // 4 səhv cavabda 1 xal çıxılır
         if (incorrectAnswersCount >= MAX_INCORRECT_ANSWERS) {
           score = max(0, score - 1);
           incorrectAnswersCount = 0;
@@ -381,13 +395,40 @@ class _GameScreenState extends State<GameScreen> {
     }
 
     showAnswerResult(isCorrect, selectedAnswer);
+
+    // Reset the selected answer after a short delay
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted && isGameActive) {
+        setState(() {
+          _lastSelectedAnswer = null;
+          generateNewQuestion();
+        });
+      }
+    });
+  }
+
+  void playSoundEffect(bool isCorrect) async {
+    if (isCorrect) {
+      await _audioPlayer.play(AssetSource('sounds/correct_sound.mp3'));
+    } else {
+      await _audioPlayer.play(AssetSource('sounds/wrong_sound.mp3'));
+    }
   }
 
   void showAnswerResult(bool isCorrect, int selectedAnswer) {
-    // Generate new question immediately
+    playSoundEffect(isCorrect);
+
+    if (isCorrect) {
+      _confettiController.play();
+    } else {
+      _shakeController.forward(from: 0.0);
+    }
+
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted && isGameActive) {
-        setState(() => generateNewQuestion());
+        setState(() {
+          generateNewQuestion();
+        });
       }
     });
   }
@@ -412,13 +453,29 @@ class _GameScreenState extends State<GameScreen> {
               child: const Text('Ana Səhifəyə Qayıt'),
               onPressed: () {
                 Navigator.of(context).pop();
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const CategorySelectionScreen()));
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const GameIntroScreen()));
               },
             ),
           ],
         );
       },
     );
+  }
+
+  Color _getButtonColor(int answer) {
+    if (_lastSelectedAnswer == null) {
+      return Colors.transparent; // Default state
+    }
+
+    if (answer == correctAnswer) {
+      return Colors.green; // Correct answer always green
+    }
+
+    if (answer == _lastSelectedAnswer) {
+      return Colors.red; // Selected wrong answer in red
+    }
+
+    return Colors.transparent; // Other buttons remain transparent
   }
 
   @override
@@ -447,55 +504,63 @@ class _GameScreenState extends State<GameScreen> {
         title: Text(difficultyTitle),
         centerTitle: true,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildInfoCard('Vaxt', '$secondsRemaining saniyə'),
-                _buildInfoCard('Xal', score.toString()),
-              ],
-            ),
-            const SizedBox(height: 40),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade100,
-                borderRadius: BorderRadius.circular(12),
+      body: Stack(children: [
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildInfoCard('Vaxt', '$secondsRemaining saniyə'),
+                  _buildInfoCard('Xal', score.toString()),
+                ],
               ),
-              child: Text(
-                currentQuestion,
-                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              const SizedBox(height: 40),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  currentQuestion,
+                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-            const SizedBox(height: 40),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Column(
-                children: answerOptions.map((answer) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.all(16),
-                          textStyle: const TextStyle(fontSize: 20),
-                          backgroundColor: isCorrect && answer == correctAnswer ? Colors.green : Colors.transparent,
+              const SizedBox(height: 40),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Column(
+                  children: answerOptions.map((answer) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.all(16),
+                            textStyle: const TextStyle(fontSize: 20),
+                            backgroundColor: _getButtonColor(answer),
+                          ),
+                          onPressed: () => checkAnswer(answer),
+                          child: Text(answer.toString()),
                         ),
-                        onPressed: () => checkAnswer(answer),
-                        child: Text(answer.toString()),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
               ),
-            ),
-          ],
+              ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirectionality: BlastDirectionality.explosive,
+                shouldLoop: false,
+                colors: const [Colors.green, Colors.blue, Colors.pink, Colors.orange, Colors.purple],
+              ),
+            ],
+          ),
         ),
-      ),
+      ]),
     );
   }
 
@@ -531,6 +596,9 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void dispose() {
     timer?.cancel();
+    _audioPlayer.dispose();
+    _confettiController.dispose();
+    _shakeController.dispose();
     super.dispose();
   }
 }
