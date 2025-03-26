@@ -409,15 +409,18 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         break;
       case GameDifficulty.timesDivideTable:
         operation = [OperationType.division, OperationType.multiplication][random.nextInt(2)];
-        num1 = random.nextInt(10) + 1; // 1-100
-        num2 = random.nextInt(10) + 1; // 1-100
+
         switch (operation) {
           case OperationType.multiplication:
+            num1 = random.nextInt(9) + 1; // 1-9
+            num2 = random.nextInt(9) + 1; // 1-9
             correctAnswer = num1 * num2;
             currentQuestion = '$num1 × $num2 = ?';
             break;
+
           case OperationType.division:
-            num2 = num2 == 0 ? 1 : num2;
+            num2 = random.nextInt(9) + 1; // 1-9 (0 olmamalıdır)
+            num1 = num2 * (random.nextInt(9) + 1); // num1 həmişə num2-yə bölünən olacaq
             correctAnswer = num1 ~/ num2;
             currentQuestion = '$num1 ÷ $num2 = ?';
             break;
