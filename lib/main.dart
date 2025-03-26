@@ -27,9 +27,14 @@ class MathGameApp extends StatelessWidget {
   }
 }
 
-class GameIntroScreen extends StatelessWidget {
+class GameIntroScreen extends StatefulWidget {
   const GameIntroScreen({super.key});
 
+  @override
+  State<GameIntroScreen> createState() => _GameIntroScreenState();
+}
+
+class _GameIntroScreenState extends State<GameIntroScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,44 +66,117 @@ class GameIntroScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 50),
-              _buildDifficultyButton(context, 'Easy Mode', Colors.green.shade400, GameDifficulty.easy),
+              DifficultyButton(title: 'Easy Mode', color: Colors.green.shade400, difficulty: GameDifficulty.easy),
               const SizedBox(height: 20),
-              _buildDifficultyButton(context, 'Medium Mode', Colors.orange.shade400, GameDifficulty.medium),
+              DifficultyButton(title: 'Medium Mode', color: Colors.orange.shade400, difficulty: GameDifficulty.medium),
               const SizedBox(height: 20),
-              _buildDifficultyButton(context, 'Hard Mode', Colors.red.shade400, GameDifficulty.hard),
+              DifficultyButton(title: 'Hard Mode', color: Colors.red.shade400, difficulty: GameDifficulty.hard),
               const SizedBox(height: 20),
-              _buildDifficultyButton(context, 'Master Mode', Colors.deepPurple.shade400, GameDifficulty.veryDifficult),
+              DifficultyButton(title: 'Master Mode', color: Colors.deepPurple.shade400, difficulty: GameDifficulty.veryDifficult),
+              const SizedBox(height: 20),
+              DifficultyButton(
+                  title: 'Times&Divide Table', color: Colors.deepPurple.shade400, difficulty: GameDifficulty.timesDivideTable),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildDifficultyButton(BuildContext context, String title, Color color, GameDifficulty difficulty) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        elevation: 5,
-      ),
-      onPressed: () {
+class DifficultyButton extends StatefulWidget {
+  final String title;
+  final Color color;
+  final GameDifficulty difficulty;
+
+  const DifficultyButton({
+    super.key,
+    required this.title,
+    required this.color,
+    required this.difficulty,
+  });
+
+  @override
+  State<DifficultyButton> createState() => _DifficultyButtonState();
+}
+
+class _DifficultyButtonState extends State<DifficultyButton> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  late Color _buttonColor;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+      lowerBound: 0.8, // Kiçilmə dərəcəsi
+      upperBound: 1.0, // Normal ölçü
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _buttonColor = widget.color; // Əsas rəng
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) {
+        _animationController.reverse(); // Basanda kiçilir
+        setState(() {
+          _buttonColor = widget.color.withValues(alpha: 0.7); // Tündləşdirilmiş rəng
+        });
+      },
+      onTapUp: (_) {
+        _animationController.forward(); // Buraxanda böyüyür
+        setState(() {
+          _buttonColor = widget.color; // Normal rəngə qayıdır
+        });
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => GameScreen(difficulty: difficulty),
+            builder: (context) {
+              return GameScreen(difficulty: widget.difficulty);
+            },
           ),
         );
       },
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
+      onTapCancel: () {
+        _animationController.animateTo(1.0); // Əgər toxunub çıxarsa, normal ölçüyə qayıdır
+        setState(() {
+          _buttonColor = widget.color; // Normal rəngə qayıdır
+        });
+      },
+      child: ScaleTransition(
+        scale: _animation,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: Ink(
+            color: Colors.black,
+            child: ColoredBox(
+              color: _buttonColor,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                child: Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -106,7 +184,7 @@ class GameIntroScreen extends StatelessWidget {
 }
 
 // Enum for Game Difficulty Levels
-enum GameDifficulty { easy, medium, hard, veryDifficult, mix }
+enum GameDifficulty { easy, medium, hard, veryDifficult, mix, timesDivideTable }
 
 // Enum for Operation Types with Extended Operations
 enum OperationType { addition, subtraction, multiplication, division, squareRoot, modulo, exponentiation, logarithm }
@@ -329,6 +407,23 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           }
         }
         break;
+      case GameDifficulty.timesDivideTable:
+        operation = [OperationType.division, OperationType.multiplication][random.nextInt(2)];
+        num1 = random.nextInt(10) + 1; // 1-100
+        num2 = random.nextInt(10) + 1; // 1-100
+        switch (operation) {
+          case OperationType.multiplication:
+            correctAnswer = num1 * num2;
+            currentQuestion = '$num1 × $num2 = ?';
+            break;
+          case OperationType.division:
+            num2 = num2 == 0 ? 1 : num2;
+            correctAnswer = num1 ~/ num2;
+            currentQuestion = '$num1 ÷ $num2 = ?';
+            break;
+
+          default:
+        }
     }
 
     // Cavab seçimlərini strategik şəkildə yaradılması
@@ -496,6 +591,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         break;
       case GameDifficulty.mix:
         difficultyTitle = 'Səviyyə 5: Qarışıq';
+        break;
+      case GameDifficulty.timesDivideTable:
+        difficultyTitle = 'Səviyyə 6: Vurma & Bolme Cədvəli';
         break;
     }
 
