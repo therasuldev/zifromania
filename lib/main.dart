@@ -499,6 +499,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       if (mounted && isGameActive) {
         setState(() {
           _lastSelectedAnswer = null;
+          _audioPlayer = AudioPlayer();
           generateNewQuestion();
         });
       }
