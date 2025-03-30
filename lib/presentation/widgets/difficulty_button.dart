@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:math_game/main.dart';
 
+import '../screens/game_screen.dart';
 import '../../domain/entities/enums.dart';
 
 class DifficultyButton extends StatefulWidget {
@@ -53,21 +53,174 @@ class _DifficultyButtonState extends State<DifficultyButton> with SingleTickerPr
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
-        return AlertDialog(
-          title: const Text("Oyuna Başlamadan Önce"),
-          content: const Text(
-              "Bu modda, oyunun temel dinamikleri ve ipuçları hakkında bilgiler verilecektir. Hazır olduğunuzda 'Tamam' butonuna basarak oyuna başlayabilirsiniz."),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                builder(BuildContext context) => GameScreen(difficulty: widget.difficulty);
-                Navigator.push(context, MaterialPageRoute(builder: builder));
-              },
-              child: const Text("Tamam"),
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.85,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.lightBlue,
+                  Colors.blue.shade800,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 15,
+                  spreadRadius: 5,
+                ),
+              ],
             ),
-          ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(
+                            Icons.gamepad_rounded,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                          Text(
+                            "QAYDALAR",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 25,
+                              letterSpacing: 2,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontFamily: 'Brawler',
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  offset: const Offset(2, 2),
+                                  blurRadius: 4,
+                                ),
+                              ],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: Image.asset('assets/icons/delete.png'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/icons/timer.png'),
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            child: Text(
+                              "Oyun 1 dəqiqə davam edəcək. Bu vaxt ərzində mümkün qədər çox sualı cavablandırın.",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                height: 1.5,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'rimouskisb',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/icons/info.png'),
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            child: Text(
+                              "Hər 4 səhv cavabdan sonra qazanılan xallardan biri çıxılacaq.",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                height: 1.5,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'rimouskisb',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/icons/right-arrow.png'),
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            child: Text(
+                              "Suala cavab verildikdən sonra avtomatik digər suala keçilir və əvvəlki suala qayıdılmır.",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                height: 1.5,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'rimouskisb',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      builder(BuildContext context) => GameScreen(difficulty: widget.difficulty);
+                      Navigator.push(context, MaterialPageRoute(builder: builder));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.blue.shade900,
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      elevation: 5,
+                    ),
+                    child: const Text(
+                      "Tamam",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Onacona',
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
