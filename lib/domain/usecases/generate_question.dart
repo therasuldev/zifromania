@@ -119,9 +119,11 @@ class GenerateQuestionUseCase {
         question = '$num1 × $num2';
         break;
       case OperationType.division:
-        final safeNum2 = num2 == 0 ? 1 : num2;
-        correctAnswer = num1 ~/ safeNum2;
-        question = '$num1 ÷ $safeNum2';
+        int divisor = _random.nextInt(10) + 1;
+        int quotient = _random.nextInt(10) + 1;
+        int dividend = divisor * quotient;
+        correctAnswer = quotient;
+        question = '$dividend ÷ $divisor';
         break;
       default:
         correctAnswer = num1 + num2;
