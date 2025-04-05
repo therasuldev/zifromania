@@ -179,7 +179,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/jpg/background4.jpg'),
+            image: AssetImage('assets/jpg/background.png'),
             fit: BoxFit.cover,
           ),
         ),
