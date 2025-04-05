@@ -39,7 +39,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     super.initState();
 
     audioService = AudioService();
-    confettiService = ConfettiService(); // Initialize the new service
+    confettiService = ConfettiService();
     generateQuestionUseCase = GenerateQuestionUseCase();
 
     buttonAnimationController = AnimationController(
@@ -118,7 +118,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     if (isCorrect) {
       setState(() => gameState.score++);
-      confettiService.play(); // Play the confetti animation
+      confettiService.play();
     } else {
       setState(() {
         gameState.incorrectAnswersCount++;
@@ -176,77 +176,71 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Gradient Background
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.purple.shade50,
-                  Colors.blue.shade50,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/jpg/background4.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Stack(
+          children: [
+            SafeArea(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Time Indicator
+                        TimerIndicator(secondsRemaining: gameState.secondsRemaining),
+
+                        // Score Indicator
+                        ScoreIndicator(score: gameState.score),
+                      ],
+                    ),
+                  ),
+
+                  // Question Container
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: GameQuestionContainer(question: currentMathQuestion.question),
+                    ),
+                  ),
+
+                  // Answer Buttons
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: List.generate(currentMathQuestion.answerOptions.length, (index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: AnswerButton(
+                            answerValue: currentMathQuestion.answerOptions[index],
+                            correctAnswer: currentMathQuestion.correctAnswer,
+                            index: index,
+                            lastSelectedAnswer: gameState.lastSelectedAnswer,
+                            isLastAnswerCorrect: gameState.isLastAnswerCorrect,
+                            buttonAnimationController: buttonAnimationController,
+                            onTap: () => checkAnswer(index),
+                          ),
+                        );
+                      }),
+                    ),
+                  )
                 ],
               ),
             ),
-          ),
 
-          SafeArea(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Time Indicator
-                      TimerIndicator(secondsRemaining: gameState.secondsRemaining),
-
-                      // Score Indicator
-                      ScoreIndicator(score: gameState.score),
-                    ],
-                  ),
-                ),
-
-                // Question Container
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: QuestionContainer(question: currentMathQuestion.question),
-                  ),
-                ),
-
-                // Answer Buttons
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: List.generate(currentMathQuestion.answerOptions.length, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: AnswerButton(
-                          answerValue: currentMathQuestion.answerOptions[index],
-                          correctAnswer: currentMathQuestion.correctAnswer,
-                          index: index,
-                          lastSelectedAnswer: gameState.lastSelectedAnswer,
-                          isLastAnswerCorrect: gameState.isLastAnswerCorrect,
-                          buttonAnimationController: buttonAnimationController,
-                          onTap: () => checkAnswer(index),
-                        ),
-                      );
-                    }),
-                  ),
-                )
-              ],
+            // Confetti Animation
+            Align(
+              alignment: Alignment.center,
+              child: confettiService.buildConfettiWidget(),
             ),
-          ),
-
-          // Confetti Animation
-          Align(
-            alignment: Alignment.center,
-            child: confettiService.buildConfettiWidget(),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
