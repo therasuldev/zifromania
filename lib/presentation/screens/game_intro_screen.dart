@@ -15,14 +15,10 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.blueAccent,
-              Colors.blue.shade50,
-            ],
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/jpg/background4.jpg'),
+            fit: BoxFit.cover,
           ),
         ),
         child: Center(
