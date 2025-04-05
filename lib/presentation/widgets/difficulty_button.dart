@@ -60,12 +60,12 @@ class _DifficultyButtonState extends State<DifficultyButton> with SingleTickerPr
           child: Container(
             width: MediaQuery.of(context).size.width * 0.85,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.lightBlue,
-                  Colors.blue.shade800,
+                  Color.fromARGB(255, 2, 104, 120),
+                  Color.fromRGBO(9, 37, 29, 1),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
