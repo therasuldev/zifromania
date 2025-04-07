@@ -11,14 +11,25 @@ class TimerIndicator extends StatelessWidget {
       children: [
         Icon(Icons.timer, color: secondsRemaining < 10 ? Colors.red : Colors.green),
         const SizedBox(width: 8),
-        Text(
-          '$secondsRemaining',
-          style: TextStyle(
-            fontFamily: 'Brawler',
-            letterSpacing: 2.5,
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            color: secondsRemaining < 10 ? Colors.red : Colors.green,
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (child, animation) {
+            // You can change this transition as desired.
+            return ScaleTransition(
+              scale: animation,
+              child: child,
+            );
+          },
+          child: Text(
+            '$secondsRemaining',
+            key: ValueKey<int>(secondsRemaining),
+            style: TextStyle(
+              fontFamily: 'Brawler',
+              letterSpacing: 2.5,
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
+              color: secondsRemaining < 10 ? Colors.red : Colors.green,
+            ),
           ),
         ),
       ],
