@@ -1,71 +1,95 @@
+import 'package:equation_quest/presentation/state_managment/game_bloc/game_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AnswerButton extends StatelessWidget {
-  final int answerValue;
-  final int correctAnswer;
   final int index;
-  final int? lastSelectedAnswer;
-  final bool? isLastAnswerCorrect;
   final AnimationController buttonAnimationController;
   final VoidCallback onTap;
 
   const AnswerButton({
     super.key,
-    required this.answerValue,
-    required this.correctAnswer,
     required this.index,
-    required this.lastSelectedAnswer,
-    required this.isLastAnswerCorrect,
     required this.buttonAnimationController,
     required this.onTap,
   });
 
-  Color _getButtonColor() {
+  Color _getButtonColor({
+    required int answerValue,
+    required int correctAnswer,
+    required int index,
+    int? lastSelectedAnswer,
+    bool? isLastAnswerCorrect,
+    required int currentQuestionIndex,
+    required GameState state, // Bütün state-i alırıq
+  }) {
+    // Əgər hələ cavab seçilməyibsə
     if (lastSelectedAnswer == null) {
-      return Colors.transparent; // Default state
+      return Colors.transparent;
+    }
+
+    // ƏN VACİB HİSSƏ: Əgər cari sual son cavab verilmiş sual deyilsə, heç bir rəng göstərmə
+    if (state.lastAnsweredQuestionIndex != currentQuestionIndex) {
+      return Colors.transparent;
     }
 
     if (answerValue == correctAnswer) {
-      return const Color(0xFF1CAC78); // Correct answer always green
+      return const Color(0xFF1CAC78); // Green
     }
 
     if (lastSelectedAnswer == index) {
-      return const Color(0xFFE32636); // Selected wrong answer in red
+      return const Color(0xFFE32636); // Red
     }
 
-    return const Color.fromARGB(0, 29, 45, 40); // Other buttons remain blue
+    return const Color.fromARGB(0, 29, 45, 40); // Transparent-ish
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) {
-        if (lastSelectedAnswer == null) {
-          buttonAnimationController.reverse();
+    return BlocBuilder<GameBloc, GameState>(
+      builder: (context, state) {
+        final question = state.currentQuestion;
+        if (question == null || index >= question.answerOptions.length) {
+          return const SizedBox.shrink();
         }
-      },
-      onTapUp: (_) {
-        if (lastSelectedAnswer == null) {
-          buttonAnimationController.forward();
-          onTap();
-        }
-      },
-      onTapCancel: () {
-        buttonAnimationController.animateTo(1.0);
-      },
-      child: AnimatedBuilder(
-        animation: buttonAnimationController,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: lastSelectedAnswer == index ? buttonAnimationController.value : 1.0,
+
+        final answerValue = question.answerOptions[index];
+        final correctAnswer = question.correctAnswer;
+
+        return GestureDetector(
+          onTapDown: (_) {
+            if (state.lastSelectedAnswer == null) {
+              buttonAnimationController.reverse();
+            }
+          },
+          onTapUp: (_) {
+            // Son cavab verilmiş sual indiki sualdan fərqlidirsə və ya heç cavab verilməyibsə
+            if (state.lastAnsweredQuestionIndex != state.currentQuestionIndex) {
+              buttonAnimationController.forward();
+              onTap();
+            }
+          },
+          onTapCancel: () {
+            buttonAnimationController.animateTo(1.0);
+          },
+          child: Transform.scale(
+            scale: state.lastSelectedAnswer == index ? buttonAnimationController.value : 1.0,
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: lastSelectedAnswer != null
+                boxShadow: state.lastSelectedAnswer != null
                     ? [
                         BoxShadow(
-                          color: _getButtonColor(),
+                          color: _getButtonColor(
+                            answerValue: answerValue,
+                            correctAnswer: correctAnswer,
+                            index: index,
+                            lastSelectedAnswer: state.lastSelectedAnswer,
+                            isLastAnswerCorrect: state.isLastAnswerCorrect,
+                            currentQuestionIndex: state.currentQuestionIndex,
+                            state: state,
+                          ),
                           spreadRadius: 2,
                           blurRadius: 8,
                           offset: const Offset(0, 4),
@@ -76,7 +100,7 @@ class AnswerButton extends StatelessWidget {
                   color: Colors.white.withOpacity(0.1),
                   width: 2,
                 ),
-                color: lastSelectedAnswer != null ? Colors.black.withOpacity(0.5) : Colors.transparent,
+                color: state.lastSelectedAnswer != null ? Colors.black.withOpacity(0.5) : Colors.transparent,
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
@@ -84,7 +108,7 @@ class AnswerButton extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
-                      color: lastSelectedAnswer != null ? Colors.white.withOpacity(0.1) : Colors.transparent,
+                      color: state.lastSelectedAnswer != null ? Colors.white.withOpacity(0.1) : Colors.transparent,
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Text(
@@ -92,8 +116,7 @@ class AnswerButton extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 24,
-                        fontFamily: 'Brawler',
-                        letterSpacing: 2,
+                        fontFamily: 'Onacona',
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -102,9 +125,9 @@ class AnswerButton extends StatelessWidget {
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
