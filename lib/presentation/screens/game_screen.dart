@@ -1,19 +1,16 @@
-import 'dart:async';
-import 'dart:math';
-
+import 'package:equation_quest/presentation/state_managment/game_bloc/game_bloc.dart';
+import 'package:equation_quest/presentation/widgets/result_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 
 import '../../domain/entities/enums.dart';
-import '../../domain/usecases/generate_question.dart';
 import '../../domain/entities/math_question.dart';
-import '../screens/game_intro_screen.dart';
 import '../widgets/game/timer_indicator.dart';
 import '../widgets/game/score_indicator.dart';
 import '../widgets/game/question_container.dart';
 import '../widgets/game/answer_button.dart';
-import '../state_managment/game_state.dart';
-import '../../services/audio_service.dart';
-import '../../services/confetti_service.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key, required this.difficulty});
@@ -25,22 +22,11 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
-  static const int MAX_INCORRECT_ANSWERS = 4;
-
-  late GameState gameState;
-  late MathQuestion currentMathQuestion;
-  late GenerateQuestionUseCase generateQuestionUseCase;
-  late AudioService audioService;
-  late ConfettiService confettiService;
   late AnimationController buttonAnimationController;
 
   @override
   void initState() {
     super.initState();
-
-    audioService = AudioService();
-    confettiService = ConfettiService();
-    generateQuestionUseCase = GenerateQuestionUseCase();
 
     buttonAnimationController = AnimationController(
       duration: const Duration(milliseconds: 150),
@@ -49,128 +35,34 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       upperBound: 1.0,
     );
 
-    gameState = GameState(
-      score: 0,
-      secondsRemaining: 60,
-      isGameActive: true,
-      incorrectAnswersCount: 0,
-      lastSelectedAnswer: null,
-      isLastAnswerCorrect: null,
-    );
-
-    currentMathQuestion = generateQuestionUseCase(difficulty: widget.difficulty);
-    startGame();
+    // Start the game with the selected difficulty once the widget is fully built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UnifiedGameBloc>().add(
+            UnifiedGameEvent.startGame(difficulty: widget.difficulty),
+          );
+    });
   }
 
   @override
   void dispose() {
-    gameState.timer?.cancel();
-    audioService.dispose();
-    confettiService.dispose(); // Use the service's dispose method
     buttonAnimationController.dispose();
     super.dispose();
   }
 
-  void startGame() {
-    setState(() {
-      gameState = GameState(
-        score: 0,
-        secondsRemaining: 60,
-        isGameActive: true,
-        incorrectAnswersCount: 0,
-        lastSelectedAnswer: null,
-        isLastAnswerCorrect: null,
-      );
-    });
-
-    currentMathQuestion = generateQuestionUseCase(difficulty: widget.difficulty);
-    startTimer();
-  }
-
-  void startTimer() {
-    gameState.timer?.cancel();
-    gameState.timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (gameState.secondsRemaining > 0) {
-          gameState.secondsRemaining--;
-        } else {
-          endGame();
-        }
-      });
-    });
-  }
-
-  void endGame() {
-    gameState.timer?.cancel();
-    setState(() => gameState.isGameActive = false);
-    showResultDialog();
-  }
-
-  void checkAnswer(int selectedAnswerIndex) {
-    if (!gameState.isGameActive) return;
-
-    bool isCorrect = currentMathQuestion.answerOptions[selectedAnswerIndex] == currentMathQuestion.correctAnswer;
-
-    setState(() {
-      gameState.lastSelectedAnswer = selectedAnswerIndex;
-      gameState.isLastAnswerCorrect = isCorrect;
-    });
-
-    if (isCorrect) {
-      setState(() => gameState.score++);
-      confettiService.play();
-    } else {
-      setState(() {
-        gameState.incorrectAnswersCount++;
-        if (gameState.incorrectAnswersCount >= MAX_INCORRECT_ANSWERS) {
-          gameState.score = max(0, gameState.score - 1);
-          gameState.incorrectAnswersCount = 0;
-        }
-      });
-    }
-
-    audioService.reset();
-    audioService.playSoundEffect(isCorrect);
-
-    // Reset the selected answer and generate new question after a delay
-    Future.delayed(const Duration(milliseconds: 800), () {
-      if (mounted && gameState.isGameActive) {
-        setState(() {
-          gameState.lastSelectedAnswer = null;
-          gameState.isLastAnswerCorrect = null;
-          currentMathQuestion = generateQuestionUseCase(difficulty: widget.difficulty);
-        });
-      }
-    });
-  }
-
-  void showResultDialog() {
-    showDialog(
+  void showResultDialog(int score, UnifiedGameState state) async {
+    final buildDialog = ResultDialog(score: score, state: state, onPlayAgain: onPlayAgain);
+    await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Oyun Bitdi!'),
-          content: Text('Sizin nəticəniz: ${gameState.score} doğru cavab!'),
-          actions: [
-            TextButton(
-              child: const Text('Yenidən Oyna'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                startGame();
-              },
-            ),
-            TextButton(
-              child: const Text('Ana Səhifəyə Qayıt'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const GameIntroScreen()));
-              },
-            ),
-          ],
-        );
-      },
+      builder: (BuildContext _) => buildDialog,
     );
+  }
+
+  void onPlayAgain() {
+    Navigator.pop(context);
+
+    final event = UnifiedGameEvent.playAgain(difficulty: widget.difficulty);
+    context.read<UnifiedGameBloc>().add(event);
   }
 
   @override
@@ -179,69 +71,174 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/jpg/background.png'),
+            image: AssetImage('assets/images/background.png'),
             fit: BoxFit.cover,
           ),
         ),
-        child: Stack(
-          children: [
-            SafeArea(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Time Indicator
-                        TimerIndicator(secondsRemaining: gameState.secondsRemaining),
+        child: SafeArea(
+          child: BlocConsumer<UnifiedGameBloc, UnifiedGameState>(
+            listener: (context, state) {
+              // Show result dialog when game ends due to timer
+              if ((!state.isGameActive && (state.showResultDialog ?? false)) || state.secondsRemaining <= 0) {
+                showResultDialog(state.score, state);
+              }
 
-                        // Score Indicator
-                        ScoreIndicator(score: gameState.score),
-                      ],
-                    ),
-                  ),
+              // Show error message if question generation fails
+              if (state.errorMessage != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(state.errorMessage!)),
+                );
+              }
+            },
+            builder: (context, state) {
+              // Loading state
+              if (state.isLoading) {
+                return _buildLoadingState();
+              }
 
-                  // Question Container
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: GameQuestionContainer(question: currentMathQuestion.question),
-                    ),
-                  ),
+              // No questions available
+              if (state.questions.isEmpty) {
+                return _buildEmptyState();
+              }
 
-                  // Answer Buttons
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: List.generate(currentMathQuestion.answerOptions.length, (index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: AnswerButton(
-                            answerValue: currentMathQuestion.answerOptions[index],
-                            correctAnswer: currentMathQuestion.correctAnswer,
-                            index: index,
-                            lastSelectedAnswer: gameState.lastSelectedAnswer,
-                            isLastAnswerCorrect: gameState.isLastAnswerCorrect,
-                            buttonAnimationController: buttonAnimationController,
-                            onTap: () => checkAnswer(index),
-                          ),
-                        );
-                      }),
-                    ),
-                  )
-                ],
-              ),
-            ),
+              // Game active with questions
+              final question = state.currentQuestion;
+              if (question == null) {
+                return _buildEmptyState();
+              }
 
-            // Confetti Animation
-            Align(
-              alignment: Alignment.center,
-              child: confettiService.buildConfettiWidget(),
-            ),
-          ],
+              return _buildGameContent(context, state, question);
+            },
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Lottie.asset(
+            'assets/lotties/timer.json',
+            width: 200,
+            height: 200,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 24),
+          DefaultTextStyle(
+            style: const TextStyle(
+              fontSize: 24,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              shadows: [
+                Shadow(
+                  color: Colors.black26,
+                  offset: Offset(2, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                FadeAnimatedText(
+                  'Creating New Questions...',
+                  textStyle: const TextStyle(
+                    fontSize: 24,
+                    fontFamily: 'rimouskisb',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+              repeatForever: true,
+              pause: const Duration(milliseconds: 100),
+              displayFullTextOnTap: true,
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Please wait',
+            style: TextStyle(
+              fontSize: 16,
+              fontFamily: 'rimouskisb',
+              color: Colors.white70,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Lottie.asset(
+            'assets/lotties/timer.json',
+            width: 200,
+            height: 200,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Sual tapılmadı.',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGameContent(BuildContext context, UnifiedGameState state, MathQuestion question) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TimerIndicator(secondsRemaining: state.secondsRemaining),
+              ScoreIndicator(score: state.score),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: GameQuestionContainer(question: question.question),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: List.generate(question.answerOptions.length, (index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: AnswerButton(
+                  index: index,
+                  buttonAnimationController: buttonAnimationController,
+                  onTap: () {
+                    context.read<UnifiedGameBloc>().add(
+                          UnifiedGameEvent.checkAnswer(
+                            question: state.currentQuestion!,
+                            selectedAnswerIndex: index,
+                          ),
+                        );
+                  },
+                ),
+              );
+            }),
+          ),
+        ),
+      ],
     );
   }
 }
