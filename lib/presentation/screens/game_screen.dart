@@ -37,9 +37,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     // Start the game with the selected difficulty once the widget is fully built
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<UnifiedGameBloc>().add(
-            UnifiedGameEvent.startGame(difficulty: widget.difficulty),
-          );
+      context.read<GameBloc>().add(GameEvent.startGame(difficulty: widget.difficulty));
     });
   }
 
@@ -49,7 +47,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void showResultDialog(int score, UnifiedGameState state) async {
+  void showResultDialog(int score, GameState state) async {
     final buildDialog = ResultDialog(score: score, state: state, onPlayAgain: onPlayAgain);
     await showDialog(
       context: context,
@@ -61,8 +59,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void onPlayAgain() {
     Navigator.pop(context);
 
-    final event = UnifiedGameEvent.playAgain(difficulty: widget.difficulty);
-    context.read<UnifiedGameBloc>().add(event);
+    final event = GameEvent.playAgain(difficulty: widget.difficulty);
+    context.read<GameBloc>().add(event);
   }
 
   @override
@@ -76,10 +74,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           ),
         ),
         child: SafeArea(
-          child: BlocConsumer<UnifiedGameBloc, UnifiedGameState>(
+          child: BlocConsumer<GameBloc, GameState>(
             listener: (context, state) {
-              // Show result dialog when game ends due to timer
-              if ((!state.isGameActive && (state.showResultDialog ?? false)) || state.secondsRemaining <= 0) {
+              // Show result dialog when game ends
+              if (!state.isGameActive && (state.showResultDialog ?? false)) {
                 showResultDialog(state.score, state);
               }
 
@@ -197,7 +195,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildGameContent(BuildContext context, UnifiedGameState state, MathQuestion question) {
+  Widget _buildGameContent(BuildContext context, GameState state, MathQuestion question) {
     return Column(
       children: [
         Padding(
@@ -226,8 +224,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   index: index,
                   buttonAnimationController: buttonAnimationController,
                   onTap: () {
-                    context.read<UnifiedGameBloc>().add(
-                          UnifiedGameEvent.checkAnswer(
+                    context.read<GameBloc>().add(
+                          GameEvent.checkAnswer(
                             question: state.currentQuestion!,
                             selectedAnswerIndex: index,
                           ),
