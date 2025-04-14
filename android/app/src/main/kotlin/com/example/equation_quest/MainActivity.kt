@@ -1,4 +1,4 @@
-package com.example.math_game
+package com.example.equation_quest
 
 import io.flutter.embedding.android.FlutterActivity
 

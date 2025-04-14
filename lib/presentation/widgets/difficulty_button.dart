@@ -1,7 +1,10 @@
+import 'package:equation_quest/presentation/screens/game_screen.dart';
+import 'package:equation_quest/presentation/state_managment/game_bloc/game_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/enums.dart';
-import 'rules_dialog.dart';
+import 'dialogs/rules_dialog.dart';
 
 class DifficultyButton extends StatefulWidget {
   final String title;
@@ -47,15 +50,29 @@ class _DifficultyButtonState extends State<DifficultyButton> with SingleTickerPr
     setState(() => _buttonColor = widget.color.withValues(alpha: 0.9));
   }
 
-  void _onTapUp(TapUpDetails _) {
-    _animationController.forward(); // Buraxanda böyüyür
-    setState(() => _buttonColor = widget.color); // Normal rəngə qayıdır
+  void _onTapUp(TapUpDetails _) async {
+    _animationController.forward();
+    setState(() => _buttonColor = widget.color);
 
-    showDialog(
+    // Qaydalar pəncərəsini göstər və nəticəni gözlə
+    final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (context) => RulesDialog(difficulty: widget.difficulty),
     );
+
+    // Əgər istifadəçi oyuna başlamağı seçibsə:
+    if (result == true && mounted) {
+      // Create the UnifiedGameBloc provider and navigate to the game screen
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => BlocProvider(
+            create: (context) => GameBloc(),
+            child: GameScreen(difficulty: widget.difficulty),
+          ),
+        ),
+      );
+    }
   }
 
   void _onTapCancel() {

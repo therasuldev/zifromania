@@ -24,8 +24,8 @@ class ScoreIndicator extends StatelessWidget {
             '$score',
             key: ValueKey<int>(score), // Ensures the widget updates when the score changes
             style: const TextStyle(
-              fontFamily: 'Brawler',
-              letterSpacing: 2.5,
+              fontFamily: 'Onacona',
+              // letterSpacing: 2.5,
               fontSize: 25,
               fontWeight: FontWeight.bold,
               color: Colors.yellow,

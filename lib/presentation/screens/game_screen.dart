@@ -1,5 +1,5 @@
 import 'package:equation_quest/presentation/state_managment/game_bloc/game_bloc.dart';
-import 'package:equation_quest/presentation/widgets/result_dialog.dart';
+import 'package:equation_quest/presentation/widgets/dialogs/result_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
