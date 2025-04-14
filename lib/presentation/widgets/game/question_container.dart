@@ -14,8 +14,8 @@ class GameQuestionContainer extends StatelessWidget {
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 45,
-            letterSpacing: 2,
-            fontFamily: 'Brawler',
+            // letterSpacing: 2,
+            fontFamily: 'Onacona',
             fontWeight: FontWeight.bold,
             color: Colors.white,
             shadows: [
