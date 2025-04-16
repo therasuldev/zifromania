@@ -136,7 +136,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   }
 
   Future<void> _onPlayAgain(GameDifficulty difficulty, Emitter<GameState> emit) async {
-    _onResetGame(emit, difficulty: difficulty);
+    _onResetGame(emit, difficulty: difficulty, isLoading: true);
 
     try {
       // Yeni sualları əldə edirik
@@ -156,9 +156,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     }
   }
 
-  void _onResetGame(Emitter<GameState> emit, {GameDifficulty? difficulty}) {
+  void _onResetGame(Emitter<GameState> emit, {GameDifficulty? difficulty, bool? isLoading}) {
     _gameTimer?.cancel();
-    emit(GameState.initial().copyWith(difficulty: difficulty));
+    emit(GameState.initial().copyWith(difficulty: difficulty, isLoading: isLoading));
   }
 
   void _startTimer() {
