@@ -79,7 +79,9 @@ class ResultDialog extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => Navigator.of(context).pop(),
+                        onTap: () => Navigator.of(context)
+                          ..pop()
+                          ..pop(),
                         child: Image.asset('assets/icons/delete.png'),
                       ),
                     ],
