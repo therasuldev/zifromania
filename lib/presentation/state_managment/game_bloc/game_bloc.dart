@@ -80,7 +80,20 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   Future<void> _onCheckAnswer(MathQuestion question, int selectedIndex, Emitter<GameState> emit) async {
     if (!state.isGameActive) return;
 
-    final bool isCorrect = question.answerOptions[selectedIndex] == question.correctAnswer;
+    bool isCorrect;
+
+    // Check if this is a true/false question
+    if (question.answerOptions.isNotEmpty &&
+        question.answerOptions.first is String &&
+        (question.answerOptions.first == "True" || question.answerOptions.first == "False")) {
+      // For true/false questions
+      final String selectedAnswer = question.answerOptions[selectedIndex].toString();
+      final bool correctIsTrue = question.correctAnswer == 1; // 1 means True, 0 means False
+      isCorrect = (selectedAnswer == "True" && correctIsTrue) || (selectedAnswer == "False" && !correctIsTrue);
+    } else {
+      // For numeric questions - use the original comparison
+      isCorrect = question.answerOptions[selectedIndex] == question.correctAnswer;
+    }
 
     // Cari score və səhv cavab sayını alırıq
     int newScore = state.score;
