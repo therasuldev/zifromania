@@ -43,16 +43,40 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              const DifficultyButton(title: 'Easy Mode', color: Colors.pink, difficulty: GameDifficulty.easy),
-              const SizedBox(height: 20),
-              DifficultyButton(title: 'Medium Mode', color: Colors.orange.shade400, difficulty: GameDifficulty.medium),
-              const SizedBox(height: 20),
-              const DifficultyButton(title: 'Hard Mode', color: Colors.red, difficulty: GameDifficulty.hard),
-              const SizedBox(height: 20),
-              const DifficultyButton(title: 'Master Mode', color: Colors.blueGrey, difficulty: GameDifficulty.master),
+              DifficultyButton(
+                title: 'Speed Calculation',
+                icon: 'assets/icons/rocket.png',
+                color: Colors.amber, // Vibrant and energetic
+                difficulty: GameDifficulty.speedCalculation,
+              ),
               const SizedBox(height: 20),
               const DifficultyButton(
-                  title: 'Times&Divide Table', color: Colors.lightBlue, difficulty: GameDifficulty.timesDivideTable),
+                title: 'Multiplication Table',
+                icon: 'assets/icons/multiplication_table.png',
+                color: Colors.indigo, // Strong and academic
+                difficulty: GameDifficulty.multiplyDivideBattle,
+              ),
+              const SizedBox(height: 20),
+              const DifficultyButton(
+                title: 'True or False',
+                icon: 'assets/icons/true_false.png',
+                color: Colors.teal, // Balanced and calming
+                difficulty: GameDifficulty.trueFalse,
+              ),
+              const SizedBox(height: 20),
+              const DifficultyButton(
+                title: 'Expert Mode',
+                icon: 'assets/icons/expert.png',
+                color: Colors.deepOrange, // Bold and challenging
+                difficulty: GameDifficulty.expert,
+              ),
+              const SizedBox(height: 20),
+              const DifficultyButton(
+                title: 'Training Mode',
+                icon: 'assets/icons/training.png',
+                color: Colors.lightGreen, // Friendly and inviting
+                difficulty: GameDifficulty.endless,
+              ),
             ],
           ),
         ),
