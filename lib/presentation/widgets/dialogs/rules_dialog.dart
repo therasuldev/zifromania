@@ -1,5 +1,5 @@
 import 'package:equation_quest/domain/entities/enums.dart';
-import 'package:equation_quest/presentation/widgets/animated_button.dart';
+import 'package:equation_quest/presentation/widgets/animated_icon_button.dart';
 import 'package:flutter/material.dart';
 
 class RulesDialog extends StatelessWidget {
@@ -28,7 +28,7 @@ class RulesDialog extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               blurRadius: 15,
               spreadRadius: 5,
             ),
@@ -40,7 +40,7 @@ class RulesDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -69,7 +69,7 @@ class RulesDialog extends StatelessWidget {
                               fontFamily: 'Onacona',
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withOpacity(0.3),
+                                  color: Colors.black.withValues(alpha: 0.3),
                                   offset: const Offset(2, 2),
                                   blurRadius: 4,
                                 ),
@@ -122,34 +122,20 @@ class RulesDialog extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // Padding(
-                //   padding: const EdgeInsets.only(bottom: 20),
-                //   child: AnimatedButton(
-                //     icon: Image.asset('assets/icons/cancel.png'),
-                //     color: Colors.tealAccent,
-                //     onTap: () => Navigator.of(context).pop(true),
-                //     fontSize: 18,
-                //     fontFamily: 'Onacona',
-                //     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                //     borderRadius: 15,
-                //     usePerspective: false,
-                //   ),
-                // ),
-                Image.asset('assets/icons/cancel.png'),
-                Image.asset('assets/icons/right-arrow-green.png'),
-                // Padding(
-                //   padding: const EdgeInsets.only(bottom: 20),
-                //   child: AnimatedButton(
-                //     icon: Image.asset('assets/icons/right-arrow-green.png'),
-                //     color: Colors.tealAccent,
-                //     onTap: () => Navigator.of(context).pop(true),
-                //     fontSize: 18,
-                //     fontFamily: 'Onacona',
-                //     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                //     borderRadius: 15,
-                //     usePerspective: false,
-                //   ),
-                // ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: AnimatedIconButton(
+                    icon: Image.asset('assets/icons/cancel.png'),
+                    onTap: () => Navigator.of(context).pop(false),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: AnimatedIconButton(
+                    icon: Image.asset('assets/icons/start.png'),
+                    onTap: () => Navigator.of(context).pop(true),
+                  ),
+                ),
               ],
             )
           ],
