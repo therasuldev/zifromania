@@ -8,12 +8,14 @@ import 'dialogs/rules_dialog.dart';
 
 class DifficultyButton extends StatefulWidget {
   final String title;
+  final String icon;
   final Color color;
   final GameDifficulty difficulty;
 
   const DifficultyButton({
     super.key,
     required this.title,
+    required this.icon,
     required this.color,
     required this.difficulty,
   });
@@ -134,24 +136,25 @@ class ChildWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: Transform(
-        transform: Matrix4.identity()
-          ..setEntry(3, 2, 0.009) // Perspektiv effekti
-          ..rotateX(0.1) // X oxu ətrafında əyilmə
-          ..rotateY(0.05) // Y oxu ətrafında yüngül dönmə
-          ..translate(0.0, -5.0, -10.0), // Bir az geri və yuxarı hərəkət
-        alignment: Alignment.center,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 25),
-          child: Text(
-            widget.title,
-            style: const TextStyle(
-              fontSize: 22,
-              letterSpacing: 1.5,
-              fontFamily: 'Onacona',
-              color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              widget.title,
+              style: const TextStyle(
+                fontSize: 22,
+                letterSpacing: 1.5,
+                fontFamily: 'Onacona',
+                color: Colors.white,
+              ),
             ),
-          ),
+            SizedBox(width: 8),
+            Image.asset(widget.icon),
+            SizedBox(width: 8),
+          ],
         ),
       ),
     );
