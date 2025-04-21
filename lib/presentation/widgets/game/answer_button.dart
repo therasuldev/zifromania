@@ -15,13 +15,13 @@ class AnswerButton extends StatelessWidget {
   });
 
   Color _getButtonColor({
-    required int answerValue,
+    required dynamic answerValue,
     required int correctAnswer,
     required int index,
     int? lastSelectedAnswer,
     bool? isLastAnswerCorrect,
     required int currentQuestionIndex,
-    required GameState state, // Bütün state-i alırıq
+    required GameState state,
   }) {
     // Əgər hələ cavab seçilməyibsə
     if (lastSelectedAnswer == null) {
@@ -33,12 +33,29 @@ class AnswerButton extends StatelessWidget {
       return Colors.transparent;
     }
 
-    if (answerValue == correctAnswer) {
-      return const Color(0xFF1CAC78); // Green
-    }
+    // Check if we're dealing with true/false questions
+    bool isTrueFalseQuestion = answerValue is String && (answerValue == "True" || answerValue == "False");
 
-    if (lastSelectedAnswer == index) {
-      return const Color(0xFFE32636); // Red
+    if (isTrueFalseQuestion) {
+      // For true/false questions, convert string to equivalent numeric value
+      int numericValue = answerValue == "True" ? 1 : 0;
+
+      if (numericValue == correctAnswer) {
+        return const Color(0xFF1CAC78); // Green
+      }
+
+      if (lastSelectedAnswer == index) {
+        return const Color(0xFFE32636); // Red
+      }
+    } else {
+      // Original logic for numeric answers
+      if (answerValue == correctAnswer) {
+        return const Color(0xFF1CAC78); // Green
+      }
+
+      if (lastSelectedAnswer == index) {
+        return const Color(0xFFE32636); // Red
+      }
     }
 
     return const Color.fromARGB(0, 29, 45, 40); // Transparent-ish
@@ -97,10 +114,10 @@ class AnswerButton extends StatelessWidget {
                       ]
                     : [],
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   width: 2,
                 ),
-                color: state.lastSelectedAnswer != null ? Colors.black.withOpacity(0.5) : Colors.transparent,
+                color: state.lastSelectedAnswer != null ? Colors.black.withValues(alpha: 0.5) : Colors.transparent,
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
@@ -108,7 +125,7 @@ class AnswerButton extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
-                      color: state.lastSelectedAnswer != null ? Colors.white.withOpacity(0.1) : Colors.transparent,
+                      color: state.lastSelectedAnswer != null ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Text(

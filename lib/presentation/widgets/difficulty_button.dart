@@ -121,7 +121,7 @@ class ChildWidget extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             _buttonColor,
-            _buttonColor.withOpacity(0.8),
+            _buttonColor.withValues(alpha: 0.8),
           ],
           begin: Alignment.bottomRight,
           end: Alignment.topLeft,
@@ -129,7 +129,7 @@ class ChildWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             offset: const Offset(5, 5),
             blurRadius: 3,
             spreadRadius: 1,

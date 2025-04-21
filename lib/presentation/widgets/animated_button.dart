@@ -59,7 +59,7 @@ class _AnimatedButtonState extends State<AnimatedButton> with SingleTickerProvid
 
   void _onTapDown(TapDownDetails _) {
     _animationController.reverse();
-    setState(() => _buttonColor = widget.color.withOpacity(0.9));
+    setState(() => _buttonColor = widget.color.withValues(alpha: 0.9));
   }
 
   void _onTapUp(TapUpDetails _) {
@@ -139,7 +139,6 @@ class _ButtonContent extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: fontSize,
-              // letterSpacing: 1.5,
               fontFamily: fontFamily,
               color: Colors.white,
             ),
@@ -153,8 +152,8 @@ class _ButtonContent extends StatelessWidget {
         gradient: useGradient
             ? LinearGradient(
                 colors: [
-                  color.withOpacity(0.1),
-                  color.withOpacity(0.1),
+                  color.withValues(alpha: 0.1),
+                  color.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.bottomRight,
                 end: Alignment.topLeft,
@@ -163,7 +162,7 @@ class _ButtonContent extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             offset: const Offset(5, 5),
             blurRadius: 3,
             spreadRadius: 1,
