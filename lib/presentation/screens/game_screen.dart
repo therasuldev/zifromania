@@ -1,5 +1,7 @@
+
 import 'package:equation_quest/presentation/state_managment/game_bloc/game_bloc.dart';
 import 'package:equation_quest/presentation/widgets/dialogs/result_dialog.dart';
+import 'package:equation_quest/services/open_ai_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -43,6 +45,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    // Cancel any ongoing request
+    OpenAIService.instance.cancel();
+
     buttonAnimationController.dispose();
     super.dispose();
   }
@@ -65,48 +70,54 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
-            fit: BoxFit.cover,
+    return PopScope(
+      onPopInvokedWithResult: (q, result) {
+        // Cancel request when back button is pressed
+        OpenAIService.instance.cancel();
+      },
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/background.png'),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: BlocConsumer<GameBloc, GameState>(
-            listener: (context, state) {
-              // Show result dialog when game ends
-              if (!state.isGameActive && (state.showResultDialog ?? false)) {
-                showResultDialog(state.score, state);
-              }
+          child: SafeArea(
+            child: BlocConsumer<GameBloc, GameState>(
+              listener: (context, state) {
+                // Show result dialog when game ends
+                if (!state.isGameActive && (state.showResultDialog ?? false)) {
+                  showResultDialog(state.score, state);
+                }
 
-              // Show error message if question generation fails
-              if (state.errorMessage != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.errorMessage!)),
-                );
-              }
-            },
-            builder: (context, state) {
-              // Loading state
-              if (state.isLoading) {
-                return _buildLoadingState();
-              }
+                // Show error message if question generation fails
+                if (state.errorMessage != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.errorMessage!)),
+                  );
+                }
+              },
+              builder: (context, state) {
+                // Loading state
+                if (state.isLoading) {
+                  return _buildLoadingState();
+                }
 
-              // No questions available
-              if (state.questions.isEmpty) {
-                return _buildEmptyState();
-              }
+                // No questions available
+                if (state.questions.isEmpty) {
+                  return _buildEmptyState();
+                }
 
-              // Game active with questions
-              final question = state.currentQuestion;
-              if (question == null) {
-                return _buildEmptyState();
-              }
+                // Game active with questions
+                final question = state.currentQuestion;
+                if (question == null) {
+                  return _buildEmptyState();
+                }
 
-              return _buildGameContent(context, state, question);
-            },
+                return _buildGameContent(context, state, question);
+              },
+            ),
           ),
         ),
       ),
@@ -224,12 +235,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   index: index,
                   buttonAnimationController: buttonAnimationController,
                   onTap: () {
-                    context.read<GameBloc>().add(
-                          GameEvent.checkAnswer(
-                            question: state.currentQuestion!,
-                            selectedAnswerIndex: index,
-                          ),
-                        );
+                    final event = GameEvent.checkAnswer(
+                      question: state.currentQuestion!,
+                      selectedAnswerIndex: index,
+                    );
+                    context.read<GameBloc>().add(event);
                   },
                 ),
               );
