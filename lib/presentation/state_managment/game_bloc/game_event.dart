@@ -8,6 +8,7 @@ enum GameEvents {
   resetGame,
   showNextQuestion,
   playAgain,
+  autoAdvanceQuestion, // For True/False mode
 }
 
 class GameEvent {
@@ -53,5 +54,10 @@ class GameEvent {
   GameEvent.playAgain({required GameDifficulty difficulty}) {
     type = GameEvents.playAgain;
     payload = difficulty;
+  }
+
+  GameEvent.autoAdvanceQuestion() {
+    type = GameEvents.autoAdvanceQuestion;
+    payload = null;
   }
 }
