@@ -1,4 +1,3 @@
-
 import 'package:equation_quest/presentation/state_managment/game_bloc/game_bloc.dart';
 import 'package:equation_quest/presentation/widgets/dialogs/result_dialog.dart';
 import 'package:equation_quest/services/open_ai_service.dart';
@@ -209,16 +208,26 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   Widget _buildGameContent(BuildContext context, GameState state, MathQuestion question) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TimerIndicator(secondsRemaining: state.secondsRemaining),
-              ScoreIndicator(score: state.score),
-            ],
+        if (state.difficulty != GameDifficulty.endless)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TimerIndicator(secondsRemaining: state.secondsRemaining),
+                ScoreIndicator(score: state.score),
+              ],
+            ),
           ),
-        ),
+        if (state.difficulty == GameDifficulty.endless)
+          Text(
+            "${state.currentQuestionIndex + 1}/${state.questions.length}",
+            style: const TextStyle(
+              fontSize: 25,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
