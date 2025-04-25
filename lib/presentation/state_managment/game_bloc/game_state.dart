@@ -8,6 +8,8 @@ class GameState {
   final int? lastSelectedAnswer;
   final bool? isLastAnswerCorrect;
   final int? lastAnsweredQuestionIndex;
+  final bool useQuestionTimer;
+  final int questionTimeRemaining;
 
   final List<MathQuestion> questions;
   final int currentQuestionIndex;
@@ -15,6 +17,7 @@ class GameState {
   final String? errorMessage;
   final GameDifficulty? difficulty;
   final bool? showResultDialog;
+  final bool showSubscribeDialog;
 
   GameState({
     required this.score,
@@ -29,7 +32,10 @@ class GameState {
     this.errorMessage,
     this.difficulty,
     this.lastAnsweredQuestionIndex,
-    this.showResultDialog,
+    this.showResultDialog = false,
+    this.showSubscribeDialog = false,
+    this.useQuestionTimer = false,
+    this.questionTimeRemaining = 0,
   });
 
   factory GameState.initial() {
@@ -47,6 +53,9 @@ class GameState {
       difficulty: null,
       lastAnsweredQuestionIndex: null,
       showResultDialog: false,
+      showSubscribeDialog: false,
+      useQuestionTimer: false,
+      questionTimeRemaining: 0,
     );
   }
 
@@ -64,6 +73,9 @@ class GameState {
     GameDifficulty? difficulty,
     int? lastAnsweredQuestionIndex,
     bool? showResultDialog,
+    bool? showSubscribeDialog,
+    bool? useQuestionTimer,
+    int? questionTimeRemaining,
   }) {
     return GameState(
       score: score ?? this.score,
@@ -79,6 +91,9 @@ class GameState {
       difficulty: difficulty ?? this.difficulty,
       lastAnsweredQuestionIndex: lastAnsweredQuestionIndex ?? this.lastAnsweredQuestionIndex,
       showResultDialog: showResultDialog ?? this.showResultDialog,
+      showSubscribeDialog: showSubscribeDialog ?? this.showSubscribeDialog,
+      useQuestionTimer: useQuestionTimer ?? this.useQuestionTimer,
+      questionTimeRemaining: questionTimeRemaining ?? this.questionTimeRemaining,
     );
   }
 

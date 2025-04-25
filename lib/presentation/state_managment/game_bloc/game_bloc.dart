@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer' as logger;
 import 'dart:math';
 import 'package:dio/dio.dart';
+import 'package:equation_quest/services/subscription_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equation_quest/domain/entities/enums.dart';
 import 'package:equation_quest/domain/entities/math_question.dart';
@@ -21,6 +22,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
   final AudioService _audioService = AudioService();
   final OpenAIService _openAIService = OpenAIService.instance;
+  final SubscriptionService _subscriptionService = SubscriptionService();
 
   Timer? _gameTimer;
   Timer? _questionTimer; // For True/False mode per-question timer
@@ -32,13 +34,13 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           await _onStartGame(event.payload as GameDifficulty, emit);
           break;
         case GameEvents.endGame:
-          _onEndGame(emit);
+          await _onEndGame(emit);
           break;
         case GameEvents.timerTick:
-          _onTimerTick(emit);
+          await _onTimerTick(emit);
           break;
         case GameEvents.autoAdvanceQuestion:
-          _onAutoAdvanceQuestion(emit);
+          await _onAutoAdvanceQuestion(emit);
           break;
         case GameEvents.checkAnswer:
           final q = event.payload['question'] as MathQuestion;
@@ -46,7 +48,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           await _onCheckAnswer(q, i, emit);
           break;
         case GameEvents.resetGame:
-          _onResetGame(emit);
+          await _onResetGame(emit);
           break;
         case GameEvents.showNextQuestion:
           _onShowNextQuestion(emit);
@@ -103,9 +105,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       // Start the timer based on mode
       if (difficulty != GameDifficulty.endless) {
         if (useQuestionTimer) {
-          _startQuestionTimer();
+          await _startQuestionTimer();
         } else {
-          _startTimer();
+          await _startTimer();
         }
       }
 
@@ -124,7 +126,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   }
 
   // Add this new method for True/False mode
-  void _startQuestionTimer() {
+  Future<void> _startQuestionTimer() async {
     _questionTimer?.cancel();
 
     _questionTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -145,7 +147,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   }
 
   // Add new event handler for auto-advancing question
-  void _onAutoAdvanceQuestion(Emitter<GameState> emit) {
+  Future<void> _onAutoAdvanceQuestion(Emitter<GameState> emit) async {
     final nextIndex = state.currentQuestionIndex + 1;
 
     if (nextIndex < state.questions.length) {
@@ -155,9 +157,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         isLastAnswerCorrect: null,
         secondsRemaining: TRUE_FALSE_PER_QUESTION_TIME, // Reset timer for next question
       ));
-      _startQuestionTimer(); // Restart timer for next question
+      await _startQuestionTimer(); // Restart timer for next question
     } else {
-      _onEndGame(emit);
+      await _onEndGame(emit);
     }
   }
 
@@ -169,26 +171,21 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       _questionTimer?.cancel();
     }
 
+    // Determine correctness
     bool isCorrect;
-
-    // Check if this is a true/false question
     if (question.answerOptions.isNotEmpty &&
         question.answerOptions.first is String &&
         (question.answerOptions.first == "True" || question.answerOptions.first == "False")) {
-      // For true/false questions
       final String selectedAnswer = question.answerOptions[selectedIndex].toString();
-      final bool correctIsTrue = question.correctAnswer == 1; // 1 means True, 0 means False
+      final bool correctIsTrue = question.correctAnswer == 1;
       isCorrect = (selectedAnswer == "True" && correctIsTrue) || (selectedAnswer == "False" && !correctIsTrue);
     } else {
-      // For numeric questions - use the original comparison
       isCorrect = question.answerOptions[selectedIndex] == question.correctAnswer;
     }
 
-    // Cari score və səhv cavab sayını alırıq
+    // Update score & incorrect count (except in endless mode)
     int newScore = state.score;
     int newIncorrect = state.incorrectAnswersCount;
-
-    // Əgər cavab doğrudursa score-u artırırıq, əks halda səhv sayını artırırıq
     if (state.difficulty != GameDifficulty.endless) {
       if (isCorrect) {
         newScore++;
@@ -201,7 +198,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       }
     }
 
-    // Cavab seçimindən dərhal sonra feedback göstəririk
+    // Emit feedback for this question
     emit(state.copyWith(
       score: newScore,
       incorrectAnswersCount: newIncorrect,
@@ -210,56 +207,83 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       lastAnsweredQuestionIndex: state.currentQuestionIndex,
     ));
 
-    _audioService.reset();
-    _audioService.playSoundEffect(isCorrect);
-
-    // UI-nin feedback animasiyasını tamamlaması üçün delay
+    // Play sound & wait for animation
+    await _audioService.reset();
+    await _audioService.playSoundEffect(isCorrect);
     await Future.delayed(const Duration(milliseconds: 500));
 
-    if (state.isGameActive) {
-      final nextIndex = state.currentQuestionIndex + 1;
-
-      if (nextIndex < state.questions.length) {
-        // Check if we need to regenerate questions for Training Mode
-        if (state.difficulty == GameDifficulty.endless && nextIndex >= state.questions.length - 5) {
-          _checkAndRegenerateQuestions(emit);
-        }
-
-        // Different handling based on difficulty mode
-        if (state.useQuestionTimer && state.difficulty == GameDifficulty.trueFalse) {
-          // For True/False mode: Reset timer for next question
-          emit(state.copyWith(
-            currentQuestionIndex: nextIndex,
-            lastSelectedAnswer: null,
-            isLastAnswerCorrect: null,
-            secondsRemaining: TRUE_FALSE_PER_QUESTION_TIME, // Reset timer for next question
-          ));
-          _startQuestionTimer(); // Restart timer for next question
-        } else {
-          // Standard mode: just advance to next question
-          emit(state.copyWith(
-            currentQuestionIndex: nextIndex,
-            lastSelectedAnswer: null,
-            isLastAnswerCorrect: null,
-          ));
-        }
-
-        logger.log("Növbəti suala keçid: $nextIndex, lastSelectedAnswer: null oldu");
-      } else {
-        // Əgər suallar bitibsə
-        _onEndGame(emit);
-      }
-    } else {
-      // Oyun artıq aktiv deyilsə, sadəcə state-i sıfırlayaq
+    // Advance or end game
+    if (!state.isGameActive) {
+      // Game already ended elsewhere
       emit(state.copyWith(
         lastSelectedAnswer: null,
         isLastAnswerCorrect: null,
       ));
+      return;
+    }
+
+    final nextIndex = state.currentQuestionIndex + 1;
+
+    if (state.difficulty == GameDifficulty.endless) {
+      // Endless mode: only one free run, then require subscription
+      if (nextIndex < state.questions.length) {
+        // Still have preloaded questions: just advance
+        emit(state.copyWith(
+          currentQuestionIndex: nextIndex,
+          lastSelectedAnswer: null,
+          isLastAnswerCorrect: null,
+        ));
+      } else {
+        // Ran out of questions: check subscription
+        if (_subscriptionService.isSubscribed) {
+          // Premium user: generate more questions and advance
+          try {
+            List<MathQuestion> more = await _openAIService.generateQuestions(state.difficulty!);
+            emit(state.copyWith(
+              questions: [...state.questions, ...more],
+              currentQuestionIndex: nextIndex,
+              lastSelectedAnswer: null,
+              isLastAnswerCorrect: null,
+            ));
+          } catch (e) {
+            emit(state.copyWith(errorMessage: 'Failed to load more questions: $e'));
+            await _onEndGame(emit);
+          }
+        } else {
+          // Non-premium: prompt for subscription
+          emit(state.copyWith(
+            isGameActive: false,
+            showSubscribeDialog: true,
+          ));
+        }
+      }
+      return;
+    }
+
+    // Non-endless modes: standard advance or end
+    if (nextIndex < state.questions.length) {
+      if (state.useQuestionTimer && state.difficulty == GameDifficulty.trueFalse) {
+        emit(state.copyWith(
+          currentQuestionIndex: nextIndex,
+          lastSelectedAnswer: null,
+          isLastAnswerCorrect: null,
+          secondsRemaining: TRUE_FALSE_PER_QUESTION_TIME,
+        ));
+        await _startQuestionTimer();
+      } else {
+        emit(state.copyWith(
+          currentQuestionIndex: nextIndex,
+          lastSelectedAnswer: null,
+          isLastAnswerCorrect: null,
+        ));
+      }
+    } else {
+      await _onEndGame(emit);
     }
   }
 
   // For Training Mode, add question regeneration
-  void _checkAndRegenerateQuestions(Emitter<GameState> emit) async {
+  Future<void> _checkAndRegenerateQuestions(Emitter<GameState> emit) async {
     if (state.difficulty == GameDifficulty.endless && state.currentQuestionIndex >= state.questions.length - 5) {
       // Regenerate questions when we're close to running out
       try {
@@ -274,13 +298,13 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   }
 
   Future<void> _onPlayAgain(GameDifficulty difficulty, Emitter<GameState> emit) async {
-    _onResetGame(emit, difficulty: difficulty, isLoading: true);
+    await _onResetGame(emit, difficulty: difficulty, isLoading: true);
 
     try {
       // Yeni sualları əldə edirik
       List<MathQuestion> newQuestions = await _openAIService.generateQuestions(difficulty);
       // Timer-i yenidən başladırıq
-      _startTimer();
+      await _startTimer();
       emit(state.copyWith(
         isLoading: false,
         isGameActive: true,
@@ -294,20 +318,20 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     }
   }
 
-  void _onResetGame(Emitter<GameState> emit, {GameDifficulty? difficulty, bool? isLoading}) {
+  Future<void> _onResetGame(Emitter<GameState> emit, {GameDifficulty? difficulty, bool? isLoading}) async {
     _gameTimer?.cancel();
     _questionTimer?.cancel();
     emit(GameState.initial().copyWith(difficulty: difficulty, isLoading: isLoading));
   }
 
-  void _startTimer() {
+  Future<void> _startTimer() async {
     _gameTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       add(GameEvent.timerTick());
     });
   }
 
   // First, add this new method for handling timer ticks specifically for True/False mode
-  void _onTimerTick(Emitter<GameState> emit) {
+  Future<void> _onTimerTick(Emitter<GameState> emit) async {
     if (state.useQuestionTimer && state.difficulty == GameDifficulty.trueFalse) {
       if (state.secondsRemaining > 0) {
         emit(state.copyWith(secondsRemaining: state.secondsRemaining - 1));
@@ -324,7 +348,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     }
   }
 
-  void _onEndGame(Emitter<GameState> emit) {
+  Future<void> _onEndGame(Emitter<GameState> emit) async {
     _gameTimer?.cancel();
     _questionTimer?.cancel();
     emit(state.copyWith(isGameActive: false, showResultDialog: true));
