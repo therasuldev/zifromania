@@ -1,5 +1,5 @@
 import 'package:equation_quest/domain/entities/enums.dart';
-import 'package:equation_quest/presentation/widgets/animated_icon_button.dart';
+import 'package:equation_quest/presentation/widgets/animated_button.dart';
 import 'package:flutter/material.dart';
 
 class RulesDialog extends StatelessWidget {
@@ -90,6 +90,7 @@ class RulesDialog extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: rules.map((rule) {
                   return Column(
@@ -119,25 +120,17 @@ class RulesDialog extends StatelessWidget {
                 }).toList(),
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: AnimatedIconButton(
-                    icon: Image.asset('assets/icons/cancel.png'),
-                    onTap: () => Navigator.of(context).pop(false),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: AnimatedIconButton(
-                    icon: Image.asset('assets/icons/start.png'),
-                    onTap: () => Navigator.of(context).pop(true),
-                  ),
-                ),
-              ],
-            )
+            AnimatedButton(
+              width: 200,
+              icon: Image.asset('assets/icons/play-start.png', width: 40, height: 40),
+              color: Colors.tealAccent,
+              onTap: () => Navigator.of(context).pop(true),
+              fontSize: 18,
+              fontFamily: 'Onacona',
+              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              borderRadius: const BorderRadius.all(Radius.circular(30)),
+            ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
