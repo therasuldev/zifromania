@@ -141,7 +141,7 @@ class ResultDialog extends StatelessWidget {
                     fontSize: 18,
                     fontFamily: 'Onacona',
                     padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                    borderRadius: 30,
+                    borderRadius: const BorderRadius.all(Radius.circular(30)),
                   ),
                   AnimatedButton(
                     icon: Image.asset('assets/icons/home.png', width: 40, height: 40),
@@ -152,7 +152,7 @@ class ResultDialog extends StatelessWidget {
                     fontSize: 18,
                     fontFamily: 'Onacona',
                     padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                    borderRadius: 30,
+                    borderRadius: const BorderRadius.all(Radius.circular(30)),
                   ),
                 ],
               ),
