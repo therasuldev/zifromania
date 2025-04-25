@@ -7,8 +7,8 @@ class AudioService {
     _audioPlayer = AudioPlayer();
   }
 
-  void reset() {
-    _audioPlayer.dispose();
+  Future<void> reset() async {
+    await _audioPlayer.dispose();
     _audioPlayer = AudioPlayer();
   }
 
@@ -20,7 +20,7 @@ class AudioService {
     }
   }
 
-  void dispose() {
-    _audioPlayer.dispose();
+  Future<void> dispose() async {
+    await _audioPlayer.dispose();
   }
 }
