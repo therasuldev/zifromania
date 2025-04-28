@@ -23,7 +23,7 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton> with SingleTick
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
-      lowerBound: 0.9,
+      lowerBound: 0.85,
       upperBound: 1.0,
     );
     _animationController.forward();

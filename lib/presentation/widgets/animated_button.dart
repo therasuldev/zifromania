@@ -10,7 +10,7 @@ class AnimatedButton extends StatefulWidget {
   final double fontSize;
   final String fontFamily;
   final EdgeInsets padding;
-  final double borderRadius;
+  final BorderRadius borderRadius;
   final bool useGradient;
   final bool usePerspective;
 
@@ -25,7 +25,7 @@ class AnimatedButton extends StatefulWidget {
     this.fontSize = 22,
     this.fontFamily = 'Onacona',
     this.padding = const EdgeInsets.symmetric(horizontal: 50, vertical: 25),
-    this.borderRadius = 12,
+    this.borderRadius = const BorderRadius.all(Radius.circular(12)),
     this.useGradient = true,
     this.usePerspective = false,
   }) : assert((title == null) != (icon == null), "Either title or icon must be provided, but not both");
@@ -111,7 +111,7 @@ class _ButtonContent extends StatelessWidget {
   final double fontSize;
   final String fontFamily;
   final EdgeInsets padding;
-  final double borderRadius;
+  final BorderRadius borderRadius;
   final bool useGradient;
   final bool usePerspective;
 
@@ -159,7 +159,7 @@ class _ButtonContent extends StatelessWidget {
                 end: Alignment.topLeft,
               )
             : null,
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: borderRadius,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.5),
