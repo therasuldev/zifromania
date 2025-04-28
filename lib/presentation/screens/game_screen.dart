@@ -1,5 +1,6 @@
 import 'package:equation_quest/presentation/state_managment/game_bloc/game_bloc.dart';
 import 'package:equation_quest/presentation/widgets/dialogs/result_dialog.dart';
+import 'package:equation_quest/presentation/widgets/dialogs/subscription_dialog.dart';
 import 'package:equation_quest/services/open_ai_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,13 +47,22 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void dispose() {
     // Cancel any ongoing request
     OpenAIService.instance.cancel();
-
     buttonAnimationController.dispose();
+
     super.dispose();
   }
 
   void showResultDialog(int score, GameState state) async {
     final buildDialog = ResultDialog(score: score, state: state, onPlayAgain: onPlayAgain);
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext _) => buildDialog,
+    );
+  }
+
+  void showSubscriptionDialog(BuildContext context) async {
+    final buildDialog = SubscriptionDialog();
     await showDialog(
       context: context,
       barrierDismissible: false,
@@ -80,6 +90,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             image: DecorationImage(
               image: AssetImage('assets/images/background.png'),
               fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                Colors.black45,
+                BlendMode.darken,
+              ),
             ),
           ),
           child: SafeArea(
@@ -88,6 +102,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 // Show result dialog when game ends
                 if (!state.isGameActive && (state.showResultDialog ?? false)) {
                   showResultDialog(state.score, state);
+                }
+
+                // Show subscription dialog
+                if (state.showSubscribeDialog) {
+                  showSubscriptionDialog(context);
                 }
 
                 // Show error message if question generation fails
@@ -242,7 +261,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: AnswerButton(
                   index: index,
-                  buttonAnimationController: buttonAnimationController,
+                  //buttonAnimationController: buttonAnimationController,
                   onTap: () {
                     final event = GameEvent.checkAnswer(
                       question: state.currentQuestion!,
