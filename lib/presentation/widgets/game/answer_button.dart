@@ -2,63 +2,64 @@ import 'package:equation_quest/presentation/state_managment/game_bloc/game_bloc.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AnswerButton extends StatelessWidget {
+class AnswerButton extends StatefulWidget {
   final int index;
-  final AnimationController buttonAnimationController;
   final VoidCallback onTap;
 
   const AnswerButton({
     super.key,
     required this.index,
-    required this.buttonAnimationController,
     required this.onTap,
   });
+
+  @override
+  State<AnswerButton> createState() => _AnswerButtonState();
+}
+
+class _AnswerButtonState extends State<AnswerButton> with SingleTickerProviderStateMixin {
+  late final AnimationController _scaleController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scaleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+      lowerBound: 0.85,
+      upperBound: 1.0,
+      value: 1.0,
+    );
+  }
+
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    super.dispose();
+  }
 
   Color _getButtonColor({
     required dynamic answerValue,
     required int correctAnswer,
     required int index,
     int? lastSelectedAnswer,
-    bool? isLastAnswerCorrect,
     required int currentQuestionIndex,
     required GameState state,
   }) {
-    // Əgər hələ cavab seçilməyibsə
-    if (lastSelectedAnswer == null) {
+    if (lastSelectedAnswer == null || state.lastAnsweredQuestionIndex != currentQuestionIndex) {
       return Colors.transparent;
     }
 
-    // ƏN VACİB HİSSƏ: Əgər cari sual son cavab verilmiş sual deyilsə, heç bir rəng göstərmə
-    if (state.lastAnsweredQuestionIndex != currentQuestionIndex) {
-      return Colors.transparent;
-    }
-
-    // Check if we're dealing with true/false questions
-    bool isTrueFalseQuestion = answerValue is String && (answerValue == "True" || answerValue == "False");
-
-    if (isTrueFalseQuestion) {
-      // For true/false questions, convert string to equivalent numeric value
-      int numericValue = answerValue == "True" ? 1 : 0;
-
-      if (numericValue == correctAnswer) {
-        return const Color(0xFF1CAC78); // Green
-      }
-
-      if (lastSelectedAnswer == index) {
-        return const Color(0xFFE32636); // Red
-      }
+    // Handle true/false as 1/0
+    if (answerValue is String && (answerValue == "True" || answerValue == "False")) {
+      final numeric = answerValue == "True" ? 1 : 0;
+      if (numeric == correctAnswer) return const Color(0xFF1CAC78);
+      if (lastSelectedAnswer == index) return const Color(0xFFE32636);
     } else {
-      // Original logic for numeric answers
-      if (answerValue == correctAnswer) {
-        return const Color(0xFF1CAC78); // Green
-      }
-
-      if (lastSelectedAnswer == index) {
-        return const Color(0xFFE32636); // Red
-      }
+      if (answerValue == correctAnswer) return const Color(0xFF1CAC78);
+      if (lastSelectedAnswer == index) return const Color(0xFFE32636);
     }
 
-    return const Color.fromARGB(0, 29, 45, 40); // Transparent-ish
+    return Colors.transparent;
   }
 
   @override
@@ -66,31 +67,24 @@ class AnswerButton extends StatelessWidget {
     return BlocBuilder<GameBloc, GameState>(
       builder: (context, state) {
         final question = state.currentQuestion;
-        if (question == null || index >= question.answerOptions.length) {
+        if (question == null || widget.index >= question.answerOptions.length) {
           return const SizedBox.shrink();
         }
 
-        final answerValue = question.answerOptions[index];
+        final answerValue = question.answerOptions[widget.index];
         final correctAnswer = question.correctAnswer;
 
         return GestureDetector(
-          onTapDown: (_) {
-            if (state.lastSelectedAnswer == null) {
-              buttonAnimationController.reverse();
-            }
-          },
+          onTapDown: (_) => _scaleController.reverse(),
           onTapUp: (_) {
-            // Son cavab verilmiş sual indiki sualdan fərqlidirsə və ya heç cavab verilməyibsə
+            _scaleController.forward();
             if (state.lastAnsweredQuestionIndex != state.currentQuestionIndex) {
-              buttonAnimationController.forward();
-              onTap();
+              widget.onTap();
             }
           },
-          onTapCancel: () {
-            buttonAnimationController.animateTo(1.0);
-          },
-          child: Transform.scale(
-            scale: state.lastSelectedAnswer == index ? buttonAnimationController.value : 1.0,
+          onTapCancel: () => _scaleController.forward(),
+          child: ScaleTransition(
+            scale: _scaleController,
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -101,9 +95,8 @@ class AnswerButton extends StatelessWidget {
                           color: _getButtonColor(
                             answerValue: answerValue,
                             correctAnswer: correctAnswer,
-                            index: index,
+                            index: widget.index,
                             lastSelectedAnswer: state.lastSelectedAnswer,
-                            isLastAnswerCorrect: state.isLastAnswerCorrect,
                             currentQuestionIndex: state.currentQuestionIndex,
                             state: state,
                           ),
@@ -114,29 +107,27 @@ class AnswerButton extends StatelessWidget {
                       ]
                     : [],
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: Colors.white.withOpacity(0.1),
                   width: 2,
                 ),
-                color: state.lastSelectedAnswer != null ? Colors.black.withValues(alpha: 0.5) : Colors.transparent,
+                color: Colors.transparent,
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: state.lastSelectedAnswer != null ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Text(
-                      answerValue.toString(),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontFamily: 'Onacona',
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: state.lastSelectedAnswer != null ? Colors.white.withOpacity(0.1) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Text(
+                    answerValue.toString(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontFamily: 'Onacona',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ),
