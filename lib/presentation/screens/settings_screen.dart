@@ -21,21 +21,6 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   elevation: 0,
-      //   backgroundColor: Colors.transparent,
-      //   title: Text(
-      //     'Settings',
-      //     style: TextStyle(
-      //       color: Colors.blue.shade800,
-      //       fontWeight: FontWeight.bold,
-      //     ),
-      //   ),
-      //   leading: IconButton(
-      //     icon: Icon(Icons.arrow_back, color: Colors.blue.shade800),
-      //     onPressed: () => Navigator.of(context).pop(),
-      //   ),
-      // ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -134,7 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
             // Sound switch
             SettingsSwitch(
-              icon: Icons.volume_up,
+              leading: Image.asset('assets/icons/volume.png'),
               title: 'Sound Effects',
               value: _soundEnabled,
               onChanged: (value) {
@@ -146,7 +131,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
             // Music switch
             SettingsSwitch(
-              icon: Icons.music_note,
+              leading: Image.asset('assets/icons/music.png'),
               title: 'Background Music',
               value: _musicEnabled,
               onChanged: (value) {
@@ -158,7 +143,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
             // Vibration switch
             SettingsSwitch(
-              icon: Icons.vibration,
+              leading: Image.asset('assets/icons/vibrate.png'),
               title: 'Vibration',
               value: _vibrationEnabled,
               onChanged: (value) {
@@ -175,18 +160,16 @@ class _SettingsPageState extends State<SettingsPage> {
 
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.info_outline, color: Colors.blue.shade400),
-              title: const Text('About Math Game'),
+              leading: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/information.png')),
+              title: const Text('About Math Game', style: TextStyle(fontFamily: 'rimouskisb')),
               trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey.shade400),
-              onTap: () {
-                // Navigate to about page
-              },
+              onTap: () {},
             ),
 
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.privacy_tip_outlined, color: Colors.blue.shade400),
-              title: const Text('Privacy Policy'),
+              leading: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/privacy.png')),
+              title: const Text('Privacy Policy', style: TextStyle(fontFamily: 'rimouskisb')),
               trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey.shade400),
               onTap: () {
                 // Navigate to privacy policy
@@ -195,12 +178,28 @@ class _SettingsPageState extends State<SettingsPage> {
 
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.description_outlined, color: Colors.blue.shade400),
-              title: const Text('Terms of Service'),
+              leading: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/service.png')),
+              title: const Text(
+                'Terms of Service',
+                style: TextStyle(
+                  fontFamily: 'rimouskisb',
+                ),
+              ),
               trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey.shade400),
               onTap: () {
                 // Navigate to terms of service
               },
+            ),
+            Divider(color: Colors.grey.shade200),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/logout.png')),
+              title: const Text(
+                'Quit',
+                style: TextStyle(fontFamily: 'rimouskisb'),
+              ),
+              trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey.shade400),
+              onTap: () {},
             ),
 
             const SizedBox(height: 16),
@@ -209,6 +208,7 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Text(
                 'Version 1.0.0',
                 style: TextStyle(
+                  fontFamily: 'rimouskisb',
                   color: Colors.grey.shade500,
                   fontSize: 12,
                 ),
@@ -227,10 +227,7 @@ class _SettingsPageState extends State<SettingsPage> {
 class SettingsSectionTitle extends StatelessWidget {
   final String title;
 
-  const SettingsSectionTitle({
-    super.key,
-    required this.title,
-  });
+  const SettingsSectionTitle({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -240,7 +237,8 @@ class SettingsSectionTitle extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 20,
+            fontFamily: 'rimouskisb',
             fontWeight: FontWeight.bold,
             color: Colors.blue.shade800,
           ),
@@ -253,14 +251,14 @@ class SettingsSectionTitle extends StatelessWidget {
 }
 
 class SettingsSwitch extends StatelessWidget {
-  final IconData icon;
+  final Widget leading;
   final String title;
   final bool value;
   final ValueChanged<bool> onChanged;
 
   const SettingsSwitch({
     super.key,
-    required this.icon,
+    required this.leading,
     required this.title,
     required this.value,
     required this.onChanged,
@@ -270,11 +268,11 @@ class SettingsSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, color: Colors.blue.shade400),
-      title: Text(title),
+      leading: SizedBox(height: 32, width: 32, child: leading),
+      title: Text(title, style: TextStyle(fontFamily: 'rimouskisb')),
       trailing: Switch.adaptive(
         value: value,
-        activeColor: Colors.blue.shade400,
+        activeColor: Colors.green.shade400,
         onChanged: onChanged,
       ),
     );
