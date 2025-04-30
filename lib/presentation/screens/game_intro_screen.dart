@@ -1,5 +1,6 @@
 import 'package:equation_quest/presentation/common/partial_modal_route.dart';
 import 'package:equation_quest/presentation/screens/settings_screen.dart';
+import 'package:equation_quest/presentation/screens/subscription_screen.dart';
 import 'package:equation_quest/presentation/widgets/animated_icon_button.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/enums.dart';
@@ -50,9 +51,9 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              DifficultyButton(
+              const DifficultyButton(
                 title: 'Speed Calculation',
-                icon: 'assets/icons/rocket.png',
+                icon: 'assets/icons/quick.png',
                 color: Colors.amber,
                 difficulty: GameDifficulty.speedCalculation,
               ),
@@ -91,13 +92,13 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         ),
       ),
       floatingActionButton: AnimatedIconButton(
-        onTap: () {},
-        icon: Image.asset('assets/icons/subscription.png'),
+        onTap: () => Navigator.push(context, PartialModalRoute(child: const SubscriptionPage())),
+        icon: SizedBox(height: 64, width: 64, child: Image.asset('assets/icons/subscription.png')),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         color: Colors.transparent,
-        padding: EdgeInsets.symmetric(horizontal: 70),
+        padding: const EdgeInsets.symmetric(horizontal: 70),
         elevation: 0,
         child: Padding(
           padding: const EdgeInsets.only(bottom: 15),
@@ -106,11 +107,11 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
             children: [
               AnimatedIconButton(
                 onTap: () {},
-                icon: Image.asset('assets/icons/achievements.png'),
+                icon: SizedBox(height: 64, width: 64, child: Image.asset('assets/icons/achievements.png')),
               ),
               AnimatedIconButton(
                 onTap: () => Navigator.push(context, PartialModalRoute(child: const SettingsPage())),
-                icon: Image.asset('assets/icons/settings.png'),
+                icon: SizedBox(height: 64, width: 64, child: Image.asset('assets/icons/settings.png')),
               ),
             ],
           ),
