@@ -36,7 +36,7 @@ class SignInPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Spacer(flex: 2),
-                      Center(child: Image.asset('assets/icons/algebra.png', height: 180)),
+                      Center(child: Image.asset('assets/icons/app_logo.png', height: 180)),
                       const SizedBox(height: 32),
                       Text(
                         'Equation Quest',
@@ -71,7 +71,7 @@ class SignInPage extends StatelessWidget {
                       if (Platform.isIOS)
                         SignInButton(
                           text: 'Continue with Apple',
-                          icon: Icon(Icons.apple, color: Colors.white, size: 32),
+                          icon: const Icon(Icons.apple, color: Colors.white, size: 32),
                           backgroundColor: Colors.black,
                           textColor: Colors.white,
                           borderColor: Colors.transparent,
