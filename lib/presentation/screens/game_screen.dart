@@ -62,7 +62,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void showSubscriptionDialog(BuildContext context) async {
-    final buildDialog = SubscriptionDialog();
+    const buildDialog = SubscriptionDialog();
     await showDialog(
       context: context,
       barrierDismissible: false,
