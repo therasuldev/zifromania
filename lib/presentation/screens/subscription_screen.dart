@@ -174,22 +174,18 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                     child: Column(
                       children: [
                         Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 24),
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: TabBar(
-                            // ← these three are the key additions:
                             indicatorSize: TabBarIndicatorSize.tab,
-                            isScrollable: false,
-                            indicatorPadding: EdgeInsets.zero,
+                            dividerColor: Colors.transparent,
                             indicatorColor: Colors.transparent,
-                            indicatorWeight: 0,
-
                             indicator: BoxDecoration(
                               color: Colors.blue.shade400,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             labelColor: Colors.white,
                             unselectedLabelColor: Colors.grey.shade700,
