@@ -1,4 +1,4 @@
-package com.example.equation_quest
+package com.zifro.mania
 
 import io.flutter.embedding.android.FlutterActivity
 

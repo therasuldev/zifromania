@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "79124761395",
-    "project_id": "equation-quest-790f1",
-    "storage_bucket": "equation-quest-790f1.firebasestorage.app"
+    "project_number": "881331047232",
+    "project_id": "zifromania",
+    "storage_bucket": "zifromania.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:79124761395:android:50515484d1dc9452c2cc46",
+        "mobilesdk_app_id": "1:881331047232:android:8a1bcc42348acf1becc8a5",
         "android_client_info": {
-          "package_name": "com.example.equation_quest"
+          "package_name": "com.zifro.mania"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "881331047232-diufei2gaevro0k4lo7lmn5f38cvj5vm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zifro.mania",
+            "certificate_hash": "2e991b7adeed9336fae8098dc24229a92433e0dc"
+          }
+        },
+        {
+          "client_id": "881331047232-7p09bg989bll7pvlpufmbap4f35efaa7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyBdssL4kebetPPlwVs1-k3w7iNRGezLsD0"
+          "current_key": "AIzaSyAtwsYJdmctKij_ZqyAfsvGpSNKVfs3pbM"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "881331047232-7p09bg989bll7pvlpufmbap4f35efaa7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
