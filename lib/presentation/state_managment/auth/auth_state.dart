@@ -1,25 +1,28 @@
-// auth_state.dart
-
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:zifromania/models/user_model.dart';
 import 'auth_event.dart';
 
 class AuthState {
-  final User? user;
+  final UserModel? user;
   final AuthEvents? event;
   final String? error;
 
-  const AuthState({this.user, this.event, this.error});
+  const AuthState({
+    this.user,
+    this.event,
+    this.error,
+  });
 
-  AuthState copyWith({User? user, AuthEvents? event, String? error}) {
+  AuthState copyWith({
+    UserModel? user,
+    AuthEvents? event,
+    String? error,
+  }) {
     return AuthState(
       user: user ?? this.user,
       event: event ?? this.event,
-      error: error ?? this.error,
+      error: error, // Allow null to clear errors
     );
   }
 
-  AuthState.initial()
-      : user = null,
-        event = null,
-        error = null;
+  factory AuthState.initial() => const AuthState(event: null);
 }

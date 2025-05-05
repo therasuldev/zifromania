@@ -1,54 +1,52 @@
 // auth_event.dart
+import 'package:zifromania/models/user_model.dart';
+
 enum AuthEvents {
   authenticated,
   unauthenticated,
 
   googleSignInRequested,
-  googleSignInSuccess,
-  googleSignInFailure,
+  googleSignInRequestedSuccess,
+  googleSignInRequestedError,
 
-  appleSignInRequested,
-  appleSignInSuccess,
-  appleSignInFailure,
+  // appleSignInRequested,
 
-  loggedOut,
+  loggedOutStart,
+  loggedOutSuccess,
+  loggedOutError,
 
-  authError,
+  // for loading profile from user service
+  loadProfileStart,
+  loadProfileSuccess,
+  loadProfileError,
 }
 
 class AuthEvent {
   AuthEvents? type;
   dynamic payload;
 
-  AuthEvent.authenticated() : type = AuthEvents.authenticated;
+  AuthEvent.authenticated(UserModel userModel) {
+    type = AuthEvents.authenticated;
+    payload = userModel;
+  }
 
-  AuthEvent.unauthenticated() : type = AuthEvents.unauthenticated;
+  AuthEvent.unauthenticated() {
+    type = AuthEvents.unauthenticated;
+    payload = null;
+  }
 
-  AuthEvent.googleSignInRequested() : type = AuthEvents.googleSignInRequested;
+  AuthEvent.googleSignInRequested() {
+    type = AuthEvents.googleSignInRequested;
+    payload = null;
+  }
 
-  AuthEvent.appleSignInRequested() : type = AuthEvents.appleSignInRequested;
+  AuthEvent.loggedOutStart() {
+    type = AuthEvents.loggedOutStart;
+    payload = null;
+  }
 
-  AuthEvent.loggedOut() : type = AuthEvents.loggedOut;
-
-  AuthEvent.authError() : type = AuthEvents.authError;
+  AuthEvent.loadProfileStart(String uid) {
+    type = AuthEvents.loadProfileStart;
+    payload = uid;
+  }
 }
-
-
-// import 'package:equatable/equatable.dart';
-
-// abstract class AuthEvent extends Equatable {
-//   const AuthEvent();
-
-//   @override
-//   List<Object?> get props => [];
-// }
-
-// class AppStarted extends AuthEvent {}
-
-// class LoggedIn extends AuthEvent {}
-
-// class GoogleSignInRequested extends AuthEvent {}
-
-// class AppleSignInRequested extends AuthEvent {}
-
-// class LoggedOut extends AuthEvent {}
