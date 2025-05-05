@@ -54,11 +54,14 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
   Future<void> _onLoadSettings(SettingsEvent event, Emitter<SettingsState> emit) async {
     emit(state.copyWith(isLoading: true));
+
     await _settingsService.init();
     await _soundService.init();
+
     final soundEnabled = _settingsService.getSoundEnabled();
     final musicEnabled = _settingsService.getMusicEnabled();
     final vibrationEnabled = _settingsService.getVibrationEnabled();
+
     emit(state.copyWith(
       soundEnabled: soundEnabled,
       musicEnabled: musicEnabled,
