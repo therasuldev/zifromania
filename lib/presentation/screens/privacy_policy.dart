@@ -3,6 +3,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:convert';
 
+import 'package:zifromania/presentation/common/back_button.dart';
+
 class PrivacyPolicyScreen extends StatefulWidget {
   const PrivacyPolicyScreen({super.key});
 
@@ -54,10 +56,11 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.grey.shade200,
+        leading: const CustomBackButton(),
         elevation: 0,
         title: const Text(
           'Privacy Policy',
-          style: TextStyle(fontFamily: 'Scabber'),
+          style: TextStyle(fontFamily: 'Scabber', fontSize: 22, color: Colors.black54),
         ),
       ),
       body: Stack(
@@ -93,7 +96,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
       padding: 16px;
       line-height: 1.6;
       background: #fafafa;
-      color: #111;
+      color: #0000008A;
     }
     h1 { 
       font-size: 1.8rem; 
