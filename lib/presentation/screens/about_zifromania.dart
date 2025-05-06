@@ -3,6 +3,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:convert';
 
+import 'package:zifromania/presentation/common/back_button.dart';
+
 class AboutZifroManiaScreen extends StatefulWidget {
   const AboutZifroManiaScreen({super.key});
 
@@ -56,10 +58,11 @@ class _AboutZifroManiaScreenState extends State<AboutZifroManiaScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.grey.shade200,
+        leading: const CustomBackButton(),
         elevation: 0,
         title: const Text(
           'About ZifroMania',
-          style: TextStyle(fontFamily: 'Scabber'),
+          style: TextStyle(fontFamily: 'Scabber', fontSize: 22, color: Colors.black54),
         ),
       ),
       body: Stack(
@@ -95,10 +98,18 @@ class _AboutZifroManiaScreenState extends State<AboutZifroManiaScreen> {
       padding: 16px;
       line-height: 1.6;
       background: #fafafa;
-      color: #111;
+      color: #0000008A;
     }
-    h1 { font-size: 1.6rem; margin-top: 0; }
-    h2 { font-size: 1.3rem; margin-top: 1.4em; }
+    h1 { 
+      font-size: 1.8rem; 
+      margin-top: 0; 
+      color: #4b8dc2;
+    }
+     h2 { 
+      font-size: 1.4rem; 
+      margin-top: 1.4em; 
+      color: #4b8dc2;
+    }
     ul { padding-left: 1.2em; }
     li { margin-bottom: 0.4em; }
     section { margin-bottom: 1.4em; }
