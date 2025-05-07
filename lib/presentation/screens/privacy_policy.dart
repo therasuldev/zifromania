@@ -190,7 +190,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
   <section>
     <h2>8. Contact Us</h2>
     <p>If you have questions or concerns regarding this Privacy Policy, please contact us at:</p>
-    <p>Email: <span class="email">rasul.ramixanov@gmail.com</span></p>
+    <p>Email: <a href="mailto:rasul.ramixanov@gmail.com">rasul.ramixanov@gmail.com</a></p>
   </section>
 
 </body>
