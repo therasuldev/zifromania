@@ -61,7 +61,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
         leading: const CustomBackButton(),
         elevation: 0,
         title: const Text(
-          'About ZifroMania',
+          'Terms of Service',
           style: TextStyle(fontFamily: 'Scabber', fontSize: 22, color: Colors.black54),
         ),
       ),
@@ -245,7 +245,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
 
   <section>
     <h2>14. Əlaqə</h2>
-    <p>Suallar, şikayətlər və ya geribildirim üçün: <a href="mailto:rasul.ramixanov@gmail.com">support@zifromania.app</a></p>
+    <p>Suallar, şikayətlər və ya geribildirim üçün: <a href="mailto:rasul.ramixanov@gmail.com">rasul.ramixanov@gmail.com</a></p>
   </section>
 
   <p><em>Bu səhifəni oxuyub davam etməklə yuxarıdakı bütün şərtlərlə
