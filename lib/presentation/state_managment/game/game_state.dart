@@ -2,6 +2,10 @@ part of 'game_bloc.dart';
 
 class GameState {
   final int score;
+  final int xpEarned;
+  final int playerLevel;
+  final int playerXp;
+  final int playerXpTarget;
   final int secondsRemaining;
   final bool isGameActive;
   final int incorrectAnswersCount;
@@ -21,6 +25,10 @@ class GameState {
 
   GameState({
     required this.score,
+    this.xpEarned = 0,
+    this.playerLevel = 1,
+    this.playerXp = 0,
+    this.playerXpTarget = 100,
     required this.secondsRemaining,
     required this.isGameActive,
     required this.incorrectAnswersCount,
@@ -41,6 +49,9 @@ class GameState {
   factory GameState.initial() {
     return GameState(
       score: 0,
+      playerLevel: 1,
+      playerXp: 0,
+      playerXpTarget: 100,
       secondsRemaining: 60,
       isGameActive: false,
       incorrectAnswersCount: 0,
@@ -56,11 +67,15 @@ class GameState {
       showSubscribeDialog: false,
       useQuestionTimer: false,
       questionTimeRemaining: 0,
+      xpEarned: 0,
     );
   }
 
   GameState copyWith({
     int? score,
+    int? playerLevel,
+    int? playerXp,
+    int? playerXpTarget,
     int? secondsRemaining,
     bool? isGameActive,
     int? incorrectAnswersCount,
@@ -76,6 +91,7 @@ class GameState {
     bool? showSubscribeDialog,
     bool? useQuestionTimer,
     int? questionTimeRemaining,
+    int? xpEarned,
   }) {
     return GameState(
       score: score ?? this.score,
@@ -94,6 +110,10 @@ class GameState {
       showSubscribeDialog: showSubscribeDialog ?? this.showSubscribeDialog,
       useQuestionTimer: useQuestionTimer ?? this.useQuestionTimer,
       questionTimeRemaining: questionTimeRemaining ?? this.questionTimeRemaining,
+      xpEarned: xpEarned ?? this.xpEarned,
+      playerLevel: playerLevel ?? this.playerLevel,
+      playerXp: playerXp ?? this.playerXp,
+      playerXpTarget: playerXpTarget ?? this.playerXpTarget,
     );
   }
 

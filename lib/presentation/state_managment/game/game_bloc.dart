@@ -2,12 +2,16 @@ import 'dart:async';
 import 'dart:developer' as logger;
 import 'dart:math';
 import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
+import 'package:zifromania/services/auth_service.dart';
 import 'package:zifromania/services/in_app_purchase_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zifromania/domain/entities/enums.dart';
 import 'package:zifromania/domain/entities/math_question.dart';
 import 'package:zifromania/services/audio_service.dart';
 import 'package:zifromania/services/open_ai_service.dart';
+import 'package:zifromania/services/user_service.dart';
+import 'package:zifromania/services/xp_service.dart';
 
 part 'game_event.dart';
 part 'game_state.dart';
@@ -20,9 +24,11 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   static const int EXPERT_MODE_TIME = 120;
   static const int TRAINING_MODE_QUESTIONS = 100;
 
-  final AudioService _audioService = AudioService();
-  final OpenAIService _openAIService = OpenAIService.instance;
-  final InAppPurchaseService _inAppPurchaseService = InAppPurchaseService();
+  final AuthService _authService = GetIt.instance<AuthService>();
+  final UserService _userService = GetIt.instance<UserService>();
+  final AudioService _audioService = GetIt.instance<AudioService>();
+  final OpenAIService _openAIService = GetIt.instance<OpenAIService>();
+  final InAppPurchaseService _inAppPurchaseService = GetIt.instance<InAppPurchaseService>();
 
   Timer? _gameTimer;
   Timer? _questionTimer; // For True/False mode per-question timer
@@ -39,6 +45,10 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         case GameEvents.timerTick:
           await _onTimerTick(emit);
           break;
+
+        // case GameEvents.userProfileSynced:
+        //   _onUserProfileSynced(event.payload as UserModel, emit);
+        //   break;
         case GameEvents.autoAdvanceQuestion:
           await _onAutoAdvanceQuestion(emit);
           break;
@@ -336,7 +346,34 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   Future<void> _onEndGame(Emitter<GameState> emit) async {
     _gameTimer?.cancel();
     _questionTimer?.cancel();
-    emit(state.copyWith(isGameActive: false, showResultDialog: true));
+
+    // Determine XP earned based on difficulty
+    int multiplier = switch (state.difficulty) { GameDifficulty.multiplyDivideBattle || GameDifficulty.expert => 2, _ => 1 };
+
+    // Calculate XP using the service
+    final int xp = XpService.calculateGameXp(
+      correctAnswers: state.score,
+      wrongAnswers: state.incorrectAnswersCount,
+      multiplier: multiplier,
+    );
+
+    // 3️⃣  Firestore‑a yaz & level‑up yoxla
+    final uid = _authService.currentUser?.uid;
+    if (uid != null) {
+      try {
+        await _userService.addXpAndHandleLevelUp(uid, xp);
+      } catch (e) {
+        logger.log('XP update failed: $e');
+      }
+    }
+
+    emit(
+      state.copyWith(
+        xpEarned: xp,
+        isGameActive: false,
+        showResultDialog: true,
+      ),
+    );
   }
 
   void _onShowNextQuestion(Emitter<GameState> emit) {
