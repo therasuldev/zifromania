@@ -19,6 +19,8 @@ enum AuthEvents {
   loadProfileStart,
   loadProfileSuccess,
   loadProfileError,
+
+  profileSynced
 }
 
 class AuthEvent {
@@ -48,5 +50,10 @@ class AuthEvent {
   AuthEvent.loadProfileStart(String uid) {
     type = AuthEvents.loadProfileStart;
     payload = uid;
+  }
+
+  AuthEvent.profileSynced(UserModel user) {
+    type = AuthEvents.profileSynced;
+    payload = user;
   }
 }
