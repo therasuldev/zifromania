@@ -1,243 +1,183 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz_data;
-import 'package:rxdart/rxdart.dart';
+import 'package:workmanager/workmanager.dart';
+
+/// Key names & constants
+const _kTaskName = 'dailyRewardTask';
+const _kLastClaimKey = 'lastClaimMillis';
+const _kNotificationIdReady = 100;
+const _kNotificationIdScheduled = 200;
+const _kChannelId = 'daily_reward';
+const _kChannelName = 'Daily Reward';
+const _kChannelDescription = 'Alerts you when your free daily coin reward is ready.';
+const _kCooldown = Duration(minutes: 2);
 
 class DailyRewardService {
-  static const String LAST_CLAIM_TIME_KEY = 'last_claim_time';
-  static const int REWARD_AMOUNT = 50; // Amount of coins to reward
-  static const Duration REWARD_COOLDOWN = Duration(minutes: 2);
+  // ---------------------------------------------------------------------------
+  // Singleton boilerplate
+  DailyRewardService._internal();
+  static final DailyRewardService _instance = DailyRewardService._internal();
+  factory DailyRewardService() => _instance;
+  // ---------------------------------------------------------------------------
 
-  late SharedPreferences _prefs;
-  late FlutterLocalNotificationsPlugin _notifications;
-  final BehaviorSubject<bool> _rewardAvailable = BehaviorSubject.seeded(false);
+  final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
 
-  // Stream to notify UI about reward availability
-  Stream<bool> get rewardAvailableStream => _rewardAvailable.stream;
-
-  // Constructor without required parameters for service locator
-  DailyRewardService({SharedPreferences? prefs, FlutterLocalNotificationsPlugin? notifications}) {
-    // These will be initialized in init() method
-    if (prefs != null) {
-      _prefs = prefs;
-    }
-
-    if (notifications != null) {
-      _notifications = notifications;
-    }
-  }
-
-  // Future<bool> _requestExactAlarmPermission() async {
-  //   // Only needed for Android 12+
-  //   if (Platform.isAndroid) {
-  //     // Check Android version
-  //     final androidInfo = await DeviceInfoPlugin().androidInfo;
-  //     final sdkInt = androidInfo.version.sdkInt;
-
-  //     // Android 12 is SDK version 31
-  //     if (sdkInt >= 31) {
-  //       final granted = await _notifications
-  //           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-  //           ?.requestExactAlarmsPermission();
-  //       return granted ?? false;
-  //     }
-  //   }
-  //   return true; // Permission not needed or already granted
-  // }
-
-// Add this method to your DailyRewardService class to request notification permissions for Android 13+
-  Future<bool> _requestNotificationPermission() async {
-    if (Platform.isAndroid) {
-      // Check Android version
-      final androidInfo = await DeviceInfoPlugin().androidInfo;
-      final sdkInt = androidInfo.version.sdkInt;
-
-      // Android 13 is SDK version 33
-      if (sdkInt >= 33) {
-        final granted = await _notifications
-            .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-            ?.requestNotificationsPermission();
-        return granted ?? false;
-      }
-    }
-
-    return true; // Permission not needed
-  }
-
+  /// Call this once — e.g. in main() before runApp().
   Future<void> init() async {
-    // Initialize shared preferences
-    _prefs = await SharedPreferences.getInstance();
+    WidgetsFlutterBinding.ensureInitialized();
 
-    // Initialize notifications
-    _notifications = FlutterLocalNotificationsPlugin();
+    // Initialise timezone db so zoned schedules fire at the expected local time.
+    tz.initializeTimeZones();
 
-    // Initialize timezone for scheduling notifications
-    tz_data.initializeTimeZones();
+    // Init local‑notifications plugin.
+    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const iosInit = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
 
-    // Initialize notification settings
-    const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const InitializationSettings initSettings = InitializationSettings(
-      android: androidSettings,
+    const initSettings = InitializationSettings(
+      android: androidInit,
+      iOS: iosInit,
     );
 
     await _notifications.initialize(
       initSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        // Handle notification tap
+      onDidReceiveNotificationResponse: (resp) {
+        // Handle tap — you might navigate to the reward screen here.
       },
     );
 
-    // Request permissions
-    // await _requestExactAlarmPermission();
-    await _requestNotificationPermission();
-
-    // Check reward availability
-    await _checkRewardAvailability();
-  }
-
-  // Check if reward is available to claim
-  Future<bool> isRewardAvailable() async {
-    final lastClaimTime = _getLastClaimTime();
-
-    if (lastClaimTime == null) {
-      return true; // First time users can claim immediately
-    }
-
-    final now = DateTime.now();
-    final difference = now.difference(lastClaimTime);
-
-    return difference >= REWARD_COOLDOWN;
-  }
-
-  // Claim daily reward
-  Future<int> claimDailyReward() async {
-    final isAvailable = await isRewardAvailable();
-
-    if (!isAvailable) {
-      return 0; // No reward available yet
-    }
-
-    // Save claim time
-    final now = DateTime.now();
-    await _prefs.setString(LAST_CLAIM_TIME_KEY, now.toIso8601String());
-
-    // Schedule next notification
-    _scheduleNextRewardNotification();
-
-    // Update state
-    _rewardAvailable.add(false);
-
-    // Start timer to check availability again
-    _startAvailabilityTimer();
-
-    return REWARD_AMOUNT;
-  }
-
-  // Get time remaining until next reward
-  Future<Duration> getTimeUntilNextReward() async {
-    final lastClaimTime = _getLastClaimTime();
-
-    if (lastClaimTime == null) {
-      return Duration.zero; // Available immediately
-    }
-
-    final now = DateTime.now();
-    final nextAvailableTime = lastClaimTime.add(REWARD_COOLDOWN);
-
-    if (now.isAfter(nextAvailableTime)) {
-      return Duration.zero; // Available now
-    }
-
-    return nextAvailableTime.difference(now);
-  }
-
-  // Schedule notification for when reward becomes available
-  Future<void> _scheduleNextRewardNotification() async {
-    // Cancel any existing notifications
-    await _notifications.cancelAll();
-
-    // Schedule the notification for 24 hours from now
-    final scheduledDate = tz.TZDateTime.now(tz.local).add(REWARD_COOLDOWN);
-
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'daily_rewards',
-      'Daily Rewards',
-      channelDescription: 'Notifications for daily rewards',
-      importance: Importance.high,
-      priority: Priority.high,
+    // Register a WorkManager background task that runs once a day.
+    await Workmanager().initialize(_callbackDispatcher, isInDebugMode: true);
+    await Workmanager().registerPeriodicTask(
+      _kTaskName,
+      _kTaskName,
+      frequency: _kCooldown, // 24 h
+      existingWorkPolicy: ExistingWorkPolicy.keep,
+      initialDelay: const Duration(minutes: 1), // gives system time to settle
     );
 
-    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
+    // Ensure next scheduled notification exists (e.g. fresh install).
+    await _ensureScheduled();
+  }
 
-    const NotificationDetails notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
+  // ---------------------------------------------------------------------------
+  // Public API your UI/business layer can call.
 
-    const title = 'Daily Reward Available!';
-    const body = 'Your free coins are ready to claim!';
+  /// Returns true if 24 h passed since the last successful claim.
+  Future<bool> isRewardReady() async {
+    final prefs = await SharedPreferences.getInstance();
+    final last = prefs.getInt(_kLastClaimKey) ?? 0;
+    return DateTime.now().millisecondsSinceEpoch - last >= _kCooldown.inMilliseconds;
+  }
 
-    // 2-а. Пишем в консоль
-    debugPrint('🔔 $title — $body');
+  /// Returns the duration until the next reward is ready.
+  /// If already ready, returns [Duration.zero].
+  Future<Duration> timeUntilReady() async {
+    final prefs = await SharedPreferences.getInstance();
+    final last = prefs.getInt(_kLastClaimKey) ?? 0;
+    final elapsedMs = DateTime.now().millisecondsSinceEpoch - last;
+    if (elapsedMs >= _kCooldown.inMilliseconds) return Duration.zero;
+    return Duration(milliseconds: _kCooldown.inMilliseconds - elapsedMs);
+  }
 
+  /// Convenience helper to render a nice short string from a [Duration].
+  static String formatRemainingTime(Duration d) {
+    if (d <= Duration.zero) return '0s';
+    final hours = d.inHours;
+    final minutes = d.inMinutes.remainder(60);
+    final seconds = d.inSeconds.remainder(60);
+
+    if (hours > 0) return '${hours}h ${minutes}m';
+    if (minutes > 0) return '${minutes}m ${seconds}s';
+    return '${seconds}s';
+  }
+
+  /// Call this when the user collects their daily reward.
+  Future<void> claimReward() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_kLastClaimKey, DateTime.now().millisecondsSinceEpoch);
+
+    // 🔔 Cancel any previous ready notification + schedule the next one.
+    await _notifications.cancel(_kNotificationIdScheduled);
+    await _scheduleNextReadyNotification();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Private helpers
+
+  Future<void> _ensureScheduled() async {
+    final pending = await _notifications.pendingNotificationRequests();
+    if (!pending.any((n) => n.id == _kNotificationIdScheduled)) {
+      await _scheduleNextReadyNotification();
+    }
+  }
+
+  Future<void> _scheduleNextReadyNotification() async {
+    final next = tz.TZDateTime.now(tz.local).add(_kCooldown);
     await _notifications.zonedSchedule(
-      0, // Notification ID
-      'Daily Reward Available!',
-      'Your free coins are ready to claim!',
-      scheduledDate,
-      notificationDetails,
+      _kNotificationIdScheduled,
+      'Daily reward ready! 🎁',
+      'Tap to collect your free coins.',
+      next,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          _kChannelId,
+          _kChannelName,
+          channelDescription: _kChannelDescription,
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time,
     );
   }
+}
 
-  // Get last claim time from storage
-  DateTime? _getLastClaimTime() {
-    final lastClaimTimeStr = _prefs.getString(LAST_CLAIM_TIME_KEY);
+// -----------------------------------------------------------------------------
+// Background isolate (runs *even if* the app was swiped away / process killed)
+// -----------------------------------------------------------------------------
+@pragma('vm:entry-point')
+void _callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    // Each isolate needs its own plugin instance + zone DB.
+    tz.initializeTimeZones();
+    final notifications = FlutterLocalNotificationsPlugin();
 
-    if (lastClaimTimeStr == null) {
-      return null;
+    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    await notifications.initialize(const InitializationSettings(android: androidInit));
+
+    final prefs = await SharedPreferences.getInstance();
+    final last = prefs.getInt(_kLastClaimKey) ?? 0;
+    final ready = DateTime.now().millisecondsSinceEpoch - last >= _kCooldown.inMilliseconds;
+
+    if (ready) {
+      // Show an immediate heads‑up notification.
+      await notifications.show(
+        _kNotificationIdReady,
+        'Your daily reward is waiting! 🎉',
+        'Open the app to claim your coins.',
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            _kChannelId,
+            _kChannelName,
+            channelDescription: _kChannelDescription,
+            importance: Importance.max,
+            priority: Priority.high,
+            ticker: 'daily_reward_ready',
+          ),
+          iOS: DarwinNotificationDetails(),
+        ),
+      );
     }
 
-    return DateTime.parse(lastClaimTimeStr);
-  }
-
-  // Check reward availability and update stream
-  Future<void> _checkRewardAvailability() async {
-    final isAvailable = await isRewardAvailable();
-    _rewardAvailable.add(isAvailable);
-
-    if (!isAvailable) {
-      _startAvailabilityTimer();
-    }
-  }
-
-  // Start timer to check when reward becomes available
-  void _startAvailabilityTimer() async {
-    final timeUntilNextReward = await getTimeUntilNextReward();
-
-    if (timeUntilNextReward > Duration.zero) {
-      Timer(timeUntilNextReward, () {
-        _rewardAvailable.add(true);
-      });
-    }
-  }
-
-  // Format remaining time as string (e.g. "23h 59m")
-  static String formatRemainingTime(Duration duration) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes % 60;
-
-    return '${hours}h ${minutes}m';
-  }
+    return Future.value(true);
+  });
 }
