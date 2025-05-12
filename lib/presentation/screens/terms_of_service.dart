@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:zifromania/domain/entities/constant.dart';
 import 'dart:convert';
 
 import 'package:zifromania/presentation/common/back_button.dart';
@@ -33,6 +34,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
 
     // Setup WebView controller
     _controller = WebViewController()
+      ..setBackgroundColor(const Color(0x00000000))
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..loadHtmlString(_htmlContent)
       ..setNavigationDelegate(
@@ -54,22 +56,38 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
     return Scaffold(
-      backgroundColor: Colors.white,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.grey.shade200,
-        leading: const CustomBackButton(),
+        backgroundColor: Colors.transparent,
+        leading: CustomBackButton(color: lightBrownColor),
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Terms of Service',
-          style: TextStyle(fontFamily: 'Scabber', fontSize: 22, color: Colors.black54),
+          style: TextStyle(fontFamily: 'Scabber', fontSize: 22, color: lightBrownColor),
         ),
       ),
-      body: Stack(
-        children: [
-          if (!_isLoading && _htmlContent.isNotEmpty) WebViewWidget(controller: _controller),
-          if (_isLoading) const Center(child: CircularProgressIndicator()),
-        ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            colorFilter: ColorFilter.mode(
+              Colors.black45,
+              BlendMode.darken,
+            ),
+            image: AssetImage('assets/images/scaffold.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(top: topPadding + kToolbarHeight),
+          child: Stack(
+            children: [
+              if (!_isLoading && _htmlContent.isNotEmpty) WebViewWidget(controller: _controller),
+              if (_isLoading) const Center(child: CircularProgressIndicator()),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -96,18 +114,18 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
       margin: 0;
       padding: 16px;
       line-height: 1.6;
-      background: #fafafa;
-      color: #000000d9;
+      background-color: transparent !important;
+      color: #D7CCC880;
     }
     h1 {
       font-size: 1.8rem;
       margin-top: 0;
-      color: #4b8dc2;
+      color: #8C9EFF99;
     }
     h2 {
       font-size: 1.4rem;
       margin-top: 1.4em;
-      color: #4b8dc2;
+      color: #8C9EFF99;
     }
     ul { padding-left: 1.2em; }
     li { margin-bottom: 0.4em; }
@@ -123,7 +141,11 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
       font-size: 0.92rem;
       text-align: left;
     }
-    th { background: #e7f1fb; }
+    a{
+      color: white;
+      text-decoration: none;
+    }
+    th { background: #8C9EFF99; color: white}
   </style>
 </head>
 <body>
