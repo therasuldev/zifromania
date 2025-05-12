@@ -51,13 +51,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
-          colorFilter: ColorFilter.mode(
-            Colors.black45,
-            BlendMode.darken,
-          ),
-          image: AssetImage(
-            'assets/images/scaffold.jpg',
-          ),
+          colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
+          image: AssetImage('assets/images/scaffold.jpg'),
           fit: BoxFit.cover,
           // opacity: 0.9,
         ),
@@ -122,7 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.all(16),
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: Colors.black45,
+            color: Colors.black54,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
