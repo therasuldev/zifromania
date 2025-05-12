@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:zifromania/domain/entities/constant.dart';
 import 'dart:convert';
 
 import 'package:zifromania/presentation/common/back_button.dart';
@@ -33,6 +34,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
 
     // Setup WebView controller
     _controller = WebViewController()
+      ..setBackgroundColor(const Color(0x00000000))
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..loadHtmlString(_htmlContent)
       ..setNavigationDelegate(
@@ -52,22 +54,39 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.grey.shade200,
-        leading: const CustomBackButton(),
+        backgroundColor: Colors.transparent,
+        leading: CustomBackButton(color: lightBrownColor),
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Privacy Policy',
-          style: TextStyle(fontFamily: 'Scabber', fontSize: 22, color: Colors.black54),
+          style: TextStyle(fontFamily: 'Scabber', fontSize: 22, color: lightBrownColor),
         ),
       ),
-      body: Stack(
-        children: [
-          if (!_isLoading && _htmlContent.isNotEmpty) WebViewWidget(controller: _controller),
-          if (_isLoading) const Center(child: CircularProgressIndicator()),
-        ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            colorFilter: ColorFilter.mode(
+              Colors.black45,
+              BlendMode.darken,
+            ),
+            image: AssetImage('assets/images/scaffold.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(top: topPadding + kToolbarHeight),
+          child: Stack(
+            children: [
+              if (!_isLoading && _htmlContent.isNotEmpty) WebViewWidget(controller: _controller),
+              if (_isLoading) const Center(child: CircularProgressIndicator()),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -95,18 +114,18 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
       margin: 0;
       padding: 16px;
       line-height: 1.6;
-      background: #fafafa;
-      color: #0000008A;
+      background-color: transparent !important;
+      color: #D7CCC880;
     }
     h1 { 
       font-size: 1.8rem; 
       margin-top: 0; 
-      color: #4b8dc2;
+      color: #8C9EFF99;
     }
     h2 { 
-      font-size: 1.4rem; 
+      font-size: 1.4rem;
       margin-top: 1.4em; 
-      color: #4b8dc2;
+      color: #8C9EFF99;
     }
     ul { 
       padding-left: 1.2em; 
@@ -116,16 +135,16 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
     }
     section { 
       margin-bottom: 1.8em; 
-      background: white;
+      background-color: transparent !important;
       padding: 15px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     strong {
-      color: #4b8dc2;
+      color: #8C9EFF99;
     }
     a {
-      color: #4b8dc2;
+      color: white;
       text-decoration: none;
     }
     a:hover {
@@ -148,8 +167,8 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
     <h2>2. Information We Collect</h2>
     <p>The App may collect the following types of information:</p>
     <ul>
-      <li><strong>Device Information</strong>: Such as device model, operating system version, and usage patterns within the app.</li>
-      <li><strong>User Information</strong>: Including data generated during advertising interactions and in-app purchases.</li>
+      <li><strong>Device Information:</strong> Such as device model, operating system version, and usage patterns within the app.</li>
+      <li><strong>User Information:</strong> Including data generated during advertising interactions and in-app purchases.</li>
     </ul>
   </section>
 
@@ -167,8 +186,8 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
     <h2>4. Third-Party Services</h2>
     <p>We utilize the following third-party services:</p>
     <ul>
-      <li><strong>Google AdMob</strong>: For delivering advertisements. Refer to Google's Privacy Policy for further details: <a href="https://policies.google.com/privacy">https://policies.google.com/privacy</a></li>
-      <li><strong>Google Play Billing</strong>: For managing and processing in-app purchases securely.</li>
+      <li><strong>Google AdMob:</strong> For delivering advertisements. Refer to Google's Privacy Policy for further details: <a href="https://policies.google.com/privacy">https://policies.google.com/privacy</a></li>
+      <li><strong>Google Play Billing:</strong> For managing and processing in-app purchases securely.</li>
     </ul>
   </section>
 
