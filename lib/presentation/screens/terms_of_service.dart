@@ -92,19 +92,21 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
     );
   }
 
-  /// Creates HTML string with the font embedded as base64
+  /// Creates HTML string with the font embedded as base64 (EN version,
+  /// no age restriction, Google + e-mail login only, no “Law & Disputes” section)
   String _getHtmlWithEmbeddedFont(String fontBase64) {
     return '''<!DOCTYPE html>
-<html lang="az">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZifroMania – İstifadə Şərtləri</title>
+  <title>ZifroMania – Terms of Service</title>
 
   <style>
     @font-face {
       font-family: 'Scabber';
-      src: url(data:font/truetype;charset=utf-8;base64,$fontBase64) format('truetype');      font-style: normal;
+      src: url(data:font/truetype;charset=utf-8;base64,$fontBase64) format('truetype');
+      font-style: normal;
       font-weight: normal;
     }
 
@@ -141,137 +143,156 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
       font-size: 0.92rem;
       text-align: left;
     }
-    a{
+    a {
       color: white;
       text-decoration: none;
     }
-    th { background: #8C9EFF99; color: white}
+    th { background: #8C9EFF99; color: white; }
   </style>
 </head>
 <body>
-  <h1>ZifroMania – İstifadə Şərtləri (Terms of Service)</h1>
-  <p><em>Qüvvəyə minmə tarixi: 07 May 2025</em></p>
+  <h1>ZifroMania – Terms of Service</h1>
+  <p><em>Effective date: 07 May 2025</em></p>
 
   <section>
-    <h2>1. Şərtlərin Qəbulu</h2>
-    <p>ZifroMania mobil tətbiqini (“Tətbiq”) quraşdırmaq və ya istifadə etmək
-       bu İstifadə Şərtlərini (“Şərtlər”) və Məxfilik Siyasətimizi qəbul
-       etdiyiniz anlamına gəlir. Şirkət (“ZifroMania LLC”) Şərtləri istənilən
-       vaxt yeniləyə bilər; yenilənmiş versiya bu səhifədə dərc edildiyi andan
-       qüvvəyə minir.</p>
+    <h2>1. Acceptance of Terms</h2>
+    <p>
+      By installing or using the ZifroMania mobile application (the “App”),
+      you agree to these Terms of Service (“Terms”) and to our Privacy Policy.
+      ZifroMania LLC (“Company”, “we”, “us”) may revise the Terms at any time;
+      the revised version becomes effective once posted on this page.
+    </p>
   </section>
 
   <section>
-    <h2>2. Yaş Məhdudiyyəti</h2>
-    <p>Tətbiqdən istifadə etmək üçün ən azı 13&nbsp;yaş (bəzi regionlarda
-       16&nbsp;yaş) olmalıdır. Valideyn icazəsi olmadan bu yaşdan kiçik
-       şəxslərin xidmətə qoşulması qadağandır.</p>
+    <h2>2. Eligibility</h2>
+    <p>
+      The App is suitable for <strong>all age groups</strong>. If you are a
+      minor in your jurisdiction (typically under 18 years old), please obtain
+      permission from a parent or legal guardian before making any in-app
+      purchases.
+    </p>
   </section>
 
   <section>
-    <h2>3. Hesablar və Giriş</h2>
-    <p>Tətbiqə Google, Apple, e‑poçt və ya anonim qonaq girişi ilə daxil ola
-       bilərsiniz. Hesabınızın təhlükəsizliyinə görə yalnız siz cavabdehsiniz.
-       Başqasının hesabından icazəsiz istifadə qadağandır.</p>
+    <h2>3. Accounts and Access</h2>
+    <p>
+      You may access the App via Google Sign-In or by creating an
+      e-mail-and-password account through Firebase Authentication. You are
+      responsible for safeguarding your credentials and for all activity that
+      occurs under your account. Using another person’s account without
+      authorization is prohibited.
+    </p>
   </section>
 
   <section>
-    <h2>4. Oyun Qaydaları və Qadağan Olunan Davranış</h2>
+    <h2>4. Gameplay Rules and Prohibited Conduct</h2>
     <ul>
-      <li>Avtomatlaşdırılmış skript, bot və ya hər hansı hack alətindən
-          istifadə etmək qadağandır.</li>
-      <li>Tətbiqin kodunu tərs mühəndislik etmək və ya dəyişdirmək
-          qadağandır.</li>
-      <li>Qayda pozuntusu aşkarlandıqda hesab xəbərdarlıq etmədən bloklana və
-          ya silinə bilər.</li>
+      <li>Automated scripts, bots, emulators, or hacking tools are prohibited.</li>
+      <li>Reverse-engineering, decompiling, or modifying the App’s code is not allowed.</li>
+      <li>Accounts violating these rules may be suspended or terminated without notice.</li>
     </ul>
   </section>
 
   <section>
-    <h2>5. Virtual Valyuta (Coinlər)</h2>
-    <p>Coinlər yalnız Tətbiqdaxili funksiyalar üçün nəzərdə tutulub, real
-       maliyyə dəyəri yoxdur və üçüncü tərəfə köçürülə bilməz. ZifroMania LLC
-       coin balansını, qazanma üsullarını və qiymətlərini istənilən vaxt
-       dəyişmək hüququnu saxlayır.</p>
+    <h2>5. Virtual Currency (Coins)</h2>
+    <p>
+      Coins are a virtual currency usable only within the App. They have no
+      real-world monetary value and cannot be transferred to other accounts or
+      third parties. ZifroMania LLC reserves the right to change coin balances,
+      earning methods, and pricing at any time.
+    </p>
   </section>
 
   <section>
-    <h2>6. Abunə və Daxili Satışlar</h2>
+    <h2>6. Subscriptions and In-App Purchases</h2>
     <table>
       <thead>
-        <tr><th>Məhsul</th><th>Qiymət</th><th>Dövrilik</th></tr>
+        <tr><th>Product</th><th>Price</th><th>Billing Cycle</th></tr>
       </thead>
       <tbody>
-        <tr><td>Premium (1 ay)</td><td>4,99&nbsp;\$</td><td>Aylıq yenilənir</td></tr>
-        <tr><td>Premium (3 ay)</td><td>9,99&nbsp;\$</td><td>3 aydan bir</td></tr>
-        <tr><td>Premium (12 ay)</td><td>29,99&nbsp;\$</td><td>İllik</td></tr>
-        <tr><td>100 coin</td><td>0,99&nbsp;\$</td><td>Birdəfəlik</td></tr>
-        <tr><td>500 coin + 50 bonus</td><td>3,99&nbsp;\$</td><td>Birdəfəlik</td></tr>
-        <tr><td>1200 coin + 200 bonus</td><td>7,99&nbsp;\$</td><td>Birdəfəlik</td></tr>
-        <tr><td>2500 coin + 500 bonus</td><td>14,99&nbsp;\$</td><td>Birdəfəlik</td></tr>
+        <tr><td>Premium (1 month)</td><td>US \$4.99</td><td>Renews monthly</td></tr>
+        <tr><td>Premium (3 months)</td><td>US \$9.99</td><td>Renews every 3 months</td></tr>
+        <tr><td>Premium (12 months)</td><td>US \$29.99</td><td>Renews annually</td></tr>
+        <tr><td>100 Coins</td><td>US \$0.99</td><td>One-time</td></tr>
+        <tr><td>500 Coins + 50 bonus</td><td>US \$3.99</td><td>One-time</td></tr>
+        <tr><td>1 200 Coins + 200 bonus</td><td>US \$7.99</td><td>One-time</td></tr>
+        <tr><td>2 500 Coins + 500 bonus</td><td>US \$14.99</td><td>One-time</td></tr>
       </tbody>
     </table>
-    <p>Ödənişlər Google Play və ya App Store hesabınız vasitəsilə emal olunur.
-       Abunəni istənilən vaxt mağaza hesab parametrlərinizdən ləğv edə
-       bilərsiniz. Virtual coin alışı və istifadə olunmuş abunə müddəti üzrə
-       ödənişlər geri qaytarılmır (qanunla tələb olunmadıqca).</p>
+    <p>
+      Payments are processed through your Google Play account. Subscriptions may
+      be cancelled at any time via Google Play settings. Except where required
+      by law, purchases of virtual coins or partially used subscription periods
+      are non-refundable.
+    </p>
   </section>
 
   <section>
-    <h2>7. Reklam və Analitika</h2>
-    <p>Pulsuz istifadəçilərə reklam göstərilə bilər. Tətbiq Google AdMob,
-       Firebase Analytics və oxşar xidmətlərdən istifadə edərək cihaz
-       məlumatlarını toplaya bilər. Ətraflı məlumat üçün Məxfilik Siyasətinə
-       baxın.</p>
+    <h2>7. Advertising and Analytics</h2>
+    <p>
+      The free tier of the App may display advertisements. The App uses
+      Google AdMob, Firebase Analytics, and similar services, which may collect
+      device information in accordance with our Privacy Policy.
+    </p>
   </section>
 
   <section>
-    <h2>8. Məxfilik</h2>
-    <p>Şəxsi məlumatların toplanması, saxlanması və işlənməsi qaydaları
-       Məxfilik Siyasətimizdə ətraflı izah edilir. Tətbiqdən istifadə etməklə
-       həmin siyasətlə də razılaşırsınız.</p>
+    <h2>8. Privacy</h2>
+    <p>
+      Our practices regarding the collection, storage, and processing of
+      personal data are detailed in our Privacy Policy. By using the App, you
+      also agree to that policy.
+    </p>
   </section>
 
   <section>
-    <h2>9. İntellektual Mülkiyyət</h2>
-    <p>Tətbiq, loqo, məzmun, sual bazası, qrafika və kod daxil olmaqla bütün
-       materiallar ZifroMania LLC‑yə məxsusdur. Yazılı icazə olmadan
-       kopyalanması, yayılması və ya dəyişdirilməsi qadağandır.</p>
+    <h2>9. Intellectual Property</h2>
+    <p>
+      All materials in the App—including software, logo, content, question
+      database, graphics, and code—are the property of ZifroMania LLC and may
+      not be copied, distributed, or modified without our prior written consent.
+    </p>
   </section>
 
   <section>
-    <h2>10. Zəmanət İmtinası</h2>
-    <p>Tətbiq “olduğu kimi” təqdim edilir. ZifroMania LLC Tətbiqin fasiləsiz,
-       xətasız və ya təhlükəsiz işləyəcəyinə dair heç bir zəmanət vermir.</p>
+    <h2>10. Disclaimer of Warranties</h2>
+    <p>
+      The App is provided “as is”. ZifroMania LLC makes no warranties that the
+      App will be uninterrupted, error-free, or secure.
+    </p>
   </section>
 
   <section>
-    <h2>11. Məsuliyyətin Məhdudlaşdırılması</h2>
-    <p>Qanunla icazə verilən maksimum həddə qədər ZifroMania LLC Tətbiqdən
-       istifadə nəticəsində yaranan dolayı, təsadüfi və ya xüsusi zərərlərə
-       görə məsuliyyət daşımır.</p>
+    <h2>11. Limitation of Liability</h2>
+    <p>
+      To the maximum extent permitted by law, ZifroMania LLC shall not be liable
+      for any indirect, incidental, special, or consequential damages arising
+      out of or in connection with your use of the App.
+    </p>
   </section>
 
   <section>
-    <h2>12. Ləğv</h2>
-    <p>Siz istənilən vaxt Tətbiqi silərək bu Şərtləri dayandıra bilərsiniz.
-       Qayda pozuntusu olduqda biz hesabınızı xəbərdarlıq etmədən ləğv edə
-       və ya girişinizi məhdudlaşdıra bilərik.</p>
+    <h2>12. Termination</h2>
+    <p>
+      You may terminate these Terms at any time by uninstalling the App. We may
+      suspend or terminate your account without notice if we reasonably believe
+      you have violated these Terms.
+    </p>
   </section>
 
   <section>
-    <h2>13. Qanun və Mübahisələrin Həlli</h2>
-    <p>Bu Şərtlər Azərbaycan Respublikasının qanunlarına uyğun tənzimlənir.
-       Mübahisələr Bakı şəhər məhkəmələrində həll edilir.</p>
+    <h2>13. Contact</h2>
+    <p>
+      If you have any questions, complaints, or feedback, please email us at
+      <a href="mailto:rasul.ramixanov@gmail.com">rasul.ramixanov@gmail.com</a>.
+    </p>
   </section>
 
-  <section>
-    <h2>14. Əlaqə</h2>
-    <p>Suallar, şikayətlər və ya geribildirim üçün: <a href="mailto:rasul.ramixanov@gmail.com">rasul.ramixanov@gmail.com</a></p>
-  </section>
-
-  <p><em>Bu səhifəni oxuyub davam etməklə yuxarıdakı bütün şərtlərlə
-     razılaşmış olursunuz.</em></p>
+  <p>
+    <em>By continuing to use the App, you acknowledge that you have read and
+    agree to all of the above Terms.</em>
+  </p>
 </body>
 </html>
 ''';
