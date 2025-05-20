@@ -13,6 +13,8 @@ import 'package:zifromania/presentation/state_managment/auth/auth_state.dart';
 import 'package:zifromania/presentation/state_managment/settings/settings_bloc.dart';
 import 'package:zifromania/services/sound_service.dart';
 
+import 'feedback_screen.dart';
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -110,7 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         final int userLevel = user?.level ?? 0;
         final int userXP = user?.xp ?? 0;
         final int xpForNextLevel = user?.xpForNextLevel ?? 1000;
-        final List<String> userAchievements = user?.achievements ?? [];
+        // final List<String> userAchievements = user?.achievements ?? [];
         final int userCoins = user?.coins ?? 0;
 
         return Container(
@@ -444,6 +446,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _soundService.hapticFeedback(HapticFeedbackType.light);
               context.read<SettingsBloc>().add(SettingsEvent.vibrate(duration: 300));
             }
+          },
+        ),
+        _buildNavigationTile(
+          iconPath: 'assets/icons/feedback.png',
+          title: 'Send Feedback',
+          onTap: () {
+            final route = PartialModalRoute(child: const FeedbackScreen());
+            Navigator.push(context, route);
           },
         ),
       ],
