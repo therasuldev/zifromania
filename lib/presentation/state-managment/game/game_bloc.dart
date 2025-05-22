@@ -3,6 +3,7 @@ import 'dart:developer' as logger;
 import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:zifromania/locator.dart';
+import 'package:zifromania/models/user_model.dart';
 import 'package:zifromania/services/auth_service.dart';
 import 'package:zifromania/services/in_app_purchase_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +11,8 @@ import 'package:zifromania/domain/entities/enums.dart';
 import 'package:zifromania/domain/entities/math_question.dart';
 import 'package:zifromania/services/audio_service.dart';
 import 'package:zifromania/services/open_ai_service.dart';
+import 'package:zifromania/services/title_logic_service.dart';
+import 'package:zifromania/services/title_service.dart';
 import 'package:zifromania/services/user_service.dart';
 import 'package:zifromania/services/xp_service.dart';
 
@@ -24,16 +27,30 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   static const int EXPERT_MODE_TIME = 120;
   static const int TRAINING_MODE_QUESTIONS = 100;
 
-  final AuthService _authService = locator.get<AuthService>();
-  final UserService _userService = locator.get<UserService>();
-  final AudioService _audioService = locator.get<AudioService>();
-  final OpenAIService _openAIService = locator.get<OpenAIService>();
-  final InAppPurchaseService _inAppPurchaseService = locator.get<InAppPurchaseService>();
+  final AuthService _authService;
+  final UserService _userService;
+  final AudioService _audioService;
+  final OpenAIService _openAIService;
+  final TitleService _titleService;
+  final InAppPurchaseService _inAppPurchaseService;
 
   Timer? _gameTimer;
   Timer? _questionTimer; // For True/False mode per-question timer
 
-  GameBloc() : super(GameState.initial()) {
+  GameBloc({
+    required AuthService authService,
+    required UserService userService,
+    required AudioService audioService,
+    required OpenAIService openAIService,
+    required TitleService titleService,
+    required InAppPurchaseService inAppPurchaseService,
+  })  : _authService = authService,
+        _userService = userService,
+        _audioService = audioService,
+        _openAIService = openAIService,
+        _titleService = titleService,
+        _inAppPurchaseService = inAppPurchaseService,
+        super(GameState.initial()) {
     on<GameEvent>((event, emit) async {
       switch (event.type) {
         case GameEvents.startGame:
@@ -45,10 +62,6 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         case GameEvents.timerTick:
           await _onTimerTick(emit);
           break;
-
-        // case GameEvents.userProfileSynced:
-        //   _onUserProfileSynced(event.payload as UserModel, emit);
-        //   break;
         case GameEvents.autoAdvanceQuestion:
           await _onAutoAdvanceQuestion(emit);
           break;
@@ -125,6 +138,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         isLoading: false,
         questions: questions,
         isGameActive: true,
+        gameStartTime: DateTime.now(), // 🆕 Track game start time
       ));
     } on DioException catch (e) {
       emit(state.copyWith(
@@ -343,9 +357,13 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     }
   }
 
+  // Complete _onEndGame function
   Future<void> _onEndGame(Emitter<GameState> emit) async {
     _gameTimer?.cancel();
     _questionTimer?.cancel();
+
+    final uid = _authService.currentUser?.uid;
+    if (uid == null) return;
 
     // Determine XP earned based on difficulty
     int multiplier = switch (state.difficulty) { GameDifficulty.multiplyDivideBattle || GameDifficulty.expert => 2, _ => 1 };
@@ -357,14 +375,22 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       multiplier: multiplier,
     );
 
-    // 3️⃣  Firestore‑a yaz & level‑up yoxla
-    final uid = _authService.currentUser?.uid;
-    if (uid != null) {
-      try {
-        await _userService.addXpAndHandleLevelUp(uid, xp);
-      } catch (e) {
-        logger.log('XP update failed: $e');
-      }
+    List<String> newlyEarnedTitles = [];
+
+    try {
+      // 1️⃣ Update XP and handle level up
+      await _userService.addXpAndHandleLevelUp(uid, xp);
+
+      // 2️⃣ Update daily streak
+      await _userService.updateDailyStreak(uid);
+
+      // 3️⃣ Update game statistics
+      await _updateGameStatistics(uid);
+
+      // 4️⃣ Check for newly earned titles
+      newlyEarnedTitles = await _checkAndAwardTitles(uid);
+    } catch (e) {
+      logger.log('Game end update failed: $e');
     }
 
     emit(
@@ -372,8 +398,139 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         xpEarned: xp,
         isGameActive: false,
         showResultDialog: true,
+        newlyEarnedTitles: newlyEarnedTitles,
       ),
     );
+  }
+
+  /// Update game statistics after game ends
+  Future<void> _updateGameStatistics(String uid) async {
+    if (state.gameStartTime == null) return;
+
+    final gameEndTime = DateTime.now();
+    final gameDurationSeconds = gameEndTime.difference(state.gameStartTime!).inSeconds;
+    final categoryString = _getCategoryString(state.difficulty);
+
+    await _userService.updateGameStatistics(
+      uid: uid,
+      category: categoryString,
+      score: state.score,
+      questionsAnswered: state.score + state.incorrectAnswersCount,
+      correctAnswers: state.score,
+      gameTimeInSeconds: gameDurationSeconds,
+    );
+  }
+
+  /// Check for newly earned titles and award them
+  Future<List<String>> _checkAndAwardTitles(String uid) async {
+    try {
+      // Get current user data (refreshed after updates)
+      final user = await _userService.fetchFullUser(uid);
+
+      // Get all available titles
+      final allTitles = await _titleService.getAllTitles();
+
+      List<String> newTitles = [];
+
+      for (final title in allTitles) {
+        // Skip if user already has this title
+        if (user.achievements.contains(title.id)) continue;
+
+        // Check if user meets requirements for this title
+        bool meetsRequirements = await _checkTitleRequirements(title.requirements, user, uid);
+
+        if (meetsRequirements) {
+          // Award the title
+          await _titleService.awardTitleToUser(uid, title.id);
+          newTitles.add(title.name);
+          logger.log('Title awarded: ${title.name}');
+        }
+      }
+
+      return newTitles;
+    } catch (e) {
+      logger.log('Error checking titles: $e');
+      return [];
+    }
+  }
+
+  /// Check if user meets specific title requirements
+  Future<bool> _checkTitleRequirements(Map<String, dynamic> requirements, UserModel user, String uid) async {
+    for (var entry in requirements.entries) {
+      final key = entry.key;
+      final value = entry.value;
+
+      switch (key) {
+        case 'score':
+          if (state.score < value) return false;
+          break;
+
+        case 'level':
+          if (user.level < value) return false;
+          break;
+
+        case 'levelExact':
+          if (user.level != value) return false;
+          break;
+
+        case 'incorrectAnswers':
+          if (state.incorrectAnswersCount > value) return false;
+          break;
+
+        case 'isPremium':
+          if (user.hasActiveSubscription != value) return false;
+          break;
+
+        case 'category':
+          final currentCategory = _getCategoryString(state.difficulty);
+          if (currentCategory != value) return false;
+          break;
+
+        case 'questionsAnswered':
+          final totalQuestions = state.score + state.incorrectAnswersCount;
+          if (totalQuestions < value) return false;
+          break;
+
+        case 'dailyStreak':
+          if (user.currentStreak < value) return false;
+          break;
+
+        case 'averageTimePerQuestion':
+          // Check current game's average time
+          final currentGameAvgTime = await _calculateCurrentGameAverageTime();
+          if (currentGameAvgTime > value) return false;
+          break;
+
+        default:
+          break;
+      }
+    }
+    return true;
+  }
+
+  /// Calculate average time per question for current game
+  Future<double> _calculateCurrentGameAverageTime() async {
+    if (state.gameStartTime == null) return 0.0;
+
+    final gameEndTime = DateTime.now();
+    final gameDurationSeconds = gameEndTime.difference(state.gameStartTime!).inSeconds;
+    final totalQuestions = state.score + state.incorrectAnswersCount;
+
+    return totalQuestions > 0 ? gameDurationSeconds / totalQuestions : 0.0;
+  }
+
+  /// Convert GameDifficulty to category string
+  String _getCategoryString(GameDifficulty? difficulty) {
+    if (difficulty == null) return 'unknown';
+
+    return switch (difficulty) {
+      GameDifficulty.multiplyDivideBattle => 'multiplyDivideBattle',
+      GameDifficulty.expert => 'expert',
+      GameDifficulty.trueFalse => 'trueFalse',
+      GameDifficulty.speedCalculation => 'speedCalculation',
+      GameDifficulty.endless => 'endless',
+      _ => 'unknown',
+    };
   }
 
   void _onShowNextQuestion(Emitter<GameState> emit) {

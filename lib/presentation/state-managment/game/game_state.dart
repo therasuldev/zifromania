@@ -15,6 +15,9 @@ class GameState {
   final bool useQuestionTimer;
   final int questionTimeRemaining;
 
+  final DateTime? gameStartTime; // 🆕 Track game start time
+  final List<String> newlyEarnedTitles; // 🆕 Newly earned titles
+
   final List<MathQuestion> questions;
   final int currentQuestionIndex;
   final bool isLoading;
@@ -44,6 +47,8 @@ class GameState {
     this.showSubscribeDialog = false,
     this.useQuestionTimer = false,
     this.questionTimeRemaining = 0,
+    this.gameStartTime,
+    this.newlyEarnedTitles = const [],
   });
 
   factory GameState.initial() {
@@ -68,6 +73,8 @@ class GameState {
       useQuestionTimer: false,
       questionTimeRemaining: 0,
       xpEarned: 0,
+      gameStartTime: null,
+      newlyEarnedTitles: const [],
     );
   }
 
@@ -92,6 +99,8 @@ class GameState {
     bool? useQuestionTimer,
     int? questionTimeRemaining,
     int? xpEarned,
+    DateTime? gameStartTime,
+    List<String>? newlyEarnedTitles,
   }) {
     return GameState(
       score: score ?? this.score,
@@ -114,6 +123,8 @@ class GameState {
       playerLevel: playerLevel ?? this.playerLevel,
       playerXp: playerXp ?? this.playerXp,
       playerXpTarget: playerXpTarget ?? this.playerXpTarget,
+      gameStartTime: gameStartTime ?? this.gameStartTime,
+      newlyEarnedTitles: newlyEarnedTitles ?? this.newlyEarnedTitles,
     );
   }
 
