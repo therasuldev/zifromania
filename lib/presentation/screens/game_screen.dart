@@ -1,7 +1,12 @@
-import 'package:equation_quest/presentation/state_managment/game_bloc/game_bloc.dart';
-import 'package:equation_quest/presentation/widgets/dialogs/result_dialog.dart';
-import 'package:equation_quest/presentation/widgets/dialogs/subscription_dialog.dart';
-import 'package:equation_quest/services/open_ai_service.dart';
+import 'package:zifromania/domain/entities/constant.dart';
+import 'package:zifromania/locator.dart';
+import 'package:zifromania/models/title_model.dart';
+import 'package:zifromania/presentation/state-managment/ad_manager.dart';
+import 'package:zifromania/presentation/state-managment/game/game_bloc.dart';
+import 'package:zifromania/presentation/widgets/dialogs/result_dialog.dart';
+import 'package:zifromania/presentation/widgets/dialogs/subscription_dialog.dart';
+import 'package:zifromania/presentation/widgets/dialogs/title_unlock_dialog.dart';
+import 'package:zifromania/services/open_ai_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -46,9 +51,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     // Cancel any ongoing request
-    OpenAIService.instance.cancel();
+    locator.get<OpenAIService>().cancel();
     buttonAnimationController.dispose();
-
     super.dispose();
   }
 
@@ -82,13 +86,14 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return PopScope(
       onPopInvokedWithResult: (q, result) {
         // Cancel request when back button is pressed
-        OpenAIService.instance.cancel();
+        locator.get<OpenAIService>().cancel();
       },
       child: Scaffold(
+        backgroundColor: backgroundColor,
         body: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/images/background.png'),
+              image: AssetImage('assets/images/scaffold.jpg'),
               fit: BoxFit.cover,
               colorFilter: ColorFilter.mode(
                 Colors.black45,
@@ -101,7 +106,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               listener: (context, state) {
                 // Show result dialog when game ends
                 if (!state.isGameActive && (state.showResultDialog ?? false)) {
-                  showResultDialog(state.score, state);
+                  _handleGameEnd(context, state);
                 }
 
                 // Show subscription dialog
@@ -142,6 +147,45 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
+  // Add this method to your widget class
+  void _handleGameEnd(BuildContext context, GameState state) {
+    if (state.newlyEarnedTitles.isNotEmpty) {
+      // Always show ad first
+      AdManager().showAdAfterGame(
+        onAdClosed: () {
+          if (!context.mounted) return;
+
+          // After ad closes, check if we have titles to show
+          if (state.newlyEarnedTitles.isNotEmpty) {
+            _showTitleRewardAnimation(context, state.newlyEarnedTitles, state);
+          } else {
+            // No titles, go directly to result dialog
+            _showResultDialog(context, state);
+          }
+        },
+      );
+    }
+  }
+
+  void _showTitleRewardAnimation(BuildContext context, List<TitleModel> newTitles, GameState state) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black87,
+      builder: (context) => TitleRewardDialog(
+        titles: newTitles,
+        onComplete: () {
+          Navigator.of(context).pop(); // Close title dialog
+          _showResultDialog(context, state); // Show result dialog last
+        },
+      ),
+    );
+  }
+
+  void _showResultDialog(BuildContext context, GameState state) {
+    showResultDialog(state.score, state);
+  }
+
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -173,7 +217,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   'Creating New Questions...',
                   textStyle: const TextStyle(
                     fontSize: 24,
-                    fontFamily: 'rimouskisb',
+                    fontFamily: 'Scabber',
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -189,7 +233,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             'Please wait',
             style: TextStyle(
               fontSize: 16,
-              fontFamily: 'rimouskisb',
+              fontFamily: 'Scabber',
               color: Colors.white70,
               fontWeight: FontWeight.w500,
             ),
@@ -244,6 +288,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             style: const TextStyle(
               fontSize: 25,
               color: Colors.white,
+              fontFamily: 'Scabber',
               fontWeight: FontWeight.bold,
             ),
           ),
