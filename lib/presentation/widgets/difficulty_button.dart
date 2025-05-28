@@ -1,7 +1,5 @@
-import 'package:equation_quest/presentation/screens/game_screen.dart';
-import 'package:equation_quest/presentation/state_managment/game_bloc/game_bloc.dart';
+import 'package:zifromania/presentation/screens/game_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/enums.dart';
 import 'dialogs/rules_dialog.dart';
@@ -68,10 +66,7 @@ class _DifficultyButtonState extends State<DifficultyButton> with SingleTickerPr
       // Create the UnifiedGameBloc provider and navigate to the game screen
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => BlocProvider(
-            create: (context) => GameBloc(),
-            child: GameScreen(difficulty: widget.difficulty),
-          ),
+          builder: (_) => GameScreen(difficulty: widget.difficulty),
         ),
       );
     }
@@ -146,14 +141,14 @@ class ChildWidget extends StatelessWidget {
               widget.title,
               style: const TextStyle(
                 fontSize: 22,
-                letterSpacing: 1.5,
-                fontFamily: 'Onacona',
+                // letterSpacing: 1.5,
+                fontFamily: 'Scabber',
                 color: Colors.white,
               ),
             ),
-            SizedBox(width: 8),
-            Image.asset(widget.icon),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
+            SizedBox(height: 32, width: 32, child: Image.asset(widget.icon)),
+            const SizedBox(width: 8),
           ],
         ),
       ),
