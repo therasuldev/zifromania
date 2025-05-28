@@ -92,14 +92,14 @@ class _AboutZifroManiaScreenState extends State<AboutZifroManiaScreen> {
     );
   }
 
-  /// Creates HTML string with the font embedded as base64
+  /// Creates HTML string with the font embedded as base64 (EN version)
   String _getHtmlWithEmbeddedFont(String fontBase64) {
     return '''<!DOCTYPE html>
-<html lang="az">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZifroMania haqqında</title>
+  <title>About ZifroMania</title>
 
   <style>
     @font-face {
@@ -108,7 +108,7 @@ class _AboutZifroManiaScreenState extends State<AboutZifroManiaScreen> {
       font-weight: normal;
       font-style: normal;
     }
-    
+
     body {
       font-family: 'Scabber', -apple-system, BlinkMacSystemFont, 'Segoe UI',
                    Roboto, Helvetica, Arial, sans-serif;
@@ -118,67 +118,78 @@ class _AboutZifroManiaScreenState extends State<AboutZifroManiaScreen> {
       background-color: transparent !important;
       color: #D7CCC880;
     }
-    h1 { 
-      font-size: 1.8rem; 
-      margin-top: 0; 
+    h1 {
+      font-size: 1.8rem;
+      margin-top: 0;
       color: #8C9EFF99;
     }
-     h2 { 
-      font-size: 1.4rem; 
-      margin-top: 1.4em; 
+    h2 {
+      font-size: 1.4rem;
+      margin-top: 1.4em;
       color: #8C9EFF99;
     }
+    strong { color: #8C9EFF99; }
     ul { padding-left: 1.2em; }
     li { margin-bottom: 0.4em; }
     section { margin-bottom: 1.4em; }
   </style>
 </head>
 <body>
-  <h1>ZifroMania haqqında</h1>
+  <h1>About ZifroMania</h1>
 
   <section>
-    <p>ZifroMania riyazi hesablamanı oyunlaşdıraraq sürətinizi, diqqətinizi və məntiqinizi eyni anda inkişaf etdirən mobil tətbiqdir. Burada beş fərqli kateqoriya mövcuddur, hər biri özünəməxsus tempo və çətinlik səviyyəsi ilə:</p>
+    <p>
+      <strong>ZifroMania</strong> turns mental math into an engaging game,
+      helping you sharpen speed, focus, and logic all at once. Five carefully
+      crafted categories let players of every age and skill level progress at
+      their own pace:
+    </p>
     <ul>
-      <li><strong>Speed Calculation</strong> – 60 saniyədə maksimum sayda düzgün cavab toplayın, xallar qazanın.</li>
-      <li><strong>Multiplication Table</strong> – 1‑dən 10‑a qədər vurma və bölmə məşqləri; 50‑dən çox düzgün cavabla "Master" nişanını qazanmaq fürsəti.</li>
-      <li><strong>True or False</strong> – Hər suala cəmi 3 saniyə vaxt; reflekslərinizi sınağa çəkin.</li>
-      <li><strong>Expert Mode</strong> – 120 saniyəlik çağırışda daha mürəkkəb əməliyyatlarla gücünüzü sınayın; 60+ düzgün cavabla "Master" statusu.</li>
-      <li><strong>Training Mode</strong> – Vaxt məhdudiyyəti olmadan 50 suallıq sessiyalarla sərbəst məşq edin.</li>
+      <li><strong>Speed Calculation</strong> – Answer as many questions as possible in 60 seconds and rack up points.</li>
+      <li><strong>Multiplication Table</strong> – Master 1-to-10 multiplication and division; 50+ correct answers grant the “Master” badge.</li>
+      <li><strong>True or False</strong> – Decide in just 3 seconds per prompt; perfect for reflex training.</li>
+      <li><strong>Expert Mode</strong> – A 120-second challenge featuring advanced operators; 60+ correct answers earn “Master” status.</li>
+      <li><strong>Training Mode</strong> – Unlimited time, 50 questions per session—practice with zero pressure.</li>
     </ul>
   </section>
 
   <section>
-    <h2>Coinlər və nailiyyətlər</h2>
+    <h2>Coins & Achievements</h2>
     <ul>
-      <li>Hər gün pulsuz coin bonusu əldə edin.</li>
-      <li>Reklam izləməklə əlavə coin qazanma imkanı mövcuddur.</li>
-      <li>Coinlər vasitəsilə kateqoriya limitlərini qaldırın, çətinlikləri açın və fərdi rekordu yeniləyin.</li>
-      <li>Qazandığınız nailiyyətləri izləyin və sosial şəbəkələrdə paylaşın!</li>
+      <li>Collect a free daily coin bonus.</li>
+      <li>Watch optional ads to earn extra coins.</li>
+      <li>Spend coins to lift category limits, unlock higher difficulties, and chase new personal bests.</li>
+      <li>Track your achievements and share them on social media.</li>
     </ul>
   </section>
 
   <section>
-    <h2>Premium abunəlik</h2>
-    <p>Reklamsız təcrübə və genişləndirilmiş günlük limitlər üçün Premium seçin:</p>
+    <h2>Premium Subscription</h2>
+    <p>Enjoy an ad-free experience and extended daily limits:</p>
     <ul>
-      <li>1 ay – 4,99 \$</li>
-      <li>3 ay – 9,99 \$</li>
-      <li>12 ay – 29,99 \$</li>
+      <li>1 month – US \$4.99</li>
+      <li>3 months – US \$9.99</li>
+      <li>12 months – US \$29.99</li>
     </ul>
   </section>
 
   <section>
-    <h2>Coin paketləri</h2>
+    <h2>Coin Bundles</h2>
     <ul>
-      <li>100 coin – 0,99 \$</li>
-      <li>500 (+50 bonus) – 3,99 \$</li>
-      <li>1200 (+200 bonus) – 7,99 \$</li>
-      <li>2500 (+500 bonus) – 14,99 \$</li>
+      <li>100 coins – US \$0.99</li>
+      <li>500 coins + 50 bonus – US \$3.99</li>
+      <li>1 200 coins + 200 bonus – US \$7.99</li>
+      <li>2 500 coins + 500 bonus – US \$14.99</li>
     </ul>
   </section>
 
-  <p>ZifroMania ilə riyaziyyat daha əyləncəli və həyəcanlıdır. İndi qoşulun, bacarıqlarınızı artırın və rəqəmlərin dünyasında zirvəyə qalxın!</p>
+  <p>
+    With ZifroMania, mathematics becomes fun, fast, and competitive. Join now,
+    level up your skills, and reach the top of the leaderboard in the wonderful
+    world of numbers!
+  </p>
 </body>
-</html>''';
+</html>
+''';
   }
 }
