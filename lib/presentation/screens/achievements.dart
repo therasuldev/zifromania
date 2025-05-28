@@ -1,35 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:lottie/lottie.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:ui' as ui;
-import 'dart:typed_data';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:zifromania/domain/entities/constant.dart';
+import 'package:zifromania/models/task_model.dart';
 import 'package:zifromania/presentation/common/back_button.dart';
-
-class Achievement {
-  final String id;
-  final String title;
-  final String description;
-  final String icon;
-  final bool isUnlocked;
-  final Color color;
-  final DateTime? unlockedDate;
-  final int? score; // Opsiyonel skor değeri
-
-  Achievement({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.isUnlocked,
-    required this.color,
-    this.unlockedDate,
-    this.score,
-  });
-}
+import 'package:zifromania/models/title_model.dart';
+import 'package:zifromania/presentation/state-managment/auth/auth_bloc.dart';
+import 'package:zifromania/presentation/state-managment/tasks-bloc/task_bloc.dart';
+import 'package:zifromania/presentation/state-managment/titles-bloc/title_bloc.dart';
 
 class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
@@ -40,90 +23,17 @@ class AchievementsScreen extends StatefulWidget {
 
 class _AchievementsScreenState extends State<AchievementsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _showConfetti = false;
   final GlobalKey _shareCardKey = GlobalKey();
 
-  // Tema ayarları
-  final Color _backgroundColor = const Color(0xFF1F2136);
-  final Color _cardBackgroundColor = const Color(0xFF2A2D43);
-  final Color _tabBackgroundColor = const Color(0xFF2A2D43);
+  // Theme settings
   final Color _textColor = Colors.white;
   final Color _subTextColor = Colors.white70;
-
-  final List<Achievement> _achievements = [
-    Achievement(
-      id: 'math_master',
-      title: 'Math Master',
-      description: 'Matematik kategorisinde 10 soruyu doğru cevaplayın',
-      icon: 'assets/icons/music.png',
-      isUnlocked: true,
-      color: const Color(0xFF4C87FF),
-      unlockedDate: DateTime.now().subtract(const Duration(days: 2)),
-      score: 1250,
-    ),
-    Achievement(
-      id: 'speed_demon',
-      title: 'Speed Demon',
-      description: '30 saniyeden az sürede 5 soruyu doğru cevaplayın',
-      icon: 'assets/icons/replay.png',
-      isUnlocked: true,
-      color: const Color(0xFFFF5757),
-      unlockedDate: DateTime.now().subtract(const Duration(days: 1)),
-      score: 950,
-    ),
-    Achievement(
-      id: 'perfect_score',
-      title: 'Perfect Score',
-      description: 'Herhangi bir kategoride tüm soruları doğru cevaplayın',
-      icon: 'assets/icons/achievements.png',
-      isUnlocked: true,
-      color: const Color(0xFFFFB74D),
-      unlockedDate: DateTime.now(),
-      score: 2000,
-    ),
-    Achievement(
-      id: 'geometry_guru',
-      title: 'Geometry Guru',
-      description: 'Geometri kategorisinde 15 soruyu doğru cevaplayın',
-      icon: 'assets/icons/expert.png',
-      isUnlocked: false,
-      color: const Color(0xFF66BB6A),
-      unlockedDate: null,
-      score: null,
-    ),
-    Achievement(
-      id: 'algebra_ace',
-      title: 'Algebra Ace',
-      description: 'Cebir kategorisinde ardışık 5 soruyu doğru cevaplayın',
-      icon: 'assets/icons/home.png',
-      isUnlocked: false,
-      color: const Color(0xFFAB47BC),
-      unlockedDate: null,
-      score: null,
-    ),
-    Achievement(
-      id: 'calc_champion',
-      title: 'Calculation Champion',
-      description: 'Aritmetik kategorisinde 20 soruyu doğru cevaplayın',
-      icon: 'assets/icons/information.png',
-      isUnlocked: false,
-      color: const Color(0xFFFF9800),
-      unlockedDate: null,
-      score: null,
-    ),
-  ];
+  final Color _cardBackgroundColor = Colors.black.withValues(alpha: 0.5);
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-
-    // Sayfaya girildiğinde konfeti animasyonu
-    // Future.delayed(const Duration(milliseconds: 300), () {
-    //   setState(() {
-    //     _showConfetti = true;
-    //   });
-    // });
   }
 
   @override
@@ -132,25 +42,19 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     super.dispose();
   }
 
-  // Widget'ı görüntüye dönüştürme fonksiyonu
+  // Function to capture widget as image
   Future<ByteData?> _capturePng() async {
     try {
       RenderRepaintBoundary boundary = _shareCardKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
       ui.Image image = await boundary.toImage(pixelRatio: 3.0);
       return await image.toByteData(format: ui.ImageByteFormat.png);
     } catch (e) {
-      print("Resim kaydetme hatası: $e");
       return null;
     }
   }
 
-  // Görüntüyü kaydetme ve paylaşma
-  Future<void> _shareAchievementWithImage(Achievement achievement) async {
-    // Konfeti animasyonunu göster
-    setState(() {
-      _showConfetti = true;
-    });
-
+  // Save and share the achievement image
+  Future<void> _shareAchievement(String title) async {
     Future.delayed(const Duration(milliseconds: 500), () async {
       final ByteData? byteData = await _capturePng();
 
@@ -160,30 +64,61 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
         final File file = await File('${tempDir.path}/achievement.png').create();
         await file.writeAsBytes(pngBytes);
 
-        await Share.shareXFiles(
-          [XFile(file.path)],
-          text: 'Ben "${achievement.title}" başarısını kazandım! Matematik Oyunu\'nda sen de deneyebilirsin!',
-          subject: 'Matematik Oyunu Başarısı',
-        );
-
-        // Konfeti animasyonunu kapat
-        setState(() {
-          _showConfetti = false;
-        });
+        await SharePlus.instance.share(ShareParams(
+          files: [XFile(file.path)],
+          text: 'I earned "$title" achievement! Try the Math Game yourself!',
+          subject: 'Math Game Achievement',
+        ));
       }
     });
   }
 
-  void _showAchievementDetails(BuildContext context, Achievement achievement) {
+  void _showTitleDetails(BuildContext context, TitleModel title, bool isUnlocked) {
+    final achievement = Achievement(
+      title: title.name,
+      description: title.description,
+      icon: title.iconUrl,
+      color: Colors.purple,
+      isUnlocked: isUnlocked,
+      unlockedDate: isUnlocked ? DateTime.now() : null,
+    );
+
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => AchievementDetailsSheet(
         achievement: achievement,
-        onShare: () => _shareAchievementWithImage(achievement),
+        onShare: () => _shareAchievement(title.name),
         shareCardKey: _shareCardKey,
-        backgroundColor: _backgroundColor,
+        backgroundColor: backgroundColor,
+        cardBackgroundColor: _cardBackgroundColor,
+        textColor: _textColor,
+        subTextColor: _subTextColor,
+      ),
+    );
+  }
+
+  void _showTaskDetails(BuildContext context, TaskModel task, bool isCompleted) {
+    final achievement = Achievement(
+      title: task.title,
+      description: task.description,
+      icon: task.iconUrl,
+      color: Colors.blue,
+      isUnlocked: isCompleted,
+      score: '${task.xpReward}XP',
+      unlockedDate: isCompleted ? DateTime.now() : null,
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AchievementDetailsSheet(
+        achievement: achievement,
+        onShare: () => _shareAchievement(task.title),
+        shareCardKey: _shareCardKey,
+        backgroundColor: backgroundColor,
         cardBackgroundColor: _cardBackgroundColor,
         textColor: _textColor,
         subTextColor: _subTextColor,
@@ -193,40 +128,49 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
 
   @override
   Widget build(BuildContext context) {
-    final unlockedAchievements = _achievements.where((a) => a.isUnlocked).toList();
-    final lockedAchievements = _achievements.where((a) => !a.isUnlocked).toList();
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
+            image: AssetImage('assets/images/scaffold.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Column(
+          children: [
+            // App Bar area (back button + title)
+            Padding(
+              padding: const EdgeInsets.only(top: 48, left: 16, right: 16, bottom: 12),
+              child: Row(
+                children: [
+                  CustomBackButton(color: lightBrownColor),
+                  const SizedBox(width: 12),
+                  Text('Achievements',
+                      style: TextStyle(
+                        color: lightBrownColor,
+                        fontSize: 22,
+                        fontFamily: 'Scabber',
+                        fontWeight: FontWeight.bold,
+                      )),
+                ],
+              ),
+            ),
 
-    // Toplam skor hesaplama
-    int totalScore = _achievements.where((a) => a.isUnlocked).fold(0, (sum, achievement) => sum + (achievement.score ?? 0));
-
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
-      child: Scaffold(
-        backgroundColor: _backgroundColor,
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          leading: const CustomBackButton(),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(60),
-            child: Container(
+            // Tab Bar
+            Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: _tabBackgroundColor.withOpacity(0.7),
+                color: backgroundColor.withOpacity(0.7),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: TabBar(
                 controller: _tabController,
-                dividerColor: Colors.transparent,
                 indicatorSize: TabBarIndicatorSize.tab,
-                indicatorAnimation: TabIndicatorAnimation.elastic,
                 indicator: BoxDecoration(
+                  color: lightIndigoColor.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(12),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4C87FF), Color(0xFF6A6FFF)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0xFF4C87FF).withOpacity(0.4),
@@ -237,161 +181,200 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
                 ),
                 unselectedLabelColor: _textColor.withOpacity(0.5),
                 labelColor: Colors.white,
-                labelStyle: const TextStyle(fontSize: 12),
-                tabs: [
-                  Tab(text: 'Kazanılan (${unlockedAchievements.length})'),
-                  Tab(text: 'Kilitli (${lockedAchievements.length})'),
+                dividerColor: Colors.transparent,
+                labelStyle: const TextStyle(fontSize: 16, fontFamily: 'Scabber'),
+                tabs: const [
+                  Tab(text: 'TITLES'),
+                  Tab(text: 'TASKS'),
                 ],
               ),
             ),
-          ),
-        ),
-        body: Stack(
-          children: [
-            // Arka plan animasyonu
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.05,
-                child: Image.asset(
-                  'assets/images/settings_backg.jpg',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            // Tab içeriği
-            Padding(
-              padding: const EdgeInsets.only(top: 140),
+
+            // Tab Bar View
+            Expanded(
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  // Unlocked Achievements Tab
-                  unlockedAchievements.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                'assets/icons/empty.png',
-                                width: 100,
-                                height: 100,
-                                color: Colors.grey[600],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Henüz hiç başarı kazanmadınız.',
-                                style: TextStyle(color: _subTextColor),
-                              ),
-                              const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(); // Anasayfaya dönüş
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4C87FF),
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: const Text('Oyuna Dön'),
-                              ),
-                            ],
-                          ),
-                        )
-                      : GridView.builder(
-                          padding: const EdgeInsets.all(16),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.75, // Daha dikey kartlar
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                          ),
-                          itemCount: unlockedAchievements.length,
-                          itemBuilder: (context, index) {
-                            final achievement = unlockedAchievements[index];
-                            return AchievementCard(
-                              achievement: achievement,
-                              onTap: () => _showAchievementDetails(context, achievement),
-                              backgroundColor: _cardBackgroundColor,
-                              textColor: _textColor,
-                              subTextColor: _subTextColor,
-                            );
-                          },
-                        ),
+                  // TITLES TAB
+                  BlocBuilder<TitleBloc, TitleState>(
+                    builder: (context, state) {
+                      if (state.event == TitleEvents.fetchAllTitlesStart) {
+                        return Center(child: CircularProgressIndicator(color: lightIndigoColor));
+                      }
+                      if (state.titles.isEmpty) {
+                        return _buildEmptyState(
+                          icon: 'assets/icons/empty.png',
+                          message: 'No titles available yet.',
+                          noButton: true,
+                        );
+                      }
 
-                  // Locked Achievements Tab
-                  lockedAchievements.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                'assets/icons/trophy.png',
-                                width: 100,
-                                height: 100,
-                                color: Colors.amber,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Tebrikler! Tüm başarıları kazandınız!',
-                                style: TextStyle(color: _textColor),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Gerçek bir şampiyonsunuz!',
-                                style: TextStyle(color: _subTextColor),
-                              ),
-                            ],
-                          ),
-                        )
-                      : GridView.builder(
-                          padding: const EdgeInsets.all(16),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.75, // Daha dikey kartlar
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                          ),
-                          itemCount: lockedAchievements.length,
-                          itemBuilder: (context, index) {
-                            final achievement = lockedAchievements[index];
-                            return AchievementCard(
-                              achievement: achievement,
-                              onTap: () => _showAchievementDetails(context, achievement),
-                              backgroundColor: _cardBackgroundColor,
-                              textColor: _textColor,
-                              subTextColor: _subTextColor,
-                            );
-                          },
-                        ),
+                      // Get current user's earned titles (would need to be fetched from user model)
+                      // final user = context.read<UserModel>(); // This would need to be provided in a real app
+                      final earnedTitles = context.select((AuthBloc bloc) => bloc.state.user?.achievements ?? []);
+                      return _buildTitleGrid(state.titles, earnedTitles);
+                    },
+                  ),
+
+                  // TASKS TAB
+                  BlocBuilder<TaskBloc, TaskState>(
+                    builder: (context, state) {
+                      if (state.event == TaskEvents.fetchAllTasksStart) {
+                        return Center(child: CircularProgressIndicator(color: lightIndigoColor));
+                      }
+                      if (state.tasks.isEmpty) {
+                        return _buildEmptyState(
+                          icon: 'assets/icons/empty.png',
+                          message: 'No tasks available yet.',
+                          noButton: true,
+                        );
+                      }
+
+                      // Get current user's completed tasks (would need to be fetched from user model)
+                      final completedTasks = context.select((AuthBloc bloc) => bloc.state.user?.completedTasks ?? []);
+
+                      return _buildTaskGrid(state.tasks, completedTasks);
+                    },
+                  ),
                 ],
               ),
             ),
-            // Konfeti animasyonu (konditional olarak gösteriliyor)
-            // if (_showConfetti)
-            //   Positioned.fill(
-            //     child: IgnorePointer(
-            //       child: Lottie.asset(
-            //         'assets/lotties/collected.json',
-            //         animate: true,
-            //         repeat: true,
-            //         onLoaded: (composition) {
-            //           Future.delayed(composition.duration * 2, () {
-            //             if (mounted) {
-            //               setState(() {
-            //                 _showConfetti = false;
-            //               });
-            //             }
-            //           });
-            //         },
-            //       ),
-            //     ),
-            //   ),
           ],
         ),
       ),
     );
   }
+
+  /// Empty state widget
+  Widget _buildEmptyState({
+    required String icon,
+    required String message,
+    String? subMessage,
+    String? buttonText,
+    VoidCallback? onButton,
+    bool noButton = false,
+  }) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            icon,
+            width: 100,
+            height: 100,
+            //color: noButton ? Colors.amber : Colors.grey[600],
+          ),
+          const SizedBox(height: 16),
+          Text(message, style: TextStyle(color: _textColor, fontFamily: 'Scabber')),
+          if (subMessage != null) ...[
+            const SizedBox(height: 8),
+            Text(subMessage, style: TextStyle(color: _subTextColor, fontFamily: 'Scabber')),
+          ],
+          if (buttonText != null && onButton != null) ...[
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: onButton,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4C87FF),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text(buttonText, style: const TextStyle(fontFamily: 'Scabber')),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Title grid
+  Widget _buildTitleGrid(List<TitleModel> titles, List<String> earnedTitles) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.75,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+      ),
+      itemCount: titles.length,
+      itemBuilder: (context, i) {
+        final title = titles[i];
+        final isUnlocked = earnedTitles.contains(title.id);
+
+        final achievement = Achievement(
+          title: title.name,
+          description: title.description,
+          icon: title.iconUrl,
+          color: Colors.purple,
+          isUnlocked: isUnlocked,
+        );
+
+        return AchievementCard(
+          achievement: achievement,
+          onTap: () => _showTitleDetails(context, title, isUnlocked),
+          backgroundColor: backgroundColor,
+          textColor: _textColor,
+          subTextColor: _subTextColor,
+        );
+      },
+    );
+  }
+
+  /// Task grid
+  Widget _buildTaskGrid(List<TaskModel> tasks, List<String> completedTasks) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.75,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+      ),
+      itemCount: tasks.length,
+      itemBuilder: (context, i) {
+        final task = tasks[i];
+        final isCompleted = completedTasks.contains(task.id);
+
+        final achievement = Achievement(
+          title: task.title,
+          description: task.description,
+          icon: task.iconUrl,
+          color: Colors.blue,
+          isUnlocked: isCompleted,
+          score: '${task.xpReward}XP',
+        );
+
+        return AchievementCard(
+          achievement: achievement,
+          onTap: () => _showTaskDetails(context, task, isCompleted),
+          backgroundColor: backgroundColor,
+          textColor: _textColor,
+          subTextColor: _subTextColor,
+        );
+      },
+    );
+  }
+}
+
+class Achievement {
+  final String title;
+  final String description;
+  final String icon;
+  final Color color;
+  final bool isUnlocked;
+  final String? score;
+  final DateTime? unlockedDate;
+
+  const Achievement({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.color,
+    required this.isUnlocked,
+    this.score,
+    this.unlockedDate,
+  });
 }
 
 class AchievementCard extends StatelessWidget {
@@ -430,7 +413,7 @@ class AchievementCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
-            // Arkaplan deseni
+            // Background pattern
             if (achievement.isUnlocked)
               Positioned(
                 right: -30,
@@ -448,13 +431,13 @@ class AchievementCard extends StatelessWidget {
                 ),
               ),
 
-            // Başarı içeriği
+            // Achievement content
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Başarı ikonu
+                  // Achievement icon
                   Stack(
                     alignment: Alignment.center,
                     children: [
@@ -518,10 +501,11 @@ class AchievementCard extends StatelessWidget {
                               ],
                             ),
                             child: Text(
-                              '+${achievement.score}',
+                              achievement.score!,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
+                                fontFamily: 'Scabber',
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -532,34 +516,38 @@ class AchievementCard extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // Başarı başlığı
+                  // Achievement title
                   Text(
                     achievement.title,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      fontFamily: 'Scabber',
                       color: achievement.isUnlocked ? achievement.color : Colors.grey.withOpacity(0.8),
                     ),
                   ),
 
                   const SizedBox(height: 6),
 
-                  // Başarı açıklaması
-                  Text(
-                    achievement.description,
-                    textAlign: TextAlign.center,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: subTextColor,
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: Text(
+                      achievement.description,
+                      textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Scabber',
+                        color: subTextColor,
+                      ),
                     ),
                   ),
 
                   const SizedBox(height: 12),
 
-                  // Kazanıldı etiketi
+                  // Earned/Locked label
                   if (achievement.isUnlocked)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -589,10 +577,11 @@ class AchievementCard extends StatelessWidget {
                           ),
                           SizedBox(width: 4),
                           Text(
-                            'KAZANILDI',
+                            'EARNED',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 10,
+                              fontFamily: 'Scabber',
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,
                             ),
@@ -608,10 +597,11 @@ class AchievementCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Text(
-                        'KİLİTLİ',
+                        'LOCKED',
                         style: TextStyle(
                           color: Colors.grey,
                           fontSize: 10,
+                          fontFamily: 'Scabber',
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
                         ),
@@ -653,7 +643,11 @@ class AchievementDetailsSheet extends StatelessWidget {
       height: MediaQuery.of(context).size.height * 0.7,
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       decoration: BoxDecoration(
-        color: backgroundColor,
+        image: const DecorationImage(
+          image: AssetImage('assets/images/scaffold.jpg'),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
+        ),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
@@ -677,7 +671,7 @@ class AchievementDetailsSheet extends StatelessWidget {
             ),
           ),
 
-          // Paylaşılabilir kart (ekran görüntüsünü almak için)
+          // Shareable card (for screenshot)
           RepaintBoundary(
             key: shareCardKey,
             child: Container(
@@ -693,17 +687,16 @@ class AchievementDetailsSheet extends StatelessWidget {
                     achievement.isUnlocked ? achievement.color.withOpacity(0.1) : cardBackgroundColor,
                   ],
                 ),
-                border:
-                    Border.all(color: achievement.isUnlocked ? achievement.color.withOpacity(0.5) : Colors.transparent, width: 2),
+                border: Border.all(color: achievement.isUnlocked ? achievement.color.withOpacity(0.5) : Colors.transparent, width: 2),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Şampiyonluk kupası
+                  // Trophy/Icon
                   Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Hale efekti
+                      // Halo effect
                       Container(
                         width: 120,
                         height: 120,
@@ -720,7 +713,7 @@ class AchievementDetailsSheet extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                       ),
-                      // İkon container
+                      // Icon container
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -765,10 +758,11 @@ class AchievementDetailsSheet extends StatelessWidget {
                               ],
                             ),
                             child: Text(
-                              '+${achievement.score}',
+                              achievement.score!,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
+                                fontFamily: 'Scabber',
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -779,32 +773,34 @@ class AchievementDetailsSheet extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // Başlık
+                  // Title
                   Text(
                     achievement.title,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
+                      fontFamily: 'Scabber',
                       color: achievement.isUnlocked ? achievement.color : Colors.grey.withOpacity(0.8),
                     ),
                   ),
 
                   const SizedBox(height: 12),
 
-                  // Açıklama
+                  // Description
                   Text(
                     achievement.description,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
+                      fontFamily: 'Scabber',
                       color: subTextColor,
                     ),
                   ),
 
                   const SizedBox(height: 20),
 
-                  // Kazanıldı tarihi ve rozeti
+                  // Earned/Locked badge
                   if (achievement.isUnlocked)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -834,10 +830,11 @@ class AchievementDetailsSheet extends StatelessWidget {
                           ),
                           SizedBox(width: 8),
                           Text(
-                            'KAZANILDI',
+                            'EARNED',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,
+                              fontFamily: 'Scabber',
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1,
                             ),
@@ -862,10 +859,11 @@ class AchievementDetailsSheet extends StatelessWidget {
                           ),
                           SizedBox(width: 8),
                           Text(
-                            'KİLİTLİ',
+                            'LOCKED',
                             style: TextStyle(
                               color: Colors.grey,
                               fontSize: 14,
+                              fontFamily: 'Scabber',
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1,
                             ),
@@ -876,17 +874,18 @@ class AchievementDetailsSheet extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // Kazanıldı tarihi (sadece kazanılan başarılar için)
+                  // Earned date (only for unlocked achievements)
                   if (achievement.isUnlocked && achievement.unlockedDate != null)
                     Text(
-                      'Kazanıldığı tarih: ${achievement.unlockedDate!.day}/${achievement.unlockedDate!.month}/${achievement.unlockedDate!.year}',
+                      'Earned date: ${achievement.unlockedDate!.day}/${achievement.unlockedDate!.month}/${achievement.unlockedDate!.year}',
                       style: TextStyle(
                         fontSize: 14,
+                        fontFamily: 'Scabber',
                         color: subTextColor,
                       ),
                     ),
 
-                  // Oyun logosu
+                  // Game logo
                   const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -902,6 +901,7 @@ class AchievementDetailsSheet extends StatelessWidget {
                         style: TextStyle(
                           color: textColor.withOpacity(0.7),
                           fontSize: 12,
+                          fontFamily: 'Scabber',
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1,
                         ),
@@ -917,25 +917,52 @@ class AchievementDetailsSheet extends StatelessWidget {
 
           // Paylaşım butonu (sadece kazanılan başarılar için)
           if (achievement.isUnlocked)
-            ElevatedButton.icon(
-              onPressed: onShare,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: achievement.color,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: onShare,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: achievement.color,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 4,
+                  ),
+                  icon: const Icon(Icons.share),
+                  label: const Text(
+                    'PAYLAŞ',
+                    style: TextStyle(
+                      fontFamily: 'Scabber',
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
                 ),
-                elevation: 4,
-              ),
-              icon: const Icon(Icons.share),
-              label: const Text(
-                'PAYLAŞ',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
+                OutlinedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.redAccent,
+                    side: const BorderSide(color: Colors.redAccent),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    'KAPAT',
+                    style: TextStyle(
+                      fontFamily: 'Scabber',
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             )
           else
             Container(
@@ -956,6 +983,7 @@ class AchievementDetailsSheet extends StatelessWidget {
                     'Bu başarıyı kazanmak için oyuna devam edin!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
+                      fontFamily: 'Scabber',
                       color: textColor,
                       fontSize: 14,
                     ),
@@ -963,17 +991,6 @@ class AchievementDetailsSheet extends StatelessWidget {
                 ],
               ),
             ),
-
-          const Spacer(),
-
-          // Kapat butonu
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              foregroundColor: textColor.withOpacity(0.7),
-            ),
-            child: const Text('KAPAT'),
-          ),
         ],
       ),
     );
