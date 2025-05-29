@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,10 +8,10 @@ import 'package:zifromania/presentation/common/partial_modal_route.dart';
 import 'package:zifromania/presentation/screens/about_zifromania.dart';
 import 'package:zifromania/presentation/screens/privacy_policy.dart';
 import 'package:zifromania/presentation/screens/terms_of_service.dart';
-import 'package:zifromania/presentation/state_managment/auth/auth_bloc.dart';
-import 'package:zifromania/presentation/state_managment/auth/auth_event.dart';
-import 'package:zifromania/presentation/state_managment/auth/auth_state.dart';
-import 'package:zifromania/presentation/state_managment/settings/settings_bloc.dart';
+import 'package:zifromania/presentation/state-managment/auth/auth_bloc.dart';
+import 'package:zifromania/presentation/state-managment/auth/auth_event.dart';
+import 'package:zifromania/presentation/state-managment/auth/auth_state.dart';
+import 'package:zifromania/presentation/state-managment/settings/settings_bloc.dart';
 import 'package:zifromania/services/sound_service.dart';
 
 import 'feedback_screen.dart';
@@ -24,6 +25,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final SoundService _soundService = SoundService();
+  final GlobalKey languageButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -56,7 +58,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
           image: AssetImage('assets/images/scaffold.jpg'),
           fit: BoxFit.cover,
-          // opacity: 0.9,
         ),
       ),
       child: Column(
@@ -91,7 +92,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           CustomBackButton(color: lightBrownColor),
           const SizedBox(width: 16),
           Text(
-            'Settings',
+            context.tr('settings'),
             style: TextStyle(
               fontFamily: 'Scabber',
               fontSize: 22,
@@ -112,7 +113,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         final int userLevel = user?.level ?? 0;
         final int userXP = user?.xp ?? 0;
         final int xpForNextLevel = user?.xpForNextLevel ?? 1000;
-        // final List<String> userAchievements = user?.achievements ?? [];
         final int userCoins = user?.coins ?? 0;
 
         return Container(
@@ -135,8 +135,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildUserAvatarAndInfo(user, userLevel, userCoins),
               const SizedBox(height: 16),
               _buildLevelProgressSection(userXP, xpForNextLevel),
-              const SizedBox(height: 16),
-              //_buildAchievementsSection(userAchievements),
             ],
           ),
         );
@@ -203,37 +201,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: Colors.indigo.shade50.withValues(alpha: .5),
                 ),
               ),
-              const SizedBox(height: 4),
-              // Coins indicator
-              // Row(
-              //   children: [
-              // Text(
-              //   'Lv. $userLevel',
-              //   style: const TextStyle(
-              //     fontSize: 16,
-              //     fontFamily: 'Scabber',
-              //     fontWeight: FontWeight.bold,
-              //     color: Colors.red,
-              //   ),
-              // ),
-              // const SizedBox(width: 48),
-              // Image.asset(
-              //   'assets/icons/star.png',
-              //   height: 20,
-              //   width: 20,
-              // ),
-              // const SizedBox(width: 4),
-              // Text(
-              //   '$userCoins',
-              //   style: const TextStyle(
-              //     fontSize: 16,
-              //     fontFamily: 'Scabber',
-              //     fontWeight: FontWeight.bold,
-              //     color: Colors.amber,
-              //   ),
-              // ),
-              //   ],
-              // ),
             ],
           ),
         ),
@@ -267,7 +234,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Level Progress',
+              context.tr('level_progress'),
               style: TextStyle(
                 fontSize: 16,
                 fontFamily: 'Scabber',
@@ -276,7 +243,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             Text(
-              'XP: $userXP / $xpForNextLevel',
+              context.tr('xp', args: [userXP.toString(), xpForNextLevel.toString()]),
               style: TextStyle(
                 fontSize: 14,
                 fontFamily: 'Scabber',
@@ -349,108 +316,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // Widget _buildAchievementsSection(List<String> userAchievements) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       const Text(
-  //         'Recent Achievements',
-  //         style: TextStyle(
-  //           fontSize: 16,
-  //           fontFamily: 'Scabber',
-  //           color: softIndigoColor,
-  //           fontWeight: FontWeight.bold,
-  //         ),
-  //       ),
-  //       const SizedBox(height: 8),
-  //       SingleChildScrollView(
-  //         scrollDirection: Axis.horizontal,
-  //         child: Row(
-  //           children: userAchievements.map((achievement) => _buildAchievementBadge(achievement)).toList(),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
-  // Widget _buildAchievementBadge(String achievement) {
-  //   return Container(
-  //     margin: const EdgeInsets.only(right: 8),
-  //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-  //     decoration: BoxDecoration(
-  //       color: Colors.amber.shade100,
-  //       borderRadius: BorderRadius.circular(20),
-  //       border: Border.all(color: Colors.amber.shade300),
-  //     ),
-  //     child: Row(
-  //       mainAxisSize: MainAxisSize.min,
-  //       children: [
-  //         Icon(
-  //           Icons.star,
-  //           size: 16,
-  //           color: Colors.amber.shade700,
-  //         ),
-  //         const SizedBox(width: 4),
-  //         Text(
-  //           achievement,
-  //           style: TextStyle(
-  //             fontSize: 12,
-  //             fontFamily: 'Scabber',
-  //             color: Colors.amber.shade800,
-  //             fontWeight: FontWeight.bold,
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildSoundAndFeedbackSection(SettingsState settingsState, BuildContext context) {
     return Column(
       children: [
-        const SettingsSectionTitle(title: 'Sound & Feedback'),
-        _buildSettingSwitch(
-          context: context,
-          iconPath: 'assets/icons/volume.png',
-          title: 'Sound Effects',
-          value: settingsState.soundEnabled,
-          onChanged: (value) {
-            context.read<SettingsBloc>().add(SettingsEvent.toggleSound(enabled: value));
-            if (value) {
-              context.read<SettingsBloc>().add(SettingsEvent.playClickSound(assetPath: 'sounds/click.wav'));
-            }
-          },
+        SettingsSectionTitle(title: context.tr('sound_and_feedback')),
+        SettingsTile(
+          leading: Image.asset('assets/icons/volume.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          title: context.tr('sound_effects'),
+          trailing: Switch.adaptive(
+            value: settingsState.soundEnabled,
+            activeColor: Colors.green.shade400,
+            onChanged: (value) {
+              context.read<SettingsBloc>().add(SettingsEvent.toggleSound(enabled: value));
+              if (value) {
+                context.read<SettingsBloc>().add(SettingsEvent.playClickSound(assetPath: 'sounds/click.wav'));
+              }
+            },
+          ),
         ),
-        _buildSettingSwitch(
-          context: context,
-          iconPath: 'assets/icons/music.png',
-          title: 'Background Music',
-          value: settingsState.musicEnabled,
-          onChanged: (value) {
-            context.read<SettingsBloc>().add(SettingsEvent.toggleMusic(enabled: value));
-            if (value) {
-              context.read<SettingsBloc>().add(SettingsEvent.playBackgroundMusic(assetPath: 'sounds/zifromania_background.mp3'));
-            } else {
-              context.read<SettingsBloc>().add(SettingsEvent.stopBackgroundMusic());
-            }
-          },
+        SettingsTile(
+          leading: Image.asset('assets/icons/music.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          title: context.tr('background_music'),
+          trailing: Switch.adaptive(
+            value: settingsState.musicEnabled,
+            activeColor: Colors.green.shade400,
+            onChanged: (value) {
+              context.read<SettingsBloc>().add(SettingsEvent.toggleMusic(enabled: value));
+              if (value) {
+                context.read<SettingsBloc>().add(SettingsEvent.playBackgroundMusic(assetPath: 'sounds/zifromania_background.mp3'));
+              } else {
+                context.read<SettingsBloc>().add(SettingsEvent.stopBackgroundMusic());
+              }
+            },
+          ),
         ),
-        _buildSettingSwitch(
-          context: context,
-          iconPath: 'assets/icons/vibrate.png',
-          title: 'Vibration',
-          value: settingsState.vibrationEnabled,
-          onChanged: (value) {
-            context.read<SettingsBloc>().add(SettingsEvent.toggleVibration(enabled: value));
-            if (value) {
-              _soundService.hapticFeedback(HapticFeedbackType.light);
-              context.read<SettingsBloc>().add(SettingsEvent.vibrate(duration: 300));
-            }
-          },
+        SettingsTile(
+          leading: Image.asset('assets/icons/vibrate.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          title: context.tr('vibration'),
+          trailing: Switch.adaptive(
+            value: settingsState.vibrationEnabled,
+            activeColor: Colors.green.shade400,
+            onChanged: (value) {
+              context.read<SettingsBloc>().add(SettingsEvent.toggleVibration(enabled: value));
+              if (value) {
+                _soundService.hapticFeedback(HapticFeedbackType.light);
+                context.read<SettingsBloc>().add(SettingsEvent.vibrate(duration: 300));
+              }
+            },
+          ),
         ),
-        _buildNavigationTile(
-          iconPath: 'assets/icons/feedback.png',
-          title: 'Send Feedback',
+        SettingsTile(
+          leading: Image.asset('assets/icons/feedback.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          title: context.tr('send_feedback'),
           onTap: () {
             final route = PartialModalRoute(child: const FeedbackScreen());
             Navigator.push(context, route);
@@ -460,44 +377,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSettingSwitch({
-    required BuildContext context,
-    required String iconPath,
-    required String title,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return SettingsSwitch(
-      leading: Image.asset(iconPath, opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
-      title: title,
-      value: value,
-      onChanged: onChanged,
-    );
-  }
-
   Widget _buildAboutSection(BuildContext context) {
     return Column(
       children: [
-        const SettingsSectionTitle(title: 'About'),
-        _buildNavigationTile(
-          iconPath: 'assets/icons/information.png',
-          title: 'About Zifromania',
+        SettingsSectionTitle(title: context.tr('about')),
+        SettingsTile(
+          leading: Image.asset('assets/icons/information.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          title: context.tr('about_zifromania'),
           onTap: () {
             final route = PartialModalRoute(child: const AboutZifroManiaScreen());
             Navigator.push(context, route);
           },
         ),
-        _buildNavigationTile(
-          iconPath: 'assets/icons/privacy.png',
-          title: 'Privacy Policy',
+        SettingsTile(
+          leading: Image.asset('assets/icons/privacy.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          title: context.tr('privacy_policy'),
           onTap: () {
             final route = PartialModalRoute(child: const PrivacyPolicyScreen());
             Navigator.push(context, route);
           },
         ),
-        _buildNavigationTile(
-          iconPath: 'assets/icons/service.png',
-          title: 'Terms of Service',
+        SettingsTile(
+          leading: Image.asset('assets/icons/service.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          title: context.tr('terms_of_service'),
           onTap: () {
             final route = PartialModalRoute(child: const TermsOfServiceScreen());
             Navigator.push(context, route);
@@ -510,18 +412,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildAccountAppSection(BuildContext context) {
     return Column(
       children: [
-        const SettingsSectionTitle(title: 'Account & App'),
-        _buildNavigationTile(
-          iconPath: 'assets/icons/logout.png',
-          title: 'Logout',
+        SettingsSectionTitle(title: context.tr('account_and_app')),
+        SettingsTile(
+          leading: Image.asset('assets/icons/language.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          title: context.tr('languages'),
+          trailing: IconButton(
+            key: languageButtonKey,
+            icon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
+            onPressed: () => _showLanguageMenu(context, languageButtonKey),
+          ),
+        ),
+        SettingsTile(
+          leading: Image.asset('assets/icons/logout.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          title: context.tr('logout'),
           onTap: () async {
             await _soundService.hapticFeedback(HapticFeedbackType.medium);
             if (context.mounted) context.read<AuthBloc>().add(AuthEvent.loggedOutStart());
           },
         ),
-        _buildNavigationTile(
-          iconPath: 'assets/icons/quit.png',
-          title: 'Quit',
+        SettingsTile(
+          leading: Image.asset('assets/icons/quit.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          title: context.tr('quit'),
           onTap: () async {
             await _soundService.hapticFeedback(HapticFeedbackType.medium);
             await SystemNavigator.pop();
@@ -531,32 +442,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildNavigationTile({
-    required String iconPath,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-      leading: SizedBox(
-          height: 32,
-          width: 32,
-          child: Image.asset(
-            iconPath,
-            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
-          )),
-      title: Text(
-        title,
-        style: TextStyle(fontFamily: 'Scabber', fontSize: 18, color: lightBrownColor),
+  void _showLanguageMenu(BuildContext context, GlobalKey buttonKey) async {
+    final RenderBox renderBox = buttonKey.currentContext?.findRenderObject() as RenderBox;
+    final offset = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+
+    await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        offset.dx - 100,
+        offset.dy + size.height,
+        offset.dx + 50,
+        offset.dy + size.height + 200,
       ),
-      onTap: onTap,
-    );
+      items: [
+        PopupMenuItem<String>(
+          value: 'en',
+          child: Row(
+            children: [
+              const Text('🇺🇸', style: TextStyle(fontSize: 20)),
+              const SizedBox(width: 12),
+              Text(context.tr('en'), style: const TextStyle(fontFamily: 'Scabber', fontSize: 16)),
+            ],
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'tr',
+          child: Row(
+            children: [
+              const Text('🇹🇷', style: TextStyle(fontSize: 20)),
+              const SizedBox(width: 12),
+              Text(context.tr('tr'), style: const TextStyle(fontFamily: 'Scabber', fontSize: 16)),
+            ],
+          ),
+        ),
+      ],
+    ).then((selectedLanguage) {
+      if (selectedLanguage != null) {
+        _soundService.hapticFeedback(HapticFeedbackType.light);
+        if (!context.mounted) return;
+        context.setLocale(Locale(selectedLanguage));
+        context.read<SettingsBloc>().add(SettingsEvent.changeLanguage(language: selectedLanguage));
+      }
+    });
   }
 
   Widget _buildFooter(BuildContext context) {
     return Center(
       child: Text(
-        'Version 1.0.0',
+        context.tr('version', namedArgs: {'version': '1.0.0'}),
         style: TextStyle(
           fontFamily: 'Scabber',
           color: lightBrownColor,
@@ -596,18 +530,18 @@ class SettingsSectionTitle extends StatelessWidget {
   }
 }
 
-class SettingsSwitch extends StatelessWidget {
+class SettingsTile extends StatelessWidget {
   final Widget leading;
   final String title;
-  final bool value;
-  final ValueChanged<bool> onChanged;
+  final Widget? trailing;
+  final VoidCallback? onTap;
 
-  const SettingsSwitch({
+  const SettingsTile({
     super.key,
     required this.leading,
     required this.title,
-    required this.value,
-    required this.onChanged,
+    this.trailing,
+    this.onTap,
   });
 
   @override
@@ -615,12 +549,12 @@ class SettingsSwitch extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       leading: SizedBox(height: 32, width: 32, child: leading),
-      title: Text(title, style: TextStyle(fontFamily: 'Scabber', fontSize: 18, color: lightBrownColor)),
-      trailing: Switch.adaptive(
-        value: value,
-        activeColor: Colors.green.shade400,
-        onChanged: onChanged,
+      title: Text(
+        title,
+        style: TextStyle(fontFamily: 'Scabber', fontSize: 18, color: lightBrownColor),
       ),
+      trailing: trailing,
+      onTap: onTap,
     );
   }
 }
