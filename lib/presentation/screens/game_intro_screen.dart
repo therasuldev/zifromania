@@ -6,7 +6,7 @@ import 'package:zifromania/presentation/screens/subscription_screen.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/enums.dart';
-import '../widgets/difficulty_button.dart';
+import '../widgets/game_category_button.dart';
 import '../widgets/coin_display.dart';
 import 'leaderboard_screen.dart';
 
