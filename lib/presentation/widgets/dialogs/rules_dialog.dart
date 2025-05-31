@@ -1,29 +1,31 @@
-import 'package:equation_quest/domain/entities/enums.dart';
-import 'package:equation_quest/presentation/widgets/animated_button.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:zifromania/domain/entities/enums.dart';
+import 'package:zifromania/presentation/widgets/animated_button.dart';
+import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
 import 'package:flutter/material.dart';
 
 class RulesDialog extends StatelessWidget {
-  final GameDifficulty difficulty;
+  const RulesDialog({super.key, required this.gameCategory});
 
-  const RulesDialog({super.key, required this.difficulty});
+  final GameCategory gameCategory;
 
   @override
   Widget build(BuildContext context) {
-    // Get the appropriate rules based on difficulty
-    final List<Map<String, String>> rules = _getRulesForDifficulty(difficulty);
+    // Get the appropriate rules based on category
+    final List<Map<String, String>> rules = _getRulesForCategory(gameCategory, context: context);
 
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
         width: MediaQuery.of(context).size.width * 0.85,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(255, 2, 104, 120),
-              Color.fromRGBO(9, 37, 29, 1),
-            ],
+          image: const DecorationImage(
+            image: AssetImage('assets/images/scaffold.jpg'),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.black45,
+              BlendMode.darken,
+            ),
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
@@ -51,22 +53,19 @@ class RulesDialog extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(
-                        Icons.gamepad_rounded,
-                        color: Colors.white,
-                        size: 32,
-                      ),
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: Text(
-                            _getTitleForDifficulty(difficulty),
+                            _getTitleForCategory(gameCategory, context: context),
                             textAlign: TextAlign.center,
+                            maxLines: 1,
                             style: TextStyle(
                               fontSize: 25,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontFamily: 'Onacona',
+                              color: Colors.grey.shade200.withValues(alpha: 0.7),
+                              fontFamily: 'Scabber',
+                              overflow: TextOverflow.ellipsis,
                               shadows: [
                                 Shadow(
                                   color: Colors.black.withValues(alpha: 0.3),
@@ -78,9 +77,9 @@ class RulesDialog extends StatelessWidget {
                           ),
                         ),
                       ),
-                      GestureDetector(
+                      AnimatedIconButton(
                         onTap: () => Navigator.of(context).pop(),
-                        child: Image.asset('assets/icons/delete.png'),
+                        icon: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/delete.png')),
                       ),
                     ],
                   ),
@@ -98,17 +97,15 @@ class RulesDialog extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Image.asset(rule['icon']!),
+                          SizedBox(height: 32, width: 32, child: Image.asset(rule['icon']!)),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               rule['text']!,
                               style: const TextStyle(
                                 fontSize: 16,
-                                color: Colors.white,
-                                height: 1.5,
-                                fontWeight: FontWeight.w900,
-                                fontFamily: 'rimouskisb',
+                                color: Colors.white60,
+                                fontFamily: 'Scabber',
                               ),
                             ),
                           ),
@@ -122,11 +119,11 @@ class RulesDialog extends StatelessWidget {
             ),
             AnimatedButton(
               width: 200,
-              icon: Image.asset('assets/icons/play-start.png', width: 40, height: 40),
-              color: Colors.tealAccent,
+              title: context.tr('button.start_game'),
+              color: Colors.transparent,
               onTap: () => Navigator.of(context).pop(true),
-              fontSize: 18,
-              fontFamily: 'Onacona',
+              fontSize: 25,
+              fontFamily: 'Scabber',
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               borderRadius: const BorderRadius.all(Radius.circular(30)),
             ),
@@ -137,132 +134,41 @@ class RulesDialog extends StatelessWidget {
     );
   }
 
-  // Helper function to get the title based on difficulty
-  String _getTitleForDifficulty(GameDifficulty difficulty) {
-    switch (difficulty) {
-      case GameDifficulty.speedCalculation:
-        return "SPEED CALCULATION";
-      case GameDifficulty.multiplyDivideBattle:
-        return "MULTIPLICATION TABLE";
-      case GameDifficulty.trueFalse:
-        return "TRUE OR FALSE";
-      case GameDifficulty.expert:
-        return "EXPERT MODE";
-      case GameDifficulty.endless:
-        return "TRAINING MODE";
-      default:
-        return "RULES";
-    }
+  // Helper function to get the title based on category
+  String _getTitleForCategory(GameCategory gameCategory, {required BuildContext context}) {
+    return switch (gameCategory) {
+      GameCategory.quickThinking => context.tr('title.quick_thinking'),
+      GameCategory.multiplyDivide => context.tr('title.multiply_divide'),
+      GameCategory.trueOrFalse => context.tr('title.true_or_false'),
+      GameCategory.expert => context.tr('title.expert'),
+      GameCategory.training => context.tr('title.training'),
+    };
   }
 
-  // Helper function to get rules based on difficulty
-  List<Map<String, String>> _getRulesForDifficulty(GameDifficulty difficulty) {
-    switch (difficulty) {
-      case GameDifficulty.speedCalculation:
-        return [
-          {
-            'icon': 'assets/icons/timer.png',
-            'text': "Solve as many basic arithmetic problems as possible in 60 seconds. Speed is the key!"
-          },
-          {
-            'icon': 'assets/icons/info.png',
-            'text':
-                "Questions involve quick addition, subtraction, and simple multiplications. Each correct answer earns 1 point."
-          },
-          {
-            'icon': 'assets/icons/right-arrow-red.png',
-            'text': "For every 4 incorrect answers, 1 point will be deducted from your score. Answer quickly but accurately!"
-          },
-        ];
+  List<Map<String, String>> _getRulesForCategory(GameCategory gameCategory, {required BuildContext context}) {
+    final icons = [
+      'assets/icons/timer.png',
+      'assets/icons/info.png',
+      'assets/icons/right-arrow.png',
+    ];
 
-      case GameDifficulty.multiplyDivideBattle:
-        return [
-          {
-            'icon': 'assets/icons/timer.png',
-            'text': "Master multiplication tables in 60 seconds. Focus on multiplication and division problems."
-          },
-          {
-            'icon': 'assets/icons/info.png',
-            'text':
-                "Questions will test your knowledge of multiplication and division facts from 1×1 to 10×10. Each correct answer is worth 1 point."
-          },
-          {
-            'icon': 'assets/icons/right-arrow-red.png',
-            'text':
-                "A penalty of 1 point will be applied after every 4 wrong answers. Practice daily to improve your multiplication skills!"
-          },
-        ];
+    final keys = List.generate(3, (i) => 'rules.${_categoryKey(gameCategory)}.$i');
+    return List.generate(3, (i) => {'icon': icons[i], 'text': context.tr(keys[i])});
+  }
 
-      case GameDifficulty.trueFalse:
-        return [
-          {
-            'icon': 'assets/icons/timer.png',
-            'text': "You'll see mathematical equations and must decide if they are TRUE or FALSE within 60 seconds."
-          },
-          {
-            'icon': 'assets/icons/info.png',
-            'text': "Swipe RIGHT for TRUE equations and LEFT for FALSE ones. Each correct judgment earns you 1 point."
-          },
-          {
-            'icon': 'assets/icons/right-arrow-red.png',
-            'text':
-                "Be careful! For every 4 incorrect judgments, 1 point will be deducted. Trust your instincts but verify the math!"
-          },
-        ];
-
-      case GameDifficulty.expert:
-        return [
-          {
-            'icon': 'assets/icons/timer.png',
-            'text': "Face challenging problems involving multiple operations, powers, and complex calculations within 60 seconds."
-          },
-          {
-            'icon': 'assets/icons/info.png',
-            'text':
-                "Questions include advanced arithmetic, algebraic expressions, and multi-step problems. Each correct solution earns 2 points."
-          },
-          {
-            'icon': 'assets/icons/right-arrow-red.png',
-            'text':
-                "The penalty for mistakes is higher: 2 points deducted after every 4 wrong answers. This mode is for math enthusiasts seeking a real challenge!"
-          },
-        ];
-
-      case GameDifficulty.endless:
-        return [
-          {
-            'icon': 'assets/icons/timer.png',
-            'text': "In Training Mode, there's no time limit. Practice at your own pace to improve your math skills."
-          },
-          {
-            'icon': 'assets/icons/info.png',
-            'text':
-                "Problems increase in difficulty as you progress. Your session continues until you choose to end it, with no score penalties."
-          },
-          {
-            'icon': 'assets/icons/right-arrow-red.png',
-            'text':
-                "This mode tracks accuracy rather than speed. Use it to build confidence and master concepts before trying timed challenges."
-          },
-        ];
-
-      default:
-        // Default rules if needed
-        return [
-          {
-            'icon': 'assets/icons/timer.png',
-            'text': "The game will last for 1 minute. During this time, answer as many questions as possible.",
-          },
-          {
-            'icon': 'assets/icons/info.png',
-            'text': "After every 4 wrong answers, one point will be deducted from your score.",
-          },
-          {
-            'icon': 'assets/icons/right-arrow-red.png',
-            'text':
-                "After answering a question, you automatically move to the next question and cannot return to the previous one.",
-          },
-        ];
+// Helper to convert enum to key string
+  String _categoryKey(GameCategory category) {
+    switch (category) {
+      case GameCategory.quickThinking:
+        return 'quick_thinking';
+      case GameCategory.multiplyDivide:
+        return 'multiply_divide';
+      case GameCategory.trueOrFalse:
+        return 'true_or_false';
+      case GameCategory.expert:
+        return 'expert';
+      case GameCategory.training:
+        return 'training';
     }
   }
 }
