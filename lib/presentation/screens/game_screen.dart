@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:zifromania/domain/entities/constant.dart';
 import 'package:zifromania/locator.dart';
 import 'package:zifromania/models/title_model.dart';
@@ -20,9 +21,9 @@ import '../widgets/game/question_container.dart';
 import '../widgets/game/answer_button.dart';
 
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key, required this.difficulty});
+  const GameScreen({super.key, required this.gameCategory});
 
-  final GameDifficulty difficulty;
+  final GameCategory gameCategory;
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -42,9 +43,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       upperBound: 1.0,
     );
 
-    // Start the game with the selected difficulty once the widget is fully built
+    // Start the game with the selected category once the widget is fully built
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<GameBloc>().add(GameEvent.startGame(difficulty: widget.difficulty));
+      context.read<GameBloc>().add(GameEvent.startGame(gameCategory: widget.gameCategory));
     });
   }
 
@@ -77,7 +78,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void onPlayAgain() {
     Navigator.pop(context);
 
-    final event = GameEvent.playAgain(difficulty: widget.difficulty);
+    final event = GameEvent.playAgain(gameCategory: widget.gameCategory);
     context.read<GameBloc>().add(event);
   }
 
@@ -149,22 +150,20 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   // Add this method to your widget class
   void _handleGameEnd(BuildContext context, GameState state) {
-    if (state.newlyEarnedTitles.isNotEmpty) {
-      // Always show ad first
-      AdManager().showAdAfterGame(
-        onAdClosed: () {
-          if (!context.mounted) return;
+    // Always show ad first
+    AdManager().showAdAfterGame(
+      onAdClosed: () {
+        if (!context.mounted) return;
 
-          // After ad closes, check if we have titles to show
-          if (state.newlyEarnedTitles.isNotEmpty) {
-            _showTitleRewardAnimation(context, state.newlyEarnedTitles, state);
-          } else {
-            // No titles, go directly to result dialog
-            _showResultDialog(context, state);
-          }
-        },
-      );
-    }
+        // After ad closes, check if we have titles to show
+        if (state.newlyEarnedTitles.isNotEmpty) {
+          _showTitleRewardAnimation(context, state.newlyEarnedTitles, state);
+        } else {
+          // No titles, go directly to result dialog
+          _showResultDialog(context, state);
+        }
+      },
+    );
   }
 
   void _showTitleRewardAnimation(BuildContext context, List<TitleModel> newTitles, GameState state) {
@@ -214,7 +213,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             child: AnimatedTextKit(
               animatedTexts: [
                 FadeAnimatedText(
-                  'Creating New Questions...',
+                  context.tr('game.loading'),
                   textStyle: const TextStyle(
                     fontSize: 24,
                     fontFamily: 'Scabber',
@@ -229,9 +228,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Please wait',
-            style: TextStyle(
+          Text(
+            context.tr('game.loading_description'),
+            style: const TextStyle(
               fontSize: 16,
               fontFamily: 'Scabber',
               color: Colors.white70,
@@ -255,9 +254,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             fit: BoxFit.contain,
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Sual tapılmadı.',
-            style: TextStyle(
+           Text(
+            context.tr('game.no_questions'),
+            style: const TextStyle(
               fontSize: 18,
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -271,7 +270,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   Widget _buildGameContent(BuildContext context, GameState state, MathQuestion question) {
     return Column(
       children: [
-        if (state.difficulty != GameDifficulty.endless)
+        if (state.gameCategory != GameCategory.training)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
@@ -282,7 +281,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ],
             ),
           ),
-        if (state.difficulty == GameDifficulty.endless)
+        if (state.gameCategory == GameCategory.training)
           Text(
             "${state.currentQuestionIndex + 1}/${state.questions.length}",
             style: const TextStyle(
@@ -306,7 +305,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: AnswerButton(
                   index: index,
-                  //buttonAnimationController: buttonAnimationController,
                   onTap: () {
                     final event = GameEvent.checkAnswer(
                       question: state.currentQuestion!,
