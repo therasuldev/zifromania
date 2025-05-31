@@ -1,5 +1,6 @@
-import 'package:equation_quest/presentation/state_managment/game_bloc/game_bloc.dart';
-import 'package:equation_quest/presentation/widgets/animated_button.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:zifromania/presentation/state-managment/game/game_bloc.dart';
+import 'package:zifromania/presentation/widgets/animated_button.dart';
 import 'package:flutter/material.dart';
 
 class ResultDialog extends StatelessWidget {
@@ -21,13 +22,10 @@ class ResultDialog extends StatelessWidget {
       child: Container(
         width: MediaQuery.of(context).size.width * 0.85,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(255, 2, 104, 120),
-              Color.fromRGBO(9, 37, 29, 1),
-            ],
+          image: const DecorationImage(
+            fit: BoxFit.cover,
+            image: AssetImage('assets/images/scaffold.jpg'),
+            colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
@@ -61,7 +59,7 @@ class ResultDialog extends StatelessWidget {
                         size: 32,
                       ),
                       Text(
-                        "GAME OVER!",
+                        context.tr('game.over'),
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 25,
@@ -82,7 +80,7 @@ class ResultDialog extends StatelessWidget {
                         onTap: () => Navigator.of(context)
                           ..pop()
                           ..pop(),
-                        child: Image.asset('assets/icons/delete.png'),
+                        child: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/delete.png')),
                       ),
                     ],
                   ),
@@ -106,7 +104,7 @@ class ResultDialog extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Score: $score",
+                        context.tr('game.score', args: ['$score']),
                         style: const TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
@@ -116,8 +114,8 @@ class ResultDialog extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        "Time: ${60 - state.secondsRemaining}s",
-                        style: TextStyle(
+                        context.tr('game.time', args: ['${60 - state.secondsRemaining}']),
+                        style: const TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                           color: Colors.deepOrange,
@@ -135,8 +133,8 @@ class ResultDialog extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   AnimatedButton(
-                    icon: Image.asset('assets/icons/play.png', width: 40, height: 40),
-                    color: Colors.tealAccent,
+                    icon: Image.asset('assets/icons/replay.png', width: 40, height: 40),
+                    color: Colors.transparent,
                     onTap: onPlayAgain,
                     fontSize: 18,
                     fontFamily: 'Onacona',
@@ -145,7 +143,7 @@ class ResultDialog extends StatelessWidget {
                   ),
                   AnimatedButton(
                     icon: Image.asset('assets/icons/home.png', width: 40, height: 40),
-                    color: Colors.tealAccent,
+                    color: Colors.transparent,
                     onTap: () => Navigator.of(context)
                       ..pop()
                       ..pop(),
