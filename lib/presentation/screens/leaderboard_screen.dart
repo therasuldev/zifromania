@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:zifromania/domain/entities/constant.dart';
+import 'package:zifromania/models/subscription_model.dart';
 import 'package:zifromania/models/user_model.dart';
 import 'package:zifromania/presentation/common/back_button.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
@@ -47,11 +49,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: Text(
-          'Leaderboard',
+          'leaderboard.title'.tr(),
           style: TextStyle(fontFamily: 'Scabber', fontSize: 22, color: lightBrownColor),
         ),
       ),
       body: Container(
+        height: double.infinity,
         decoration: const BoxDecoration(
           image: DecorationImage(
             colorFilter: ColorFilter.mode(
@@ -87,7 +90,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                         if (snapshot.hasError) {
                           return Center(
                             child: Text(
-                              'Hata: ${snapshot.error}',
+                              'Error: ${snapshot.error}',
                               style: const TextStyle(color: Colors.red),
                             ),
                           );
@@ -95,10 +98,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
                         final users = snapshot.data ?? [];
                         if (users.isEmpty) {
-                          return const Center(
+                          return Center(
                             child: Text(
-                              'Henüz oyuncu yok',
-                              style: TextStyle(
+                              'leaderboard.no_players'.tr(),
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
                                 fontFamily: 'Scabber',
@@ -151,7 +154,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                                   return FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(
-                                      'Sizin Sıralama: ${snapshot.data ?? 0}',
+                                      'leaderboard.your_rank'.tr(args: ['${snapshot.data ?? 0}']),
                                       style: TextStyle(
                                         color: lightBrownColor,
                                         fontFamily: 'Scabber',
@@ -182,9 +185,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                                 children: [
                                   Image.asset('assets/icons/refresh.png', height: 20, width: 20),
                                   const SizedBox(width: 8),
-                                  const Text(
-                                    'Refresh',
-                                    style: TextStyle(
+                                  Text(
+                                    'leaderboard.refresh'.tr(),
+                                    style: const TextStyle(
                                       color: Colors.white70,
                                       fontFamily: 'Scabber',
                                       fontSize: 14,
@@ -203,36 +206,36 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        color: Colors.white.withOpacity(0.05),
+                        color: Colors.white.withValues(alpha: 0.05),
                       ),
                       child: Column(
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.all(12.0),
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
                             child: Row(
                               children: [
-                                SizedBox(width: 45),
+                                const SizedBox(width: 45),
                                 Expanded(
                                   child: Text(
-                                    'Player',
-                                    style: TextStyle(
+                                    'leaderboard.player'.tr(),
+                                    style: const TextStyle(
                                       color: Colors.white70,
                                       fontFamily: 'Scabber',
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(
-                                  'Level',
-                                  style: TextStyle(
+                                  'leaderboard.level'.tr(args: ['']),
+                                  style: const TextStyle(
                                     color: Colors.white70,
                                     fontFamily: 'Scabber',
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                SizedBox(width: 36),
-                                Text(
+                                const SizedBox(width: 36),
+                                const Text(
                                   'XP',
                                   style: TextStyle(
                                     color: Colors.white70,
@@ -240,7 +243,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                SizedBox(width: 12),
+                                const SizedBox(width: 12),
                               ],
                             ),
                           ),
@@ -257,14 +260,15 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(20.0),
                                     child: Text(
-                                      'Hata: ${snapshot.error}',
+                                      'Error: ${snapshot.error}',
                                       style: const TextStyle(color: Colors.red),
                                     ),
                                   ),
                                 );
                               }
 
-                              final users = snapshot.data ?? [];
+                              final allUsers = snapshot.data ?? [];
+                              final users = allUsers.length > 3 ? allUsers.sublist(3) : <UserModel>[];
 
                               return ListView.separated(
                                 physics: const NeverScrollableScrollPhysics(),
@@ -282,7 +286,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
                                   return _buildRankListItem(
                                     user: user,
-                                    position: index + 1,
+                                    position: index + 4, // +4 because we skip the top 3
                                     isCurrentUser: isCurrentUser,
                                   );
                                 },
@@ -305,8 +309,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
   Widget _buildTop3Shimmer() {
     return Shimmer.fromColors(
-      baseColor: Colors.grey[800]!,
-      highlightColor: Colors.grey[600]!,
+      baseColor: Colors.grey[800]!.withValues(alpha: 0.5),
+      highlightColor: Colors.grey[600]!.withValues(alpha: 0.5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -497,8 +501,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
   Widget _buildLeaderboardShimmer() {
     return Shimmer.fromColors(
-      baseColor: Colors.grey[800]!,
-      highlightColor: Colors.grey[600]!,
+      baseColor: Colors.grey[800]!.withValues(alpha: 0.5),
+      highlightColor: Colors.grey[600]!.withValues(alpha: 0.5),
       child: ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
@@ -591,6 +595,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         photoURL: '',
         level: 0,
         xp: 0,
+        subscription: const SubscriptionModel(),
       ));
     }
 
@@ -678,7 +683,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: (medalColors[position] ?? Colors.grey).withOpacity(0.3),
+                  color: (medalColors[position] ?? Colors.grey).withValues(alpha: 0.3),
                   blurRadius: 12,
                   spreadRadius: 2,
                 ),
@@ -725,7 +730,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
           // Username
           Text(
-            user.displayName ?? 'Player',
+            user.displayName ?? 'leaderboard.player'.tr(),
             style: TextStyle(
               color: Colors.white,
               fontFamily: 'Scabber',
@@ -738,7 +743,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
           // Level
           Text(
-            'Level ${user.level}',
+            'leaderboard.level'.tr(args: ['${user.level}']),
             style: TextStyle(
               color: Colors.white70,
               fontFamily: 'Scabber',
@@ -754,7 +759,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             height: podiumHeights[position] ?? 50,
             margin: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
-              color: medalColors[position]?.withOpacity(0.3) ?? Colors.grey.withOpacity(0.3),
+              color: medalColors[position]?.withValues(alpha: 0.3) ?? Colors.grey.withValues(alpha: 0.3),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(6),
                 topRight: Radius.circular(6),
@@ -792,110 +797,270 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       3: const Color(0xFFCD7F32), // Bronze
     };
 
+    // Premium user gradient colors
+    final List<Color> premiumGradient = [
+      const Color(0xFFFFD700), // Gold
+      const Color(0xFFFFA500), // Orange
+      const Color(0xFFFF6B35), // Red-Orange
+    ];
+
+    final bool isPremium = user.hasActiveSubscription;
+
     return Container(
       decoration: BoxDecoration(
-        color: positionColors[position]?.withValues(alpha: 0.1) ??
-            (isCurrentUser ? Colors.brown.shade200.withValues(alpha: 0.2) : Colors.transparent),
-        borderRadius: BorderRadius.circular(4),
+        // Premium users get animated gradient background
+        gradient: isPremium
+            ? LinearGradient(
+                colors: premiumGradient.map((c) => c.withValues(alpha: 0.15)).toList(),
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              )
+            : null,
+        color: !isPremium
+            ? (positionColors[position]?.withValues(alpha: 0.1) ??
+                (isCurrentUser ? Colors.brown.shade200.withValues(alpha: 0.2) : Colors.transparent))
+            : null,
+        borderRadius: BorderRadius.circular(8),
+        border: isPremium
+            ? Border.all(
+                color: const Color(0xFFFFD700).withValues(alpha: 0.6),
+                width: 1.5,
+              )
+            : null,
+        // Premium users get subtle shadow
+        boxShadow: isPremium
+            ? [
+                BoxShadow(
+                  color: const Color(0xFFFFD700).withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
         child: Row(
           children: [
-            // Position
+            // Position with premium crown
             SizedBox(
               width: 35,
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: positionColors[position]?.withValues(alpha: 0.2) ??
-                      (isCurrentUser ? Colors.brown.shade200.withValues(alpha: 0.2) : Colors.white10),
-                  border: Border.all(
-                    color: positionColors[position] ?? (isCurrentUser ? Colors.white : Colors.transparent),
-                    width: 1,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    position.toString(),
-                    style: TextStyle(
-                      fontFamily: 'Scabber',
-                      color: positionColors[position] ?? Colors.white,
-                      fontWeight: FontWeight.bold,
+              child: Stack(
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: isPremium
+                          ? LinearGradient(
+                              colors: [
+                                const Color(0xFFFFD700),
+                                const Color(0xFFFFA500),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                          : null,
+                      color: !isPremium
+                          ? (positionColors[position]?.withValues(alpha: 0.2) ??
+                              (isCurrentUser ? Colors.brown.shade200.withValues(alpha: 0.2) : Colors.white10))
+                          : null,
+                      border: Border.all(
+                        color:
+                            isPremium ? const Color(0xFFFFD700) : (positionColors[position] ?? (isCurrentUser ? Colors.white : Colors.transparent)),
+                        width: isPremium ? 2 : 1,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        position.toString(),
+                        style: TextStyle(
+                          fontFamily: 'Scabber',
+                          color: isPremium ? Colors.white : (positionColors[position] ?? Colors.white),
+                          fontWeight: FontWeight.bold,
+                          fontSize: isPremium ? 14 : 12,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  // Crown icon for premium users
+                  if (isPremium)
+                    Positioned(
+                      top: -2,
+                      right: -2,
+                      child: Container(
+                        width: 14,
+                        height: 14,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFFD700),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.star,
+                          size: 10,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
 
             const SizedBox(width: 8),
 
-            // Avatar
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.white10,
-              backgroundImage: (user.photoURL?.isNotEmpty ?? false) ? CachedNetworkImageProvider(user.photoURL!) : null,
-              child: (user.photoURL?.isEmpty ?? true)
-                  ? const Icon(
-                      Icons.person,
-                      size: 22,
-                      color: Colors.white70,
-                    )
-                  : null,
+            // Avatar with premium border
+            Stack(
+              children: [
+                Container(
+                  decoration: isPremium
+                      ? BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFFFFD700),
+                              const Color(0xFFFFA500),
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFFD700).withValues(alpha: 0.5),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        )
+                      : null,
+                  padding: isPremium ? const EdgeInsets.all(2) : EdgeInsets.zero,
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Colors.white10,
+                    backgroundImage: (user.photoURL?.isNotEmpty ?? false) ? CachedNetworkImageProvider(user.photoURL!) : null,
+                    child: (user.photoURL?.isEmpty ?? true)
+                        ? const Icon(
+                            Icons.person,
+                            size: 22,
+                            color: Colors.white70,
+                          )
+                        : null,
+                  ),
+                ),
+                // Premium badge on avatar
+                if (isPremium)
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFFFFD700),
+                            const Color(0xFFFFA500),
+                          ],
+                        ),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.black, width: 1),
+                      ),
+                      child: const Icon(
+                        Icons.diamond,
+                        size: 10,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+              ],
             ),
 
             const SizedBox(width: 12),
 
-            // Username
+            // Username with premium styling
             Expanded(
-              child: Text(
-                user.displayName ?? 'Player',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'Scabber',
-                  fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      user.displayName ?? 'leaderboard.player'.tr(),
+                      style: TextStyle(
+                        color: isPremium ? const Color(0xFFFFD700) : Colors.white,
+                        fontFamily: 'Scabber',
+                        fontWeight: isPremium ? FontWeight.bold : (isCurrentUser ? FontWeight.bold : FontWeight.normal),
+                        fontSize: isPremium ? 16 : 14,
+                        shadows: isPremium
+                            ? [
+                                Shadow(
+                                  color: const Color(0xFFFFD700).withValues(alpha: 0.5),
+                                  offset: const Offset(0, 1),
+                                  blurRadius: 2,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  // Premium crown next to name
+                  if (isPremium) ...[
+                    const SizedBox(width: 6),
+                    const Icon(
+                      Icons.workspace_premium,
+                      size: 16,
+                      color: Color(0xFFFFD700),
+                    ),
+                  ],
+                ],
               ),
             ),
 
             const SizedBox(width: 8),
 
-            // Level
+            // Level with premium styling
             Container(
               width: 40,
               alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
               decoration: BoxDecoration(
-                color: Colors.teal.withOpacity(0.2),
+                gradient: isPremium
+                    ? LinearGradient(
+                        colors: [
+                          const Color(0xFFFFD700).withValues(alpha: 0.3),
+                          const Color(0xFFFFA500).withValues(alpha: 0.3),
+                        ],
+                      )
+                    : null,
+                color: !isPremium ? Colors.teal.withValues(alpha: 0.2) : null,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.teal.withOpacity(0.3), width: 1),
+                border: Border.all(
+                  color: isPremium ? const Color(0xFFFFD700).withValues(alpha: 0.6) : Colors.teal.withValues(alpha: 0.3),
+                  width: 1,
+                ),
               ),
               child: Text(
                 user.level.toString(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Scabber',
-                  color: Colors.white,
+                  color: isPremium ? const Color(0xFFFFD700) : Colors.white,
                   fontWeight: FontWeight.bold,
+                  fontSize: isPremium ? 13 : 12,
                 ),
               ),
             ),
 
             const SizedBox(width: 16),
 
-            // XP
+            // XP with premium styling
             Container(
-              width: 50,
+              width: 60,
               alignment: Alignment.centerRight,
               child: Text(
                 '${user.xp}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Scabber',
-                  color: Colors.white70,
-                  fontSize: 13,
+                  color: isPremium ? const Color(0xFFFFD700) : Colors.white70,
+                  fontSize: isPremium ? 14 : 13,
+                  fontWeight: isPremium ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
             ),
