@@ -3,13 +3,21 @@ import 'dart:math' as math;
 import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zifromania/domain/entities/constant.dart';
 import 'package:zifromania/locator.dart';
+import 'package:zifromania/models/subscription_model.dart';
+import 'package:zifromania/models/user_model.dart';
+import 'package:zifromania/presentation/state-managment/auth/auth_bloc.dart';
+import 'package:zifromania/presentation/state-managment/auth/auth_event.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
+import 'package:zifromania/services/cache_service.dart';
 import 'package:zifromania/services/daily_reward_service.dart';
+import 'package:zifromania/services/user_service.dart';
 
 class DailyRewardWidget extends StatefulWidget {
-  const DailyRewardWidget({super.key});
+  const DailyRewardWidget({super.key, this.user});
+  final UserModel? user;
 
   @override
   State<DailyRewardWidget> createState() => _DailyRewardWidgetState();
@@ -20,10 +28,9 @@ class _DailyRewardWidgetState extends State<DailyRewardWidget> {
 
   bool _isLoading = true;
   bool _isRewardReady = false;
+  bool _isClaiming = false;
   Duration _timeUntilReady = Duration.zero;
   Timer? _pollTimer;
-
-  static const int _coinsPerClaim = 50; // <-- tweak or pull from config
 
   @override
   void initState() {
@@ -57,16 +64,31 @@ class _DailyRewardWidgetState extends State<DailyRewardWidget> {
   /* Claim logic */
   /* --------------------------------------------------------------------- */
 
+  int get _coinsPerClaim => switch (widget.user?.subscription.type) {
+        SubscriptionType.oneMonth => 15,
+        SubscriptionType.threeMonths => 30,
+        SubscriptionType.sixMonths => 50,
+        _ => 7, // Default for no subscription or unknown type
+      };
+
   Future<void> _claimReward() async {
-    if (!_isRewardReady) return;
+    if (!_isRewardReady || _isClaiming) return; // İki dəfə kliklənməyə qarşı qoruma
 
-    await _rewardService.claimReward();
-    // TODO: inject your own user/coin service here
-    // final updatedUser = await locator.get<UserService>().addCoins(_coinsPerClaim);
+    setState(() => _isClaiming = true); // Claim prosesi başladı
 
-    if (!mounted) return;
-    _showRewardClaimedDialog(_coinsPerClaim);
-    _refreshState(); // reset UI & countdown
+    try {
+      await _rewardService.claimReward();
+      final updatedUser = await locator.get<UserService>().addCoins(widget.user?.uid ?? '', _coinsPerClaim);
+      await locator.get<SecureCacheService>().write('user', updatedUser);
+
+      if (!mounted) return;
+
+      context.read<AuthBloc>().add(AuthEvent.profileSynced(updatedUser));
+      _showRewardClaimedDialog(_coinsPerClaim);
+      _refreshState();
+    } finally {
+      if (mounted) setState(() => _isClaiming = false); // Proses bitdi
+    }
   }
 
   void _showRewardClaimedDialog(int coins) {
@@ -166,7 +188,7 @@ class _DailyRewardWidgetState extends State<DailyRewardWidget> {
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
-              onPressed: _claimReward,
+              onPressed: _isClaiming ? null : _claimReward,
               child: Text('coin.daily_reward.collect_button'.tr(), style: const TextStyle(fontFamily: 'Scabber')),
             )
         ],
@@ -178,15 +200,17 @@ class _DailyRewardWidgetState extends State<DailyRewardWidget> {
 class AnimatedRewardWidget extends StatefulWidget {
   final Animation<double> animation;
   final int coins;
+  final VoidCallback? onAnimationComplete;
 
   const AnimatedRewardWidget({
-    Key? key,
+    super.key,
     required this.animation,
     required this.coins,
-  }) : super(key: key);
+    this.onAnimationComplete,
+  });
 
   @override
-  _AnimatedRewardWidgetState createState() => _AnimatedRewardWidgetState();
+  State<AnimatedRewardWidget> createState() => _AnimatedRewardWidgetState();
 }
 
 class _AnimatedRewardWidgetState extends State<AnimatedRewardWidget> with TickerProviderStateMixin {
@@ -194,6 +218,7 @@ class _AnimatedRewardWidgetState extends State<AnimatedRewardWidget> with Ticker
   late AnimationController _bounceController;
   late Animation<double> _bounceAnimation;
   late List<ParticleData> particles;
+  bool _animationCompleteCallbackCalled = false;
 
   @override
   void initState() {
@@ -209,19 +234,15 @@ class _AnimatedRewardWidgetState extends State<AnimatedRewardWidget> with Ticker
       vsync: this,
     );
 
-    _bounceAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
+    _bounceAnimation = CurvedAnimation(
       parent: _bounceController,
-      curve: Curves.elasticOut,
-    ));
+      curve: Curves.easeOutBack,
+    );
 
-    // Parçacıqları yaradırıq
     particles = List.generate(15, (index) {
       final random = Random();
       return ParticleData(
-        angle: (index * 24.0) * (pi / 180), // 24 dərəcə interval
+        angle: (index * 24.0) * (pi / 180),
         distance: 80 + random.nextDouble() * 40,
         scale: 0.5 + random.nextDouble() * 0.5,
         delay: random.nextDouble() * 0.3,
@@ -231,7 +252,6 @@ class _AnimatedRewardWidgetState extends State<AnimatedRewardWidget> with Ticker
       );
     });
 
-    // Animasiyaları başladırıq və təkrarlayırıq
     widget.animation.addListener(() {
       if (widget.animation.value > 0.3) {
         _bounceController.forward();
@@ -240,18 +260,23 @@ class _AnimatedRewardWidgetState extends State<AnimatedRewardWidget> with Ticker
         _startParticleAnimation();
       }
     });
+
+    _bounceController.addStatusListener((status) {
+      if (status == AnimationStatus.completed && !_animationCompleteCallbackCalled) {
+        _animationCompleteCallbackCalled = true;
+        widget.onAnimationComplete?.call();
+      }
+    });
+
+    // Auto-close after 3 seconds
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) Navigator.of(context).pop();
+    });
   }
 
   void _startParticleAnimation() {
-    _particleController.forward().then((_) {
-      // Animasiya bitdikdən sonra 300 millisekund gözləyib yenidən başla
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (mounted) {
-          _particleController.reset();
-          _startParticleAnimation();
-        }
-      });
-    });
+    _particleController.forward();
+    // Təkrarlama artıq lazım deyil, çünki dialog bağlanacaq
   }
 
   @override
@@ -282,9 +307,8 @@ class _AnimatedRewardWidgetState extends State<AnimatedRewardWidget> with Ticker
                   AnimatedBuilder(
                     animation: _particleController,
                     builder: (context, child) {
-                      return Transform(
-                        alignment: Alignment.center,
-                        transform: Matrix4.identity()..rotateY(_particleController.value * 2 * pi),
+                      return ScaleTransition(
+                        scale: _bounceAnimation,
                         child: Image.asset(
                           'assets/icons/coin-bag.png',
                           height: 120,
@@ -312,12 +336,12 @@ class _AnimatedRewardWidgetState extends State<AnimatedRewardWidget> with Ticker
                             decoration: TextDecoration.none,
                             shadows: [
                               Shadow(
-                                color: Colors.black.withOpacity(0.4),
+                                color: Colors.black.withValues(alpha: 0.4),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
                               Shadow(
-                                color: Colors.amberAccent.withOpacity(0.6),
+                                color: Colors.amberAccent.withValues(alpha: 0.6),
                                 blurRadius: 20,
                                 offset: const Offset(0, 0),
                               ),
