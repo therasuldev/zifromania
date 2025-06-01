@@ -1,6 +1,11 @@
 import 'dart:async';
+import 'dart:math' as math;
+import 'dart:math';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:zifromania/domain/entities/constant.dart';
 import 'package:zifromania/locator.dart';
+import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
 import 'package:zifromania/services/daily_reward_service.dart';
 
 class DailyRewardWidget extends StatefulWidget {
@@ -65,18 +70,26 @@ class _DailyRewardWidgetState extends State<DailyRewardWidget> {
   }
 
   void _showRewardClaimedDialog(int coins) {
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Mükafat Alındı!'),
-        content: Text('$coins coin qazandınız!'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
+      barrierDismissible: true,
+      barrierLabel: 'Reward',
+      barrierColor: Colors.black.withOpacity(0.4),
+      transitionDuration: const Duration(milliseconds: 1000),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Center(
+          child: AnimatedRewardWidget(
+            animation: animation,
+            coins: coins,
           ),
-        ],
-      ),
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      },
     );
   }
 
@@ -98,7 +111,7 @@ class _DailyRewardWidgetState extends State<DailyRewardWidget> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.purple.shade100, Colors.blue.shade100],
+          colors: [lightBrownColor, Colors.brown.shade300.withValues(alpha: .5)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -110,54 +123,261 @@ class _DailyRewardWidgetState extends State<DailyRewardWidget> {
             _isRewardReady ? 'assets/icons/gift_not_opened.png' : 'assets/icons/gift_opened.png',
             height: 60,
             width: 60,
+            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: _isLoading
-                ? const Text('Yüklənir…')
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Gündelik Mükafat',
-                        style: theme.textTheme.titleMedium?.copyWith(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'coin.daily_reward.title'.tr(),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontFamily: 'Scabber',
+                    color: Colors.grey.shade300.withValues(alpha: .7),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                _isRewardReady
+                    ? Text(
+                        'coin.daily_reward.tap_to_collect'.tr(),
+                        style: theme.textTheme.bodyMedium?.copyWith(
                           fontFamily: 'Scabber',
-                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade400.withValues(alpha: .7),
+                        ),
+                      )
+                    : Text(
+                        'coin.daily_reward.come_back_later'.tr(args: [DailyRewardService.formatRemainingTime(_timeUntilReady)]),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontFamily: 'Scabber',
+                          color: Colors.grey.shade400.withValues(alpha: .7),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      _isRewardReady
-                          ? Text(
-                              'Pulsuz coinlerinizi almaq üçün toxunun!',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontFamily: 'Scabber',
-                                color: Colors.grey.shade800,
-                              ),
-                            )
-                          : Text(
-                              '${DailyRewardService.formatRemainingTime(_timeUntilReady)} sonra qayıdın',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontFamily: 'Scabber',
-                                color: Colors.grey.shade800,
-                              ),
-                            ),
-                    ],
-                  ),
+              ],
+            ),
           ),
           if (_isRewardReady && !_isLoading)
-            FilledButton(
+            PressableFilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: Colors.deepOrangeAccent,
+                backgroundColor: Colors.deepPurpleAccent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
               onPressed: _claimReward,
-              child: const Text('Collect', style: TextStyle(fontFamily: 'Scabber')),
+              child: Text('coin.daily_reward.collect_button'.tr(), style: const TextStyle(fontFamily: 'Scabber')),
             )
         ],
       ),
     );
   }
+}
+
+class AnimatedRewardWidget extends StatefulWidget {
+  final Animation<double> animation;
+  final int coins;
+
+  const AnimatedRewardWidget({
+    Key? key,
+    required this.animation,
+    required this.coins,
+  }) : super(key: key);
+
+  @override
+  _AnimatedRewardWidgetState createState() => _AnimatedRewardWidgetState();
+}
+
+class _AnimatedRewardWidgetState extends State<AnimatedRewardWidget> with TickerProviderStateMixin {
+  late AnimationController _particleController;
+  late AnimationController _bounceController;
+  late Animation<double> _bounceAnimation;
+  late List<ParticleData> particles;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _particleController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _bounceController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _bounceAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _bounceController,
+      curve: Curves.elasticOut,
+    ));
+
+    // Parçacıqları yaradırıq
+    particles = List.generate(15, (index) {
+      final random = Random();
+      return ParticleData(
+        angle: (index * 24.0) * (pi / 180), // 24 dərəcə interval
+        distance: 80 + random.nextDouble() * 40,
+        scale: 0.5 + random.nextDouble() * 0.5,
+        delay: random.nextDouble() * 0.3,
+        isStarType: random.nextBool(),
+        color: random.nextBool() ? Colors.amberAccent : Colors.yellowAccent,
+        size: 20 + random.nextDouble() * 15,
+      );
+    });
+
+    // Animasiyaları başladırıq və təkrarlayırıq
+    widget.animation.addListener(() {
+      if (widget.animation.value > 0.3) {
+        _bounceController.forward();
+      }
+      if (widget.animation.value > 0.5) {
+        _startParticleAnimation();
+      }
+    });
+  }
+
+  void _startParticleAnimation() {
+    _particleController.forward().then((_) {
+      // Animasiya bitdikdən sonra 300 millisekund gözləyib yenidən başla
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          _particleController.reset();
+          _startParticleAnimation();
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _particleController.dispose();
+    _bounceController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_particleController, _bounceAnimation]),
+      builder: (context, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            // Parçacıq animasiyaları
+            ...particles.map((particle) => _buildParticle(particle)),
+
+            // Əsas reward widget
+            ScaleTransition(
+              scale: _bounceAnimation,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Coin icon with rotation
+                  AnimatedBuilder(
+                    animation: _particleController,
+                    builder: (context, child) {
+                      return Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.identity()..rotateY(_particleController.value * 2 * pi),
+                        child: Image.asset(
+                          'assets/icons/coin-bag.png',
+                          height: 120,
+                          width: 120,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Coins text with pulse effect
+                  AnimatedBuilder(
+                    animation: _bounceController,
+                    builder: (context, child) {
+                      final pulseScale = 1.0 + (sin(_bounceController.value * pi * 4) * 0.1);
+                      return Transform.scale(
+                        scale: math.max(0.1, pulseScale),
+                        child: Text(
+                          '+${widget.coins}',
+                          style: TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Scabber',
+                            color: Colors.amberAccent.shade100,
+                            decoration: TextDecoration.none,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.4),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                              Shadow(
+                                color: Colors.amberAccent.withOpacity(0.6),
+                                blurRadius: 20,
+                                offset: const Offset(0, 0),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildParticle(ParticleData particle) {
+    final progress = Curves.easeOut.transform(math.max(0.0, math.min(1.0, (_particleController.value - particle.delay) / (1.0 - particle.delay))));
+
+    final x = cos(particle.angle) * particle.distance * progress;
+    final y = sin(particle.angle) * particle.distance * progress;
+
+    final opacity = math.max(0.0, math.min(1.0, (1.0 - progress) * _bounceAnimation.value));
+    final scale = math.max(0.0, particle.scale * (1.0 - progress) * _bounceAnimation.value);
+
+    return Transform.translate(
+      offset: Offset(x, y),
+      child: Transform.scale(
+        scale: scale,
+        child: Opacity(
+          opacity: opacity,
+          child: Icon(
+            particle.isStarType ? Icons.star : Icons.circle,
+            color: particle.color,
+            size: particle.size,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ParticleData {
+  final double angle;
+  final double distance;
+  final double scale;
+  final double delay;
+  final bool isStarType;
+  final Color color;
+  final double size;
+
+  ParticleData({
+    required this.angle,
+    required this.distance,
+    required this.scale,
+    required this.delay,
+    required this.isStarType,
+    required this.color,
+    required this.size,
+  });
 }
