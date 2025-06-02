@@ -1,11 +1,11 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'package:zifromania/domain/entities/constant.dart';
 import 'package:zifromania/presentation/common/back_button.dart';
@@ -53,7 +53,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         });
       }
     } catch (e) {
-      _showSnackBar('Resim seçilirken hata oluştu: $e', isError: true);
+      _showSnackBar(
+        tr('feedback.pick_image_error', args: [e.toString()]),
+        isError: true,
+      );
     }
   }
 
@@ -78,14 +81,19 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       final smtpServer = gmail(email!, password!);
 
       final message = Message()
-        ..from = Address(_emailController.text.trim(), _nameController.text.trim())
+        ..from = Address(
+          _emailController.text.trim(),
+          _nameController.text.trim(),
+        )
         ..recipients.add('rasul.ramixanov@gmail.com')
-        ..subject = 'ZifroMania Feedback: ${_subjectController.text.trim()}'
+        ..subject = tr(
+          'feedback.email_subject',
+          args: [_subjectController.text.trim()],
+        )
         ..html = _buildEmailHtml();
 
       // Attach image if selected
       if (_selectedImage != null) {
-        // final bytes = await _selectedImage!.readAsBytes();
         final attachment = FileAttachment(
           _selectedImage!,
           fileName: 'feedback_image_${DateTime.now().millisecondsSinceEpoch}.jpg',
@@ -94,11 +102,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       }
 
       await send(message, smtpServer);
-      _showSnackBar('Geri bildirim başarıyla gönderildi!');
+      _showSnackBar(tr('feedback.feedback_sent'));
       _clearForm();
     } catch (e) {
       log(e.toString());
-      _showSnackBar('Geri bildirim gönderilirken hata oluştu: $e', isError: true);
+      _showSnackBar(tr('feedback.feedback_error', args: [e.toString()]), isError: true);
     } finally {
       setState(() {
         _isLoading = false;
@@ -112,23 +120,23 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
         <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
-            ZifroMania Geri Bildirim
+            ${tr('feedback.email_html_title')}
           </h2>
           
           <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #495057; margin-top: 0;">İletişim Bilgileri</h3>
-            <p><strong>Ad:</strong> ${_nameController.text.trim()}</p>
-            <p><strong>Email:</strong> ${_emailController.text.trim()}</p>
-            <p><strong>Konu:</strong> ${_subjectController.text.trim()}</p>
+            <h3 style="color: #495057; margin-top: 0;">${tr('feedback.email_html_contact')}</h3>
+            <p><strong>${tr('feedback.email_html_name')}</strong> ${_nameController.text.trim()}</p>
+            <p><strong>${tr('feedback.email_html_email')}</strong> ${_emailController.text.trim()}</p>
+            <p><strong>${tr('feedback.email_html_subject')}</strong> ${_subjectController.text.trim()}</p>
           </div>
           
           <div style="background-color: #ffffff; padding: 15px; border-left: 4px solid #3498db; margin: 20px 0;">
-            <h3 style="color: #495057; margin-top: 0;">Mesaj</h3>
+            <h3 style="color: #495057; margin-top: 0;">${tr('feedback.email_html_message')}</h3>
             <p style="white-space: pre-line;">${_messageController.text.trim()}</p>
           </div>
           
           <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #dee2e6; color: #6c757d; font-size: 12px;">
-            <p>Bu mesaj ZifroMania uygulaması üzerinden ${DateTime.now().toString()} tarihinde gönderilmiştir.</p>
+            <p>${tr('feedback.email_html_footer', args: [DateTime.now().toString()])}</p>
           </div>
         </div>
       </body>
@@ -167,7 +175,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         leading: CustomBackButton(color: lightBrownColor),
         elevation: 0,
         title: Text(
-          'Geri Bildirim',
+          tr('feedback.title'),
           style: TextStyle(fontFamily: 'Scabber', fontSize: 22, color: lightBrownColor),
         ),
       ),
@@ -196,7 +204,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.blueGrey.withValues(alpha: .3),
+                        color: Colors.blueGrey.withOpacity(.3),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -217,27 +225,27 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             ),
                             child: Image.asset(
                               'assets/icons/feedback.png',
-                              opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+                              opacity: AlwaysStoppedAnimation(0.7),
                             ),
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Bizimle Paylaş',
+                            tr('feedback.header_title'),
                             style: TextStyle(
                               fontSize: 24,
                               fontFamily: 'Scabber',
                               fontWeight: FontWeight.bold,
-                              color: Colors.blueGrey.shade200.withValues(alpha: .7),
+                              color: Colors.blueGrey.shade200.withOpacity(.7),
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Deneyimini, önerilerini veya sorunlarını bizimle paylaş.\nGörüşlerin bizim için çok değerli!',
+                            tr('feedback.header_subtitle'),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 14,
                               fontFamily: 'Scabber',
-                              color: Colors.blueGrey.shade300.withValues(alpha: .7),
+                              color: Colors.blueGrey.shade300.withOpacity(.7),
                               height: 1.5,
                             ),
                           ),
@@ -251,7 +259,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.blueGrey.withValues(alpha: .3),
+                        color: Colors.blueGrey.withOpacity(.3),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -265,15 +273,15 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Name Field
-                          _buildLabel('Adınız'),
+                          _buildLabel(tr('feedback.name_label')),
                           const SizedBox(height: 8),
                           _buildTextField(
                             controller: _nameController,
-                            hintText: 'Adınızı girin',
+                            hintText: tr('feedback.name_hint'),
                             icon: Icons.person_outline,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Adınızı girin';
+                                return tr('feedback.name_error');
                               }
                               return null;
                             },
@@ -282,19 +290,19 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           const SizedBox(height: 20),
 
                           // Email Field
-                          _buildLabel('Email Adresiniz'),
+                          _buildLabel(tr('feedback.email_label')),
                           const SizedBox(height: 8),
                           _buildTextField(
                             controller: _emailController,
-                            hintText: 'email@example.com',
+                            hintText: tr('feedback.email_hint'),
                             icon: Icons.email_outlined,
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Email adresinizi girin';
+                                return tr('feedback.email_error_empty');
                               }
                               if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                                return 'Geçerli bir email adresi girin';
+                                return tr('feedback.email_error_invalid');
                               }
                               return null;
                             },
@@ -303,15 +311,15 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           const SizedBox(height: 20),
 
                           // Subject Field
-                          _buildLabel('Konu'),
+                          _buildLabel(tr('feedback.subject_label')),
                           const SizedBox(height: 8),
                           _buildTextField(
                             controller: _subjectController,
-                            hintText: 'Feedback konusunu belirtin',
+                            hintText: tr('feedback.subject_hint'),
                             icon: Icons.subject_outlined,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Konuyu belirtin';
+                                return tr('feedback.subject_error');
                               }
                               return null;
                             },
@@ -320,18 +328,18 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           const SizedBox(height: 20),
 
                           // Message Field
-                          _buildLabel('Mesajınız'),
+                          _buildLabel(tr('feedback.message_label')),
                           const SizedBox(height: 8),
                           _buildTextField(
                             controller: _messageController,
-                            hintText: 'Detaylı açıklamanızı yazın...',
+                            hintText: tr('feedback.message_hint'),
                             maxLines: 5,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Mesajınızı yazın';
+                                return tr('feedback.message_error_empty');
                               }
                               if (value.trim().length < 10) {
-                                return 'Mesaj en az 10 karakter olmalıdır';
+                                return tr('feedback.message_error_short');
                               }
                               return null;
                             },
@@ -340,7 +348,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           const SizedBox(height: 24),
 
                           // Image Section
-                          _buildLabel('Resim Ekle (Opsiyonel)'),
+                          _buildLabel(tr('feedback.image_label')),
                           const SizedBox(height: 12),
 
                           if (_selectedImage != null)
@@ -389,7 +397,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                               child: Container(
                                 width: double.infinity,
                                 decoration: BoxDecoration(
-                                  color: Colors.blueGrey.shade200.withValues(alpha: .1),
+                                  color: Colors.blueGrey.shade200.withOpacity(.1),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: Colors.white38,
@@ -404,23 +412,23 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                       'assets/icons/camera.png',
                                       height: 48,
                                       width: 48,
-                                      opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+                                      opacity: const AlwaysStoppedAnimation(0.7),
                                     ),
                                     const SizedBox(height: 12),
-                                    const Text(
-                                      'Resim Ekle',
+                                    Text(
+                                      tr('feedback.image_add'),
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 16,
                                         color: Color(0xFF407093),
                                         fontFamily: 'Scabber',
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    const Text(
-                                      'Sorunu göstermek için ekran görüntüsü ekleyebilirsiniz',
+                                    Text(
+                                      tr('feedback.image_sub'),
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.white38,
                                         fontFamily: 'Scabber',
                                         fontSize: 12,
@@ -444,7 +452,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                         onPressed: () => _isLoading ? null : _sendFeedback(),
                         style: ElevatedButton.styleFrom(
                           elevation: 0,
-                          backgroundColor: softBlueColor.withValues(alpha: .7),
+                          backgroundColor: softBlueColor.withOpacity(.7),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           disabledBackgroundColor: Colors.grey.shade300,
@@ -458,14 +466,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
                               )
-                            : const Row(
+                            : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.send, size: 20),
-                                  SizedBox(width: 8),
+                                  const Icon(Icons.send, size: 20),
+                                  const SizedBox(width: 8),
                                   Text(
-                                    'Gönder',
-                                    style: TextStyle(
+                                    tr('feedback.send'),
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontFamily: 'Scabber',
                                       fontWeight: FontWeight.w600,
@@ -483,7 +491,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade100.withValues(alpha: .1),
+                        color: Colors.red.shade100.withOpacity(.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -492,13 +500,13 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             'assets/icons/information.png',
                             height: 24,
                             width: 24,
-                            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+                            opacity: AlwaysStoppedAnimation(0.7),
                           ),
                           const SizedBox(width: 12),
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              'Geri bildiriminiz 24 saat içinde değerlendirilecek ve size dönüş yapılacaktır.',
-                              style: TextStyle(
+                              tr('feedback.footer_text'),
+                              style: const TextStyle(
                                 fontFamily: 'Scabber',
                                 color: Colors.white38,
                                 fontSize: 13,
@@ -552,9 +560,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         hintText: hintText,
         hintStyle: const TextStyle(color: Colors.white38, fontFamily: 'Scabber'),
         errorStyle: const TextStyle(color: Colors.red, fontFamily: 'Scabber', fontSize: 12),
-        prefixIcon: Icon(icon, color: Colors.white38, size: 20),
+        prefixIcon: icon != null ? Icon(icon, color: Colors.white38, size: 20) : null,
         filled: true,
-        fillColor: Colors.blueGrey.shade200.withValues(alpha: .1),
+        fillColor: Colors.blueGrey.shade200.withOpacity(.1),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade300),
