@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:zifromania/domain/entities/constant.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:convert';
 
 import 'package:zifromania/presentation/common/back_button.dart';
@@ -16,7 +17,7 @@ class AboutZifroManiaScreen extends StatefulWidget {
 class _AboutZifroManiaScreenState extends State<AboutZifroManiaScreen> {
   late final WebViewController _controller;
   bool _isLoading = true;
-  String _htmlContent = ''; // Will store full HTML with embedded font
+  String _htmlContent = '';
 
   @override
   void initState() {
@@ -24,15 +25,38 @@ class _AboutZifroManiaScreenState extends State<AboutZifroManiaScreen> {
     _initWebView();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_isLoading) {
+      _reloadWebView();
+    }
+  }
+
   Future<void> _initWebView() async {
-    // Load font as base64
+    await _loadWebViewContent();
+  }
+
+  Future<void> _reloadWebView() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _loadWebViewContent();
+  }
+
+  Future<void> _loadWebViewContent() async {
+    // Font'u base64 olarak yükle
     final fontBytes = await rootBundle.load('assets/fonts/Scabber.ttf');
     final fontBase64 = base64Encode(fontBytes.buffer.asUint8List());
 
-    // Create HTML with embedded font
-    _htmlContent = _getHtmlWithEmbeddedFont(fontBase64);
+    if (!mounted) return;
+    final currentLocale = context.locale.languageCode;
 
-    // Setup WebView controller
+    // HTML içeriğini oluştur
+    _htmlContent = _getHtmlWithEmbeddedFont(fontBase64, currentLocale);
+
+    // WebView controller'ını ayarla
     _controller = WebViewController()
       ..setBackgroundColor(const Color(0x00000000))
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -64,7 +88,7 @@ class _AboutZifroManiaScreenState extends State<AboutZifroManiaScreen> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: Text(
-          'About ZifroMania',
+          'about_zifromania'.tr(), // Çeviri için
           style: TextStyle(fontFamily: 'Scabber', fontSize: 22, color: lightBrownColor),
         ),
       ),
@@ -92,14 +116,48 @@ class _AboutZifroManiaScreenState extends State<AboutZifroManiaScreen> {
     );
   }
 
-  /// Creates HTML string with the font embedded as base64 (EN version)
-  String _getHtmlWithEmbeddedFont(String fontBase64) {
+  /// Dile göre HTML içeriği oluşturur
+  String _getHtmlWithEmbeddedFont(String fontBase64, String languageCode) {
+    // Çevirileri al
+    final title = 'settings_about.about_title'.tr();
+    final description = 'settings_about.about_description'.tr();
+    final speedCalculation = 'settings_about.speed_calculation'.tr();
+    final speedCalculationDesc = 'settings_about.speed_calculation_desc'.tr();
+    final multiplicationTable = 'settings_about.multiplication_table'.tr();
+    final multiplicationTableDesc = 'settings_about.multiplication_table_desc'.tr();
+    final trueOrFalse = 'settings_about.true_or_false'.tr();
+    final trueOrFalseDesc = 'settings_about.true_or_false_desc'.tr();
+    final expertMode = 'settings_about.expert_mode'.tr();
+    final expertModeDesc = 'settings_about.expert_mode_desc'.tr();
+    final trainingMode = 'settings_about.training_mode'.tr();
+    final trainingModeDesc = 'settings_about.training_mode_desc'.tr();
+
+    final coinsAchievements = 'settings_about.coins_achievements'.tr();
+    final dailyCoin = 'settings_about.daily_coin'.tr();
+    final watchAds = 'settings_about.watch_ads'.tr();
+    final spendCoins = 'settings_about.spend_coins'.tr();
+    final trackAchievements = 'settings_about.track_achievements'.tr();
+
+    final premiumSubscription = 'settings_about.premium_subscription'.tr();
+    final premiumDescription = 'settings_about.premium_description'.tr();
+    final oneMonth = 'settings_about.one_month'.tr();
+    final threeMonths = 'settings_about.three_months'.tr();
+    final twelveMonths = 'settings_about.twelve_months'.tr();
+
+    final coinBundles = 'settings_about.coin_bundles'.tr();
+    final coins100 = 'settings_about.coins_100'.tr();
+    final coins500 = 'settings_about.coins_500'.tr();
+    final coins1200 = 'settings_about.coins_1200'.tr();
+    final coins2500 = 'settings_about.coins_2500'.tr();
+
+    final conclusion = 'settings_about.about_conclusion'.tr();
+
     return '''<!DOCTYPE html>
-<html lang="en">
+<html lang="$languageCode">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About ZifroMania</title>
+  <title>$title</title>
 
   <style>
     @font-face {
@@ -117,6 +175,7 @@ class _AboutZifroManiaScreenState extends State<AboutZifroManiaScreen> {
       line-height: 1.6;
       background-color: transparent !important;
       color: #D7CCC880;
+      direction: ltr;
     }
     h1 {
       font-size: 1.8rem;
@@ -129,65 +188,58 @@ class _AboutZifroManiaScreenState extends State<AboutZifroManiaScreen> {
       color: #8C9EFF99;
     }
     strong { color: #8C9EFF99; }
-    ul { padding-left: 1.2em; }
+    ul { padding-left: 1.2em; padding-right: 1.2em; }
     li { margin-bottom: 0.4em; }
     section { margin-bottom: 1.4em; }
   </style>
 </head>
 <body>
-  <h1>About ZifroMania</h1>
+  <h1>$title</h1>
 
   <section>
     <p>
-      <strong>ZifroMania</strong> turns mental math into an engaging game,
-      helping you sharpen speed, focus, and logic all at once. Five carefully
-      crafted categories let players of every age and skill level progress at
-      their own pace:
+      <strong>ZifroMania</strong> $description
     </p>
     <ul>
-      <li><strong>Speed Calculation</strong> – Answer as many questions as possible in 60 seconds and rack up points.</li>
-      <li><strong>Multiplication Table</strong> – Master 1-to-10 multiplication and division; 50+ correct answers grant the “Master” badge.</li>
-      <li><strong>True or False</strong> – Decide in just 3 seconds per prompt; perfect for reflex training.</li>
-      <li><strong>Expert Mode</strong> – A 120-second challenge featuring advanced operators; 60+ correct answers earn “Master” status.</li>
-      <li><strong>Training Mode</strong> – Unlimited time, 50 questions per session—practice with zero pressure.</li>
+      <li><strong>$speedCalculation</strong> – $speedCalculationDesc</li>
+      <li><strong>$multiplicationTable</strong> – $multiplicationTableDesc</li>
+      <li><strong>$trueOrFalse</strong> – $trueOrFalseDesc</li>
+      <li><strong>$expertMode</strong> – $expertModeDesc</li>
+      <li><strong>$trainingMode</strong> – $trainingModeDesc</li>
     </ul>
   </section>
 
   <section>
-    <h2>Coins & Achievements</h2>
+    <h2>$coinsAchievements</h2>
     <ul>
-      <li>Collect a free daily coin bonus.</li>
-      <li>Watch optional ads to earn extra coins.</li>
-      <li>Spend coins to lift category limits, unlock higher difficulties, and chase new personal bests.</li>
-      <li>Track your achievements and share them on social media.</li>
+      <li>$dailyCoin</li>
+      <li>$watchAds</li>
+      <li>$spendCoins</li>
+      <li>$trackAchievements</li>
     </ul>
   </section>
 
   <section>
-    <h2>Premium Subscription</h2>
-    <p>Enjoy an ad-free experience and extended daily limits:</p>
+    <h2>$premiumSubscription</h2>
+    <p>$premiumDescription</p>
     <ul>
-      <li>1 month – US \$4.99</li>
-      <li>3 months – US \$9.99</li>
-      <li>12 months – US \$29.99</li>
+      <li>$oneMonth</li>
+      <li>$threeMonths</li>
+      <li>$twelveMonths</li>
     </ul>
   </section>
 
   <section>
-    <h2>Coin Bundles</h2>
+    <h2>$coinBundles</h2>
     <ul>
-      <li>100 coins – US \$0.99</li>
-      <li>500 coins + 50 bonus – US \$3.99</li>
-      <li>1 200 coins + 200 bonus – US \$7.99</li>
-      <li>2 500 coins + 500 bonus – US \$14.99</li>
+      <li>$coins100</li>
+      <li>$coins500</li>
+      <li>$coins1200</li>
+      <li>$coins2500</li>
     </ul>
   </section>
 
-  <p>
-    With ZifroMania, mathematics becomes fun, fast, and competitive. Join now,
-    level up your skills, and reach the top of the leaderboard in the wonderful
-    world of numbers!
-  </p>
+  <p>$conclusion</p>
 </body>
 </html>
 ''';
