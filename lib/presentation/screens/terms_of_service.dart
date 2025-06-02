@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:zifromania/domain/entities/constant.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:convert';
 
 import 'package:zifromania/presentation/common/back_button.dart';
@@ -16,7 +17,7 @@ class TermsOfServiceScreen extends StatefulWidget {
 class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
   late final WebViewController _controller;
   bool _isLoading = true;
-  String _htmlContent = ''; // Will store full HTML with embedded font
+  String _htmlContent = '';
 
   @override
   void initState() {
@@ -24,15 +25,38 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
     _initWebView();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_isLoading) {
+      _reloadWebView();
+    }
+  }
+
   Future<void> _initWebView() async {
-    // Load font as base64
+    await _loadWebViewContent();
+  }
+
+  Future<void> _reloadWebView() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _loadWebViewContent();
+  }
+
+  Future<void> _loadWebViewContent() async {
+    // Font'u base64 olarak yükle
     final fontBytes = await rootBundle.load('assets/fonts/Scabber.ttf');
     final fontBase64 = base64Encode(fontBytes.buffer.asUint8List());
 
-    // Create HTML with embedded font
-    _htmlContent = _getHtmlWithEmbeddedFont(fontBase64);
+    if (!mounted) return;
+    final currentLocale = context.locale.languageCode;
 
-    // Setup WebView controller
+    // HTML içeriğini oluştur
+    _htmlContent = _getHtmlWithEmbeddedFont(fontBase64, currentLocale);
+
+    // WebView controller'ını ayarla
     _controller = WebViewController()
       ..setBackgroundColor(const Color(0x00000000))
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -64,7 +88,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
         leading: CustomBackButton(color: lightBrownColor),
         elevation: 0,
         title: Text(
-          'Terms of Service',
+          'terms.terms_of_service'.tr(), // Çeviri için
           style: TextStyle(fontFamily: 'Scabber', fontSize: 22, color: lightBrownColor),
         ),
       ),
@@ -92,15 +116,75 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
     );
   }
 
-  /// Creates HTML string with the font embedded as base64 (EN version,
-  /// no age restriction, Google + e-mail login only, no “Law & Disputes” section)
-  String _getHtmlWithEmbeddedFont(String fontBase64) {
+  /// Dile göre HTML içeriği oluşturur
+  String _getHtmlWithEmbeddedFont(String fontBase64, String languageCode) {
+    // Çevirileri al
+    final title = 'terms.title'.tr();
+    final effectiveDate = 'terms.effective_date'.tr();
+
+    final acceptanceTitle = 'terms.acceptance.title'.tr();
+    final acceptanceContent = 'terms.acceptance.content'.tr();
+
+    final eligibilityTitle = 'terms.eligibility.title'.tr();
+    final eligibilityContent = 'terms.eligibility.content'.tr();
+
+    final accountsTitle = 'terms.accounts.title'.tr();
+    final accountsContent = 'terms.accounts.content'.tr();
+
+    final gameplayTitle = 'terms.gameplay.title'.tr();
+    final gameplayRule1 = 'terms.gameplay.rule1'.tr();
+    final gameplayRule2 = 'terms.gameplay.rule2'.tr();
+    final gameplayRule3 = 'terms.gameplay.rule3'.tr();
+
+    final virtualCurrencyTitle = 'terms.virtual_currency.title'.tr();
+    final virtualCurrencyContent = 'terms.virtual_currency.content'.tr();
+
+    final subscriptionsTitle = 'terms.subscriptions.title'.tr();
+    final productHeader = 'terms.subscriptions.product'.tr();
+    final priceHeader = 'terms.subscriptions.price'.tr();
+    final billingHeader = 'terms.subscriptions.billing'.tr();
+    final premium1Month = 'terms.subscriptions.premium_1_month'.tr();
+    final premium3Months = 'terms.subscriptions.premium_3_months'.tr();
+    final premium12Months = 'terms.subscriptions.premium_12_months'.tr();
+    final coins100 = 'terms.subscriptions.coins_100'.tr();
+    final coins500 = 'terms.subscriptions.coins_500'.tr();
+    final coins1200 = 'terms.subscriptions.coins_1200'.tr();
+    final coins2500 = 'terms.subscriptions.coins_2500'.tr();
+    final renewsMonthly = 'terms.subscriptions.renews_monthly'.tr();
+    final renews3Months = 'terms.subscriptions.renews_3_months'.tr();
+    final renewsAnnually = 'terms.subscriptions.renews_annually'.tr();
+    final oneTime = 'terms.subscriptions.one_time'.tr();
+    final subscriptionsNote = 'terms.subscriptions.note'.tr();
+
+    final advertisingTitle = 'terms.advertising.title'.tr();
+    final advertisingContent = 'terms.advertising.content'.tr();
+
+    final privacyTitle = 'terms.privacy.title'.tr();
+    final privacyContent = 'terms.privacy.content'.tr();
+
+    final intellectualTitle = 'terms.intellectual.title'.tr();
+    final intellectualContent = 'terms.intellectual.content'.tr();
+
+    final disclaimerTitle = 'terms.disclaimer.title'.tr();
+    final disclaimerContent = 'terms.disclaimer.content'.tr();
+
+    final limitationTitle = 'terms.limitation.title'.tr();
+    final limitationContent = 'terms.limitation.content'.tr();
+
+    final terminationTitle = 'terms.termination.title'.tr();
+    final terminationContent = 'terms.termination.content'.tr();
+
+    final contactTitle = 'terms.contact.title'.tr();
+    final contactContent = 'terms.contact.content'.tr();
+
+    final finalNote = 'terms.final_note'.tr();
+
     return '''<!DOCTYPE html>
-<html lang="en">
+<html lang="$languageCode">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZifroMania – Terms of Service</title>
+  <title>$title</title>
 
   <style>
     @font-face {
@@ -118,6 +202,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
       line-height: 1.6;
       background-color: transparent !important;
       color: #D7CCC880;
+      direction: ltr;
     }
     h1 {
       font-size: 1.8rem;
@@ -129,7 +214,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
       margin-top: 1.4em;
       color: #8C9EFF99;
     }
-    ul { padding-left: 1.2em; }
+    ul { padding-left: 1.2em; padding-right: 1.2em; }
     li { margin-bottom: 0.4em; }
     section { margin-bottom: 1.4em; }
     table {
@@ -148,151 +233,97 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
       text-decoration: none;
     }
     th { background: #8C9EFF99; color: white; }
+    strong { color: #8C9EFF99; }
   </style>
 </head>
 <body>
-  <h1>ZifroMania – Terms of Service</h1>
-  <p><em>Effective date: 07 May 2025</em></p>
+  <h1>$title</h1>
+  <p><em>$effectiveDate</em></p>
 
   <section>
-    <h2>1. Acceptance of Terms</h2>
-    <p>
-      By installing or using the ZifroMania mobile application (the “App”),
-      you agree to these Terms of Service (“Terms”) and to our Privacy Policy.
-      ZifroMania LLC (“Company”, “we”, “us”) may revise the Terms at any time;
-      the revised version becomes effective once posted on this page.
-    </p>
+    <h2>1. $acceptanceTitle</h2>
+    <p>$acceptanceContent</p>
   </section>
 
   <section>
-    <h2>2. Eligibility</h2>
-    <p>
-      The App is suitable for <strong>all age groups</strong>. If you are a
-      minor in your jurisdiction (typically under 18 years old), please obtain
-      permission from a parent or legal guardian before making any in-app
-      purchases.
-    </p>
+    <h2>2. $eligibilityTitle</h2>
+    <p>$eligibilityContent</p>
   </section>
 
   <section>
-    <h2>3. Accounts and Access</h2>
-    <p>
-      You may access the App via Google Sign-In or by creating an
-      e-mail-and-password account through Firebase Authentication. You are
-      responsible for safeguarding your credentials and for all activity that
-      occurs under your account. Using another person’s account without
-      authorization is prohibited.
-    </p>
+    <h2>3. $accountsTitle</h2>
+    <p>$accountsContent</p>
   </section>
 
   <section>
-    <h2>4. Gameplay Rules and Prohibited Conduct</h2>
+    <h2>4. $gameplayTitle</h2>
     <ul>
-      <li>Automated scripts, bots, emulators, or hacking tools are prohibited.</li>
-      <li>Reverse-engineering, decompiling, or modifying the App’s code is not allowed.</li>
-      <li>Accounts violating these rules may be suspended or terminated without notice.</li>
+      <li>$gameplayRule1</li>
+      <li>$gameplayRule2</li>
+      <li>$gameplayRule3</li>
     </ul>
   </section>
 
   <section>
-    <h2>5. Virtual Currency (Coins)</h2>
-    <p>
-      Coins are a virtual currency usable only within the App. They have no
-      real-world monetary value and cannot be transferred to other accounts or
-      third parties. ZifroMania LLC reserves the right to change coin balances,
-      earning methods, and pricing at any time.
-    </p>
+    <h2>5. $virtualCurrencyTitle</h2>
+    <p>$virtualCurrencyContent</p>
   </section>
 
   <section>
-    <h2>6. Subscriptions and In-App Purchases</h2>
+    <h2>6. $subscriptionsTitle</h2>
     <table>
       <thead>
-        <tr><th>Product</th><th>Price</th><th>Billing Cycle</th></tr>
+        <tr><th>$productHeader</th><th>$priceHeader</th><th>$billingHeader</th></tr>
       </thead>
       <tbody>
-        <tr><td>Premium (1 month)</td><td>US \$4.99</td><td>Renews monthly</td></tr>
-        <tr><td>Premium (3 months)</td><td>US \$9.99</td><td>Renews every 3 months</td></tr>
-        <tr><td>Premium (12 months)</td><td>US \$29.99</td><td>Renews annually</td></tr>
-        <tr><td>100 Coins</td><td>US \$0.99</td><td>One-time</td></tr>
-        <tr><td>500 Coins + 50 bonus</td><td>US \$3.99</td><td>One-time</td></tr>
-        <tr><td>1 200 Coins + 200 bonus</td><td>US \$7.99</td><td>One-time</td></tr>
-        <tr><td>2 500 Coins + 500 bonus</td><td>US \$14.99</td><td>One-time</td></tr>
+        <tr><td>$premium1Month</td><td>US \$4.99</td><td>$renewsMonthly</td></tr>
+        <tr><td>$premium3Months</td><td>US \$9.99</td><td>$renews3Months</td></tr>
+        <tr><td>$premium12Months</td><td>US \$29.99</td><td>$renewsAnnually</td></tr>
+        <tr><td>$coins100</td><td>US \$0.99</td><td>$oneTime</td></tr>
+        <tr><td>$coins500</td><td>US \$3.99</td><td>$oneTime</td></tr>
+        <tr><td>$coins1200</td><td>US \$7.99</td><td>$oneTime</td></tr>
+        <tr><td>$coins2500</td><td>US \$14.99</td><td>$oneTime</td></tr>
       </tbody>
     </table>
-    <p>
-      Payments are processed through your Google Play account. Subscriptions may
-      be cancelled at any time via Google Play settings. Except where required
-      by law, purchases of virtual coins or partially used subscription periods
-      are non-refundable.
-    </p>
+    <p>$subscriptionsNote</p>
   </section>
 
   <section>
-    <h2>7. Advertising and Analytics</h2>
-    <p>
-      The free tier of the App may display advertisements. The App uses
-      Google AdMob, Firebase Analytics, and similar services, which may collect
-      device information in accordance with our Privacy Policy.
-    </p>
+    <h2>7. $advertisingTitle</h2>
+    <p>$advertisingContent</p>
   </section>
 
   <section>
-    <h2>8. Privacy</h2>
-    <p>
-      Our practices regarding the collection, storage, and processing of
-      personal data are detailed in our Privacy Policy. By using the App, you
-      also agree to that policy.
-    </p>
+    <h2>8. $privacyTitle</h2>
+    <p>$privacyContent</p>
   </section>
 
   <section>
-    <h2>9. Intellectual Property</h2>
-    <p>
-      All materials in the App—including software, logo, content, question
-      database, graphics, and code—are the property of ZifroMania LLC and may
-      not be copied, distributed, or modified without our prior written consent.
-    </p>
+    <h2>9. $intellectualTitle</h2>
+    <p>$intellectualContent</p>
   </section>
 
   <section>
-    <h2>10. Disclaimer of Warranties</h2>
-    <p>
-      The App is provided “as is”. ZifroMania LLC makes no warranties that the
-      App will be uninterrupted, error-free, or secure.
-    </p>
+    <h2>10. $disclaimerTitle</h2>
+    <p>$disclaimerContent</p>
   </section>
 
   <section>
-    <h2>11. Limitation of Liability</h2>
-    <p>
-      To the maximum extent permitted by law, ZifroMania LLC shall not be liable
-      for any indirect, incidental, special, or consequential damages arising
-      out of or in connection with your use of the App.
-    </p>
+    <h2>11. $limitationTitle</h2>
+    <p>$limitationContent</p>
   </section>
 
   <section>
-    <h2>12. Termination</h2>
-    <p>
-      You may terminate these Terms at any time by uninstalling the App. We may
-      suspend or terminate your account without notice if we reasonably believe
-      you have violated these Terms.
-    </p>
+    <h2>12. $terminationTitle</h2>
+    <p>$terminationContent</p>
   </section>
 
   <section>
-    <h2>13. Contact</h2>
-    <p>
-      If you have any questions, complaints, or feedback, please email us at
-      <a href="mailto:rasul.ramixanov@gmail.com">rasul.ramixanov@gmail.com</a>.
-    </p>
+    <h2>13. $contactTitle</h2>
+    <p>$contactContent</p>
   </section>
 
-  <p>
-    <em>By continuing to use the App, you acknowledge that you have read and
-    agree to all of the above Terms.</em>
-  </p>
+  <p><em>$finalNote</em></p>
 </body>
 </html>
 ''';
