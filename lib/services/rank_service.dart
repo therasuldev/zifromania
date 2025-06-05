@@ -50,15 +50,10 @@ class RankService {
       final userXp = userData['xp'] ?? 0;
 
       // Count how many users have a higher level or same level but higher XP
-      final higherLevelQuery =
-          await _firestore.collection(_usersCollection).where('level', isGreaterThan: userLevel).count().get();
+      final higherLevelQuery = await _firestore.collection(_usersCollection).where('level', isGreaterThan: userLevel).count().get();
 
-      final sameLevelHigherXpQuery = await _firestore
-          .collection(_usersCollection)
-          .where('level', isEqualTo: userLevel)
-          .where('xp', isGreaterThan: userXp)
-          .count()
-          .get();
+      final sameLevelHigherXpQuery =
+          await _firestore.collection(_usersCollection).where('level', isEqualTo: userLevel).where('xp', isGreaterThan: userXp).count().get();
 
       // Rank is 1-based (position 1 is the highest rank)
       return (higherLevelQuery.count ?? 0) + (sameLevelHigherXpQuery.count ?? 0) + 1;
@@ -69,39 +64,39 @@ class RankService {
   }
 
   /// Get users around the current user's rank (for context)
-  Future<List<UserModel>> getUsersAroundRank(String userId, {int range = 2}) async {
-    try {
-      final int userRank = await getUserRankPosition(userId);
+  // Future<List<UserModel>> getUsersAroundRank(String userId, {int range = 2}) async {
+  //   try {
+  //     final int userRank = await getUserRankPosition(userId);
 
-      // Get users slightly above and below the current user's rank
-      final startRank = userRank - range > 0 ? userRank - range : 1;
-      final endRank = userRank + range;
+  //     // Get users slightly above and below the current user's rank
+  //     final startRank = userRank - range > 0 ? userRank - range : 1;
+  //     final endRank = userRank + range;
 
-      // Due to Firestore limitations, we'll fetch a bit more and filter
-      final int fetchLimit = range * 2 + 3; // Extra buffer
+  //     // Due to Firestore limitations, we'll fetch a bit more and filter
+  //     final int fetchLimit = range * 2 + 3; // Extra buffer
 
-      final querySnapshot = await _firestore
-          .collection(_usersCollection)
-          .orderBy('level', descending: true)
-          .orderBy('xp', descending: true)
-          .limit(endRank + 2) // Fetch up to the end rank + buffer
-          .get();
+  //     final querySnapshot = await _firestore
+  //         .collection(_usersCollection)
+  //         .orderBy('level', descending: true)
+  //         .orderBy('xp', descending: true)
+  //         .limit(endRank + 2) // Fetch up to the end rank + buffer
+  //         .get();
 
-      final allUsers = querySnapshot.docs.map((doc) => UserModel.fromMap(doc.data())).toList();
+  //     final allUsers = querySnapshot.docs.map((doc) => UserModel.fromMap(doc.data())).toList();
 
-      // If we have fewer users than the start rank, return all
-      if (allUsers.length < startRank) {
-        return allUsers;
-      }
+  //     // If we have fewer users than the start rank, return all
+  //     if (allUsers.length < startRank) {
+  //       return allUsers;
+  //     }
 
-      // Get the slice of users around the rank
-      final startIndex = startRank - 1; // 0-based index
-      final endIndex = endRank < allUsers.length ? endRank : allUsers.length;
+  //     // Get the slice of users around the rank
+  //     final startIndex = startRank - 1; // 0-based index
+  //     final endIndex = endRank < allUsers.length ? endRank : allUsers.length;
 
-      return allUsers.sublist(startIndex, endIndex);
-    } catch (e) {
-      print('Error getting users around rank: $e');
-      throw Exception('Failed to get users around rank: $e');
-    }
-  }
+  //     return allUsers.sublist(startIndex, endIndex);
+  //   } catch (e) {
+  //     print('Error getting users around rank: $e');
+  //     throw Exception('Failed to get users around rank: $e');
+  //   }
+  // }
 }
