@@ -48,6 +48,15 @@ dependencies:
       ref: main
   share_plus: ^11.0.0
   flutter_svg: ^2.1.0
+  cached_network_image: ^3.4.1
+  image_picker: ^1.1.2
+  shimmer: ^3.0.0
+  mailer: ^6.4.1
+  flutter_dotenv: ^5.2.1
+  firebase_messaging: ^15.2.6
+  googleapis_auth: ^2.0.0
+  logger: ^2.5.0
+  confetti: ^0.8.0
 
 dev_dependencies:
   flutter_test:
@@ -63,9 +72,12 @@ flutter:
     -  assets/sounds/
     -  assets/images/
     -  assets/icons/
+    -  assets/title-avatars/
     -  assets/lotties/timer.json
     -  assets/translations/
     -  assets/html/
+    -  assets/zifromania-service-account.json
+    -  .env
 
 
   fonts:
