@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:googleapis_auth/auth_io.dart';
+import 'package:zifromania/domain/entities/global.dart';
 
 class FirebaseAuthService {
   Future<String?> getServiceAccountToken() async {
     try {
-      // Asset-dən oxuyuruq, File sistem-dən deyil
+      // Reading from assets
       final String fileContent = await rootBundle.loadString('assets/zifromania-service-account.json');
       final Map<String, dynamic> serviceAccountCredentials = jsonDecode(fileContent);
 
@@ -24,7 +25,7 @@ class FirebaseAuthService {
       final accessServerKey = client.credentials.accessToken.data;
       return accessServerKey;
     } catch (e) {
-      print('Error fetching access token: $e');
+      log.e('Error getting service account token: $e');
       return null;
     }
   }
