@@ -1,3 +1,341 @@
 {
-    
+    "settings": "Settings",
+    "level_progress": "Level Progress",
+    "xp": "XP : {} / {}",
+    "sound_and_feedback": "Sound & Feedback",
+    "sound_effects": "Sound Effects",
+    "background_music": "Background Music",
+    "vibration": "Vibration",
+    "send_feedback": "Send Feedback",
+    "about": "About",
+    "about_zifromania": "About Zifromania",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_service": "Terms of Service",
+    "account_and_app": "Account & App",
+    "languages": "Languages",
+    "logout": "Logout",
+    "quit": "Quit",
+    "version": "Version {}",
+    "langs": {
+        "en": "EN",
+        "tr": "TR"
+    },
+    "game_categories": {
+        "quick_thinking": "Quick Thinking",
+        "multiply_divide": "Multiply | Divide",
+        "true_or_false": "True | False",
+        "expert": "Expert",
+        "training": "Training"
+    },
+    "subscription": {
+        "account": "Basic Account",
+        "coins": "Coins",
+        "save_percentage": "Save {}% ",
+        "best_value": "BEST VALUE",
+        "subscription": "Subscription",
+        "title": "Subscription & Payments",
+        "section_title": "Choose Your Subscription Plan",
+        "section_subtitle": "Upgrade your account to access premium features!",
+        "premium_benefits": {
+            "title": "Premium Benefits",
+            "0": "Enjoy an ad-free experience across the app",
+            "1": "Get daily coin rewards (15–50 coins based on plan)",
+            "2": "Play more: up to 30 games per category every day",
+            "3": "Unlock exclusive premium avatars",
+            "4": "Stand out with a premium badge on the leaderboard"
+        },
+        "subscribe": "Subscribe Now",
+        "cancel": "Cancel Subscription",
+        "select_plan": "Select Plan",
+        "1_month": {
+            "title": "1 Month",
+            "features": {
+                "0": "Ad-free experience",
+                "1": "Play up to 10 games per category daily",
+                "2": "Daily bonus reward: 15 coins"
+            }
+        },
+        "3_months": {
+            "title": "3 Months",
+            "features": {
+                "0": "Ad-free experience",
+                "1": "Play up to 20 games per category daily",
+                "2": "Daily bonus reward: 30 coins",
+                "3": "Premium avatars"
+            }
+        },
+        "6_months": {
+            "title": "6 Months",
+            "features": {
+                "0": "Ad-free experience",
+                "1": "Play up to 30 games per category daily",
+                "2": "Daily bonus reward: 50 coins",
+                "3": "Premium avatars",
+                "4": "Premium badge on leaderboard"
+            }
+        }
+    },
+    "coin": {
+        "section_title": "Choose Your Coin Pack",
+        "section_subtitle": "Use coins to unlock hints, special power-ups, and unique avatars!",
+        "pack": "Coins Pack",
+        "daily_reward": {
+            "title": "Daily Reward",
+            "tap_to_collect": "Tap to collect your free coins!",
+            "come_back_later": "Come back in {}",
+            "collect_button": "Collect"
+        }
+    },
+    "achievements": {
+        "title": "Achievements",
+        "titles": "TITLES",
+        "tasks": "TASKS",
+        "locked": "LOCKED",
+        "unlocked": "UNLOCKED",
+        "earned": "EARNED",
+        "no_titles": "No titles earned yet. Keep playing to unlock achievements!",
+        "no_tasks": "No tasks completed yet. Complete more tasks to boost your achievements!",
+        "earned_date": "Earned date: {}",
+        "share": {
+            "title": "Share",
+            "share_text": "I unlocked the {} achievement in ZifroMania! Boost your brain with fun math challenges!",
+            "share_subtext": "ZifroMania Achievement"
+        },
+        "close": "Close"
+    },
+    "button": {
+        "start_game": "Play"
+    },
+    "game": {
+        "loading": "Creating new questions...",
+        "loading_description": "Please wait while new questions are being prepared...",
+        "no_questions": "No questions available for this category. Please try again later.",
+        "score": "Score: {}",
+        "time": "Time: {}s",
+        "over": "Game Over!"
+    },
+    "title": {
+        "quick_thinking": "QUICK THINKING",
+        "multiply_divide": "MULTIPLY | DIVIDE",
+        "true_or_false": "TRUE | FALSE",
+        "expert": "EXPERT",
+        "training": "TRAINING"
+    },
+    "rules": {
+        "quick_thinking": {
+            "0": "Solve as many basic arithmetic problems as possible in 60 seconds. Speed is the key!",
+            "1": "Questions involve quick addition, subtraction, and simple multiplications. Each correct answer earns 1 point.",
+            "2": "For every 4 incorrect answers, 1 point will be deducted from your score. Answer quickly but accurately!"
+        },
+        "multiply_divide": {
+            "0": "Master multiplication tables in 60 seconds. Focus on multiplication and division problems.",
+            "1": "Questions will test your knowledge of multiplication and division facts from 1×1 to 10×10. Each correct answer is worth 1 point.",
+            "2": "A penalty of 1 point will be applied after every 4 wrong answers. Practice daily to improve your multiplication skills!"
+        },
+        "true_or_false": {
+            "0": "You'll see mathematical equations and must decide if they are TRUE or FALSE within 60 seconds.",
+            "1": "Swipe RIGHT for TRUE equations and LEFT for FALSE ones. Each correct judgment earns you 1 point.",
+            "2": "Be careful! For every 4 incorrect judgments, 1 point will be deducted. Trust your instincts but verify the math!"
+        },
+        "expert": {
+            "0": "Face challenging problems involving multiple operations, powers, and complex calculations within 60 seconds.",
+            "1": "Questions include advanced arithmetic, algebraic expressions, and multi-step problems. Each correct solution earns 2 points.",
+            "2": "The penalty for mistakes is higher: 2 points deducted after every 4 wrong answers. This mode is for math enthusiasts seeking a real challenge!"
+        },
+        "training": {
+            "0": "In Training Mode, there's no time limit. Practice at your own pace to improve your math skills.",
+            "1": "Problems increase in category as you progress. Your session continues until you choose to end it, with no score penalties.",
+            "2": "This mode tracks accuracy rather than speed. Use it to build confidence and master concepts before trying timed challenges."
+        }
+    },
+    "leaderboard": {
+        "title": "Leaderboard",
+        "your_rank": "Your Rank: {}",
+        "refresh": "Refresh",
+        "player": "Player",
+        "level": "Level {}",
+        "no_players": "There are no players on the leaderboard yet. Start playing and be the first!"
+    },
+    "settings_about": {
+        "about_zifromania": "About ZifroMania",
+        "about_title": "About ZifroMania",
+        "about_description": "turns mental math into an engaging game, helping you sharpen speed, focus, and logic all at once. Five carefully crafted categories let players of every age and skill level progress at their own pace:",
+        "speed_calculation": "Speed Calculation",
+        "speed_calculation_desc": "Answer as many questions as possible in 60 seconds and rack up points.",
+        "multiplication_table": "Multiplication Table",
+        "multiplication_table_desc": "Master 1-to-10 multiplication and division; 50+ correct answers grant the \"Master\" badge.",
+        "true_or_false": "True or False",
+        "true_or_false_desc": "Decide in just 3 seconds per prompt; perfect for reflex training.",
+        "expert_mode": "Expert Mode",
+        "expert_mode_desc": "A 120-second challenge featuring advanced operators; 60+ correct answers earn \"Master\" status.",
+        "training_mode": "Training Mode",
+        "training_mode_desc": "Unlimited time, 50 questions per session—practice with zero pressure.",
+        "coins_achievements": "Coins & Achievements",
+        "daily_coin": "Collect a free daily coin bonus.",
+        "watch_ads": "Watch optional ads to earn extra coins.",
+        "spend_coins": "Spend coins to lift category limits, unlock higher difficulties, and chase new personal bests.",
+        "track_achievements": "Track your achievements and share them on social media.",
+        "premium_subscription": "Premium Subscription",
+        "premium_description": "Enjoy an ad-free experience and extended daily limits:",
+        "one_month": "1 month – US $4.99",
+        "three_months": "3 months – US $9.99",
+        "twelve_months": "12 months – US $29.99",
+        "coin_bundles": "Coin Bundles",
+        "coins_100": "100 coins – US $0.99",
+        "coins_500": "500 coins + 50 bonus – US $3.99",
+        "coins_1200": "1 200 coins + 200 bonus – US $7.99",
+        "coins_2500": "2 500 coins + 500 bonus – US $14.99",
+        "about_conclusion": "With ZifroMania, mathematics becomes fun, fast, and competitive. Join now, level up your skills, and reach the top of the leaderboard in the wonderful world of numbers!"
+    },
+    "settings_privacy_policy": {
+        "privacy_policy": "Privacy Policy",
+        "privacy_policy_title": "ZifroMania – Privacy Policy",
+        "effective_date": "Effective date: 07 May 2025",
+        "privacy_introduction_title": "Introduction",
+        "privacy_introduction_text": "ZifroMania LLC (\"Company,\" \"we,\" \"us\") respects your privacy. This Policy explains what data we collect via the ZifroMania mobile application (\"App\"), how we use and protect it, and the choices you have.",
+        "data_we_collect": "Data We Collect",
+        "account_data": "Account Data.",
+        "account_data_desc": "Google ID token or e-mail address and a hashed password created via Firebase Authentication.",
+        "device_data": "Device Data.",
+        "device_data_desc": "Device model, OS version, language, advertising ID, and basic log information.",
+        "usage_data": "Usage & Gameplay Data.",
+        "usage_data_desc": "Scores, progress, achievements, session length, and interaction events.",
+        "purchase_data": "Purchase Data.",
+        "purchase_data_desc": "Order ID, product, timestamp, and status received from Google Play Billing.",
+        "analytics_data": "Analytics & Ad Data.",
+        "analytics_data_desc": "Anonymous event metrics and ad impressions collected by Firebase Analytics and Google AdMob.",
+        "how_we_use_data": "How We Use Data",
+        "use_data_1": "Operate and maintain the App and its core features.",
+        "use_data_2": "Personalise game category, rewards, and advertising.",
+        "use_data_3": "Process in-app purchases and maintain coin balances.",
+        "use_data_4": "Detect, prevent, and address fraud or abuse.",
+        "use_data_5": "Analyse aggregated statistics to improve performance and content.",
+        "third_party_services": "Advertising, Analytics & Third-Party Services",
+        "google_admob": "Google AdMob",
+        "google_admob_desc": "delivers ads and may use the Android advertising ID for frequency capping and fraud prevention. See Google's policy:",
+        "firebase_analytics": "Firebase Analytics",
+        "firebase_analytics_desc": "provides anonymous usage statistics (events are not linked to personally identifiable information).",
+        "google_play_billing": "Google Play Billing",
+        "google_play_billing_desc": "securely processes subscriptions and one-time purchases.",
+        "data_security": "Data Security & Retention",
+        "data_security_text": "We use industry-standard encryption in transit (TLS) and at rest (AES-256) where applicable. Personal data is retained only as long as needed for the purposes described or as required by law, after which it is securely deleted or anonymised.",
+        "childrens_privacy": "Children's Privacy",
+        "childrens_privacy_text": "The App is suitable for users of all ages, including children under 13. We comply with the Children's Online Privacy Protection Act (COPPA) and applicable local regulations (e.g., GDPR-K). We collect only the minimum data necessary for gameplay and do not knowingly collect sensitive personal information from children. A parent or legal guardian may review or delete their child's data at any time by contacting us at the e-mail address below.",
+        "your_rights": "Your Rights & Data Deletion",
+        "your_rights_text": "Subject to local law, you may have the right to access, correct, export, or delete the personal data we hold about you. You can make these requests by e-mail. We will respond within a reasonable timeframe and in accordance with applicable regulations.",
+        "changes_to_policy": "Changes to This Policy",
+        "changes_to_policy_text": "We may update this Privacy Policy from time to time. Material changes will be announced via an in-app notice or similar mechanism. Continued use of the App after the effective date constitutes acceptance of the revised Policy.",
+        "contact_us": "Contact Us",
+        "contact_us_text": "Questions or concerns? Please e-mail us at"
+    },
+    "terms": {
+        "terms_of_service": "Terms of Service",
+        "title": "ZifroMania – Terms of Service",
+        "effective_date": "Effective date: 07 May 2025",
+        "acceptance": {
+            "title": "Acceptance of Terms",
+            "content": "By installing or using the ZifroMania mobile application (the \"App\"), you agree to these Terms of Service (\"Terms\") and to our Privacy Policy. ZifroMania LLC (\"Company\", \"we\", \"us\") may revise the Terms at any time; the revised version becomes effective once posted on this page."
+        },
+        "eligibility": {
+            "title": "Eligibility",
+            "content": "The App is suitable for all age groups. If you are a minor in your jurisdiction (typically under 18 years old), please obtain permission from a parent or legal guardian before making any in-app purchases."
+        },
+        "accounts": {
+            "title": "Accounts and Access",
+            "content": "You may access the App via Google Sign-In or by creating an e-mail-and-password account through Firebase Authentication. You are responsible for safeguarding your credentials and for all activity that occurs under your account. Using another person's account without authorization is prohibited."
+        },
+        "gameplay": {
+            "title": "Gameplay Rules and Prohibited Conduct",
+            "rule1": "Automated scripts, bots, emulators, or hacking tools are prohibited.",
+            "rule2": "Reverse-engineering, decompiling, or modifying the App's code is not allowed.",
+            "rule3": "Accounts violating these rules may be suspended or terminated without notice."
+        },
+        "virtual_currency": {
+            "title": "Virtual Currency (Coins)",
+            "content": "Coins are a virtual currency usable only within the App. They have no real-world monetary value and cannot be transferred to other accounts or third parties. ZifroMania LLC reserves the right to change coin balances, earning methods, and pricing at any time."
+        },
+        "subscriptions": {
+            "title": "Subscriptions and In-App Purchases",
+            "table": "Pricing Table",
+            "product": "Product",
+            "price": "Price",
+            "billing": "Billing Cycle",
+            "premium_1_month": "Premium (1 month)",
+            "premium_3_months": "Premium (3 months)",
+            "premium_12_months": "Premium (6 months)",
+            "coins_100": "100 Coins",
+            "coins_500": "500 Coins + 50 bonus",
+            "coins_1200": "1 200 Coins + 200 bonus",
+            "coins_2500": "2 500 Coins + 500 bonus",
+            "renews_monthly": "Renews monthly",
+            "renews_3_months": "Renews every 3 months",
+            "renews_annually": "Renews every 6 months",
+            "one_time": "One-time",
+            "note": "Payments are processed through your Google Play account. Subscriptions may be cancelled at any time via Google Play settings. Except where required by law, purchases of virtual coins or partially used subscription periods are non-refundable."
+        },
+        "advertising": {
+            "title": "Advertising and Analytics",
+            "content": "The free tier of the App may display advertisements. The App uses Google AdMob, Firebase Analytics, and similar services, which may collect device information in accordance with our Privacy Policy."
+        },
+        "privacy": {
+            "title": "Privacy",
+            "content": "Our practices regarding the collection, storage, and processing of personal data are detailed in our Privacy Policy. By using the App, you also agree to that policy."
+        },
+        "intellectual": {
+            "title": "Intellectual Property",
+            "content": "All materials in the App—including software, logo, content, question database, graphics, and code—are the property of ZifroMania LLC and may not be copied, distributed, or modified without our prior written consent."
+        },
+        "disclaimer": {
+            "title": "Disclaimer of Warranties",
+            "content": "The App is provided \"as is\". ZifroMania LLC makes no warranties that the App will be uninterrupted, error-free, or secure."
+        },
+        "limitation": {
+            "title": "Limitation of Liability",
+            "content": "To the maximum extent permitted by law, ZifroMania LLC shall not be liable for any indirect, incidental, special, or consequential damages arising out of or in connection with your use of the App."
+        },
+        "termination": {
+            "title": "Termination",
+            "content": "You may terminate these Terms at any time by uninstalling the App. We may suspend or terminate your account without notice if we reasonably believe you have violated these Terms."
+        },
+        "contact": {
+            "title": "Contact",
+            "content": "If you have any questions, complaints, or feedback, please email us at <a href=\"mailto:rasul.ramixanov@gmail.com\">rasul.ramixanov@gmail.com</a>."
+        },
+        "final_note": "By continuing to use the App, you acknowledge that you have read and agree to all of the above Terms."
+    },
+    "feedback": {
+        "title": "Feedback",
+        "header_title": "Share with Us",
+        "header_subtitle": "Share your experience, suggestions, or issues with us.\nYour feedback is very valuable to us!",
+        "name_label": "Your Name",
+        "name_hint": "Enter your name",
+        "name_error": "Please enter your name",
+        "email_label": "Your Email Address",
+        "email_hint": "email@example.com",
+        "email_error_empty": "Please enter your email address",
+        "email_error_invalid": "Please enter a valid email address",
+        "subject_label": "Subject",
+        "subject_hint": "Enter the feedback subject",
+        "subject_error": "Please enter the subject",
+        "message_label": "Your Message",
+        "message_hint": "Write your detailed message...",
+        "message_error_empty": "Please write your message",
+        "message_error_short": "Message must be at least 10 characters",
+        "image_label": "Add Image (Optional)",
+        "image_add": "Add Image",
+        "image_sub": "You can add a screenshot to show the issue",
+        "send": "Send",
+        "footer_text": "Your feedback will be reviewed within 24 hours and you will be contacted.",
+        "pick_image_error": "An error occurred while selecting the image: {error}",
+        "feedback_sent": "Feedback sent successfully!",
+        "feedback_error": "An error occurred while sending feedback: {error}",
+        "email_subject": "ZifroMania Feedback: {subject}",
+        "email_html_title": "ZifroMania Feedback",
+        "email_html_contact": "Contact Information",
+        "email_html_name": "Name:",
+        "email_html_email": "Email:",
+        "email_html_subject": "Subject:",
+        "email_html_message": "Message",
+        "email_html_footer": "This message was sent via ZifroMania app on {date}."
+    }
 }

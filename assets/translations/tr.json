@@ -1,0 +1,341 @@
+{
+    "settings": "Ayarlar",
+    "level_progress": "Seviye İlerlemesi",
+    "xp": "XP : {} / {}",
+    "sound_and_feedback": "Ses ve Geri Bildirim",
+    "sound_effects": "Ses Efektleri",
+    "background_music": "Arka Plan Müziği",
+    "vibration": "Titreşim",
+    "send_feedback": "Geri Bildirim Gönder",
+    "about": "Hakkında",
+    "about_zifromania": "Zifromania Hakkında",
+    "privacy_policy": "Gizlilik Politikası",
+    "terms_of_service": "Hizmet Şartları",
+    "account_and_app": "Hesap ve Uygulama",
+    "languages": "Diller",
+    "logout": "Çıkış Yap",
+    "quit": "Çık",
+    "version": "Sürüm {}",
+    "langs": {
+        "en": "EN",
+        "tr": "TR"
+    },
+    "game_categories": {
+        "quick_thinking": "Hızlı Düşünme",
+        "multiply_divide": "Çarpma | Bölme",
+        "true_or_false": "Doğru | Yanlış",
+        "expert": "Uzman",
+        "training": "Antrenman"
+    },
+    "subscription": {
+        "account": "Temel Hesap",
+        "coins": "Jetonlar",
+        "save_percentage": "%{} tasarruf et",
+        "best_value": "EN İYİ FİYAT",
+        "subscription": "Abonelik",
+        "title": "Abonelik ve Ödemeler",
+        "section_title": "Abonelik Planını Seçin",
+        "section_subtitle": "Premium özelliklere erişmek için hesabınızı yükseltin!",
+        "premium_benefits": {
+            "title": "Premium Avantajlar",
+            "0": "Uygulama genelinde reklamsız deneyim yaşayın",
+            "1": "Günlük jeton ödülleri kazanın (plana göre 15–50 jeton)",
+            "2": "Her kategori için günde 30 oyuna kadar oynayın",
+            "3": "Özel premium avatarların kilidini açın",
+            "4": "Lider tablosunda premium rozet ile öne çıkın"
+        },
+        "subscribe": "Hemen Abone Ol",
+        "cancel": "Aboneliği İptal Et",
+        "select_plan": "Plan Seç",
+        "1_month": {
+            "title": "1 Ay",
+            "features": {
+                "0": "Reklamsız deneyim",
+                "1": "Her kategori için günlük 10 oyun",
+                "2": "Günlük ödül: 15 jeton"
+            }
+        },
+        "3_months": {
+            "title": "3 Ay",
+            "features": {
+                "0": "Reklamsız deneyim",
+                "1": "Her kategori için günlük 20 oyun",
+                "2": "Günlük ödül: 30 jeton",
+                "3": "Premium avatarlar"
+            }
+        },
+        "6_months": {
+            "title": "6 Ay",
+            "features": {
+                "0": "Reklamsız deneyim",
+                "1": "Her kategori için günlük 30 oyun",
+                "2": "Günlük ödül: 50 jeton",
+                "3": "Premium avatarlar",
+                "4": "Lider tablosunda premium rozet"
+            }
+        }
+    },
+    "coin": {
+        "section_title": "Jeton Paketini Seç",
+        "section_subtitle": "İpuçlarının kilidini açmak, özel güçlendirmeler ve benzersiz avatarlar için jetonları kullan!",
+        "pack": "Jeton Paketi",
+        "daily_reward": {
+            "title": "Günlük Ödül",
+            "tap_to_collect": "Ücretsiz jetonlarını toplamak için dokun!",
+            "come_back_later": "{} sonra tekrar gel",
+            "collect_button": "Topla"
+        }
+    },
+    "achievements": {
+        "title": "Başarılar",
+        "titles": "UNVANLAR",
+        "tasks": "GÖREVLER",
+        "locked": "KİLİTLİ",
+        "unlocked": "KİLİT AÇILDI",
+        "earned": "KAZANILDI",
+        "no_titles": "Henüz unvan kazanılmadı. Başarıların kilidini açmak için oynamaya devam et!",
+        "no_tasks": "Henüz görev tamamlanmadı. Daha fazla görev tamamlayarak başarılarını artır!",
+        "earned_date": "Kazanılma tarihi: {}",
+        "share": {
+            "title": "Paylaş",
+            "share_text": "ZifroMania'da {} başarımını açtım! Eğlenceli matematik sorularıyla beynini zorla!",
+            "share_subtext": "ZifroMania Başarımı"
+        },
+        "close": "Kapat"
+    },
+    "button": {
+        "start_game": "Oyna"
+    },
+    "game": {
+        "loading": "Yeni sorular hazırlanıyor...",
+        "loading_description": "Lütfen yeni sorular hazırlanırken bekleyin...",
+        "no_questions": "Bu kategori için soru bulunmamaktadır. Lütfen daha sonra tekrar deneyin.",
+        "score": "Puan: {}",
+        "time": "Süre: {}s",
+        "over": "Oyun Bitti!"
+    },
+    "title": {
+        "quick_thinking": "HIZLI DÜŞÜNME",
+        "multiply_divide": "ÇARPMA | BÖLME",
+        "true_or_false": "DOĞRU | YANLIŞ",
+        "expert": "UZMAN",
+        "training": "ANTRENMAN"
+    },
+    "rules": {
+        "quick_thinking": {
+            "0": "60 saniyede mümkün olduğunca fazla temel işlem sorusunu çöz. Hız çok önemli!",
+            "1": "Sorular hızlı toplama, çıkarma ve basit çarpma işlemlerinden oluşur. Her doğru cevap 1 puan kazandırır.",
+            "2": "Her 4 yanlış cevaptan sonra 1 puan kaybedersin. Hızlı ama dikkatli ol!"
+        },
+        "multiply_divide": {
+            "0": "60 saniyede çarpım tablosunda ustalaş. Sorular çarpma ve bölme işlemlerine odaklanır.",
+            "1": "Sorular 1×1 ile 10×10 arasındaki çarpma ve bölme bilgini test eder. Her doğru cevap 1 puan kazandırır.",
+            "2": "Her 4 yanlış cevap sonrası 1 puan ceza uygulanır. Düzenli pratikle çarpım becerilerini geliştir!"
+        },
+        "true_or_false": {
+            "0": "Ekranda matematiksel ifadeler göreceksin. 60 saniye içinde DOĞRU mu YANLIŞ mı olduğunu seçmelisin.",
+            "1": "DOĞRU ifadeler için SAĞA, YANLIŞ olanlar için SOLA kaydır. Her doğru karar 1 puan kazandırır.",
+            "2": "Dikkat et! Her 4 hatalı karar sonrası 1 puan kaybedersin. Sezgine güven ama işlemleri de kontrol et!"
+        },
+        "expert": {
+            "0": "60 saniye içinde çok adımlı işlemler, üstlü sayılar ve karmaşık hesaplamalarla dolu zorlu sorularla karşılaş!",
+            "1": "Sorular gelişmiş aritmetik, cebirsel ifadeler ve çok adımlı problemleri içerir. Her doğru çözüm 2 puan kazandırır.",
+            "2": "Hataların cezası daha yüksektir: Her 4 yanlış cevap sonrası 2 puan silinir. Gerçek bir meydan okuma arayanlar için!"
+        },
+        "training": {
+            "0": "Antrenman modunda süre sınırı yok. Kendi hızında çalışarak matematik becerilerini geliştir.",
+            "1": "İlerledikçe soru kategorileri değişir. İstediğin zaman çıkabilirsin, puan kaybı olmaz.",
+            "2": "Bu mod hızdan çok doğruluğu takip eder. Zamanlı modlara geçmeden önce kavramları pekiştirmek için idealdir."
+        }
+    },
+    "leaderboard": {
+        "title": "Liderlik Tablosu",
+        "your_rank": "Sizin Sıralamanız: {}",
+        "refresh": "Yenile",
+        "player": "Oyuncu",
+        "level": "Seviye {}",
+        "no_players": "Henüz liderlik tablosunda oyuncu yok. Oynamaya başlayarak ilk sen ol!"
+    },
+    "settings_about": {
+        "about_zifromania": "ZifroMania Hakkında",
+        "about_title": "ZifroMania Hakkında",
+        "about_description": "zihinsel matematiği ilgi çekici bir oyuna dönüştürür ve hızınızı, odaklanmanızı ve mantığınızı aynı anda geliştirmenize yardımcı olur. Özenle hazırlanmış beş kategori, her yaş ve beceri seviyesindeki oyuncuların kendi hızlarında ilerlemelerine olanak tanır:",
+        "speed_calculation": "Hız Hesaplama",
+        "speed_calculation_desc": "60 saniyede mümkün olduğunca çok soruyu yanıtlayın ve puan toplayın.",
+        "multiplication_table": "Çarpım Tablosu",
+        "multiplication_table_desc": "1-10 arası çarpma ve bölmeyi öğrenin; 50+ doğru yanıt \"Usta\" rozetini kazandırır.",
+        "true_or_false": "Doğru ya da Yanlış",
+        "true_or_false_desc": "Her soru için sadece 3 saniyeniz var; refleks eğitimi için mükemmel.",
+        "expert_mode": "Uzman Modu",
+        "expert_mode_desc": "İleri seviye operatörlerle 120 saniyelik zorlayıcı bir meydan okuma; 60+ doğru yanıt \"Usta\" statüsü kazandırır.",
+        "training_mode": "Antrenman Modu",
+        "training_mode_desc": "Sınırsız zaman, oturum başına 50 soru—baskı olmadan pratik yapın.",
+        "coins_achievements": "Jeton ve Başarılar",
+        "daily_coin": "Ücretsiz günlük jeton bonusu toplayın.",
+        "watch_ads": "Ekstra jeton kazanmak için isteğe bağlı reklamları izleyin.",
+        "spend_coins": "Kategori sınırlarını kaldırmak, daha yüksek zorlukları açmak ve yeni kişisel rekorlar kovalamak için jeton harcayın.",
+        "track_achievements": "Başarılarınızı takip edin ve sosyal medyada paylaşın.",
+        "premium_subscription": "Premium Abonelik",
+        "premium_description": "Reklamsız deneyim ve genişletilmiş günlük limitlerden yararlanın:",
+        "one_month": "1 ay – 4,99 USD",
+        "three_months": "3 ay – 9,99 USD",
+        "twelve_months": "6 ay – 17,99 USD",
+        "coin_bundles": "Jeton Paketleri",
+        "coins_100": "100 jeton – 0,99 USD",
+        "coins_500": "500 jeton + 50 bonus – 3,99 USD",
+        "coins_1200": "1 200 jeton + 200 bonus – 7,99 USD",
+        "coins_2500": "2 500 jeton + 500 bonus – 14,99 USD",
+        "about_conclusion": "ZifroMania ile matematik eğlenceli, hızlı ve rekabetçi hale gelir. Şimdi katılın, becerilerinizi geliştirin ve sayıların harika dünyasında lider tablosunun zirvesine ulaşın!"
+    },
+    "settings_privacy_policy": {
+        "privacy_policy": "Gizlilik Politikası",
+        "privacy_policy_title": "ZifroMania – Gizlilik Politikası",
+        "effective_date": "Yürürlük tarihi: 07 Mayıs 2025",
+        "privacy_introduction_title": "Giriş",
+        "privacy_introduction_text": "ZifroMania LLC (\"Şirket,\" \"biz,\" \"bizim\") gizliliğinize saygı duyar. Bu Politika, ZifroMania mobil uygulaması (\"Uygulama\") aracılığıyla hangi verileri topladığımızı, bunları nasıl kullandığımızı ve koruduğumuzu ve sahip olduğunuz seçenekleri açıklar.",
+        "data_we_collect": "Topladığımız Veriler",
+        "account_data": "Hesap Verileri.",
+        "account_data_desc": "Firebase Authentication aracılığıyla oluşturulan Google ID token'ı veya e-posta adresi ve hash'lenmiş şifre.",
+        "device_data": "Cihaz Verileri.",
+        "device_data_desc": "Cihaz modeli, işletim sistemi sürümü, dil, reklam kimliği ve temel log bilgileri.",
+        "usage_data": "Kullanım ve Oyun Verileri.",
+        "usage_data_desc": "Skorlar, ilerleme, başarılar, oturum süresi ve etkileşim olayları.",
+        "purchase_data": "Satın Alma Verileri.",
+        "purchase_data_desc": "Google Play Billing'den alınan sipariş kimliği, ürün, zaman damgası ve durum.",
+        "analytics_data": "Analitik ve Reklam Verileri.",
+        "analytics_data_desc": "Firebase Analytics ve Google AdMob tarafından toplanan anonim olay metrikleri ve reklam gösterimleri.",
+        "how_we_use_data": "Verileri Nasıl Kullanırız",
+        "use_data_1": "Uygulamayı ve temel özelliklerini işletmek ve sürdürmek.",
+        "use_data_2": "Oyun kategorisi, ödüller ve reklamcılığı kişiselleştirmek.",
+        "use_data_3": "Uygulama içi satın almaları işlemek ve jeton bakiyelerini sürdürmek.",
+        "use_data_4": "Dolandırıcılığı veya kötüye kullanımı tespit etmek, önlemek ve ele almak.",
+        "use_data_5": "Performansı ve içeriği geliştirmek için toplu istatistikleri analiz etmek.",
+        "third_party_services": "Reklamcılık, Analitik ve Üçüncü Taraf Hizmetleri",
+        "google_admob": "Google AdMob",
+        "google_admob_desc": "reklamları sunar ve frekans sınırlaması ve dolandırıcılık önleme için Android reklam kimliğini kullanabilir. Google'ın politikasına bakın:",
+        "firebase_analytics": "Firebase Analytics",
+        "firebase_analytics_desc": "anonim kullanım istatistikleri sağlar (olaylar kişisel olarak tanımlanabilir bilgilerle bağlantılı değildir).",
+        "google_play_billing": "Google Play Billing",
+        "google_play_billing_desc": "abonelikleri ve tek seferlik satın almaları güvenli bir şekilde işler.",
+        "data_security": "Veri Güvenliği ve Saklama",
+        "data_security_text": "Uygulanabilir olduğunda transit (TLS) ve dinlenme durumunda (AES-256) endüstri standardı şifreleme kullanırız. Kişisel veriler yalnızca açıklanan amaçlar için gerekli olduğu sürece veya yasaların gerektirdiği kadar saklanır, ardından güvenli bir şekilde silinir veya anonimleştirilir.",
+        "childrens_privacy": "Çocukların Gizliliği",
+        "childrens_privacy_text": "Uygulama, 13 yaşın altındaki çocuklar dahil olmak üzere her yaştan kullanıcı için uygundur. Çocukların Çevrimiçi Gizlilik Koruma Yasası (COPPA) ve geçerli yerel düzenlemelere (örn. GDPR-K) uyarız. Yalnızca oyun için gerekli minimum veriyi topluyoruz ve çocuklardan hassas kişisel bilgileri bilerek toplamıyoruz. Bir ebeveyn veya yasal vasi, aşağıdaki e-posta adresinden bizimle iletişime geçerek çocuğunun verilerini istediği zaman inceleyebilir veya silebilir.",
+        "your_rights": "Haklarınız ve Veri Silme",
+        "your_rights_text": "Yerel yasalara tabi olarak, hakkınızda tuttuğumuz kişisel verilere erişme, düzeltme, dışa aktarma veya silme hakkınız olabilir. Bu talepleri e-posta ile yapabilirsiniz. Makul bir süre içinde ve geçerli düzenlemelere uygun olarak yanıt vereceğiz.",
+        "changes_to_policy": "Bu Politikadaki Değişiklikler",
+        "changes_to_policy_text": "Bu Gizlilik Politikasını zaman zaman güncelleyebiliriz. Önemli değişiklikler uygulama içi bildirim veya benzer bir mekanizma ile duyurulacaktır. Yürürlük tarihinden sonra Uygulamanın sürekli kullanımı, revize edilmiş Politikanın kabul edildiği anlamına gelir.",
+        "contact_us": "Bizimle İletişime Geçin",
+        "contact_us_text": "Sorularınız veya endişeleriniz mi var? Lütfen bize e-posta gönderin:"
+    },
+    "terms": {
+        "terms_of_service": "Hizmet Şartları",
+        "title": "ZifroMania – Hizmet Şartları",
+        "effective_date": "Yürürlük tarihi: 07 Mayıs 2025",
+        "acceptance": {
+            "title": "Şartların Kabulü",
+            "content": "ZifroMania mobil uygulamasını (\"Uygulama\") yükleyerek veya kullanarak, bu Hizmet Şartlarını (\"Şartlar\") ve Gizlilik Politikamızı kabul etmiş olursunuz. ZifroMania LLC (\"Şirket\", \"biz\", \"bizim\") Şartları istediği zaman revize edebilir; revize edilmiş versiyon bu sayfada yayınlandığında yürürlüğe girer."
+        },
+        "eligibility": {
+            "title": "Uygunluk",
+            "content": "Uygulama tüm yaş grupları için uygundur. Eğer yaşadığınız yerde reşit değilseniz (genellikle 18 yaşın altında), uygulama içi satın alma yapmadan önce lütfen veli veya yasal vasi izni alın."
+        },
+        "accounts": {
+            "title": "Hesaplar ve Erişim",
+            "content": "Uygulamaya Google Giriş ile veya Firebase Authentication üzerinden e-posta ve şifre hesabı oluşturarak erişebilirsiniz. Kimlik bilgilerinizi korumak ve hesabınızda gerçekleşen tüm aktivitelerden sorumlusunuz. Başka birinin hesabını izinsiz kullanmak yasaktır."
+        },
+        "gameplay": {
+            "title": "Oyun Kuralları ve Yasak Davranışlar",
+            "rule1": "Otomatik scriptler, botlar, emülatörler veya hacking araçları yasaktır.",
+            "rule2": "Uygulamanın kodunu tersine mühendislik, decompile etmek veya değiştirmek yasaktır.",
+            "rule3": "Bu kuralları ihlal eden hesaplar bildirim yapılmaksızın askıya alınabilir veya sonlandırılabilir."
+        },
+        "virtual_currency": {
+            "title": "Sanal Para Birimi (Coins)",
+            "content": "Coins sadece Uygulama içinde kullanılabilen sanal bir para birimidir. Gerçek dünyada parasal değeri yoktur ve diğer hesaplara veya üçüncü taraflara aktarılamaz. ZifroMania LLC coin bakiyelerini, kazanma yöntemlerini ve fiyatlandırmayı istediği zaman değiştirme hakkını saklı tutar."
+        },
+        "subscriptions": {
+            "title": "Abonelikler ve Uygulama İçi Satın Almalar",
+            "table": "Fiyat Tablosu",
+            "product": "Ürün",
+            "price": "Fiyat",
+            "billing": "Faturalandırma Döngüsü",
+            "premium_1_month": "Premium (1 ay)",
+            "premium_3_months": "Premium (3 ay)",
+            "premium_12_months": "Premium (6 ay)",
+            "coins_100": "100 Coin",
+            "coins_500": "500 Coin + 50 bonus",
+            "coins_1200": "1 200 Coin + 200 bonus",
+            "coins_2500": "2 500 Coin + 500 bonus",
+            "renews_monthly": "Aylık yenilenir",
+            "renews_3_months": "3 ayda bir yenilenir",
+            "renews_annually": "6 ayda bir yenilenir",
+            "one_time": "Tek seferlik",
+            "note": "Ödemeler Google Play hesabınız üzerinden işlenir. Abonelikler Google Play ayarları üzerinden istediğiniz zaman iptal edilebilir. Yasal olarak gerekli olmadığı durumlar dışında, sanal coin satın alımları veya kısmen kullanılmış abonelik dönemleri iade edilmez."
+        },
+        "advertising": {
+            "title": "Reklamcılık ve Analitik",
+            "content": "Uygulamanın ücretsiz katmanı reklamlar gösterebilir. Uygulama, Gizlilik Politikamıza uygun olarak cihaz bilgilerini toplayabilen Google AdMob, Firebase Analytics ve benzer servisleri kullanır."
+        },
+        "privacy": {
+            "title": "Gizlilik",
+            "content": "Kişisel verilerin toplanması, saklanması ve işlenmesi ile ilgili uygulamalarımız Gizlilik Politikamızda detaylandırılmıştır. Uygulamayı kullanarak o politikayı da kabul etmiş olursunuz."
+        },
+        "intellectual": {
+            "title": "Fikri Mülkiyet",
+            "content": "Uygulamadaki tüm materyaller—yazılım, logo, içerik, soru veritabanı, grafikler ve kod dahil—ZifroMania LLC'nin mülkiyetindedir ve önceden yazılı iznimiz olmadan kopyalanamaz, dağıtılamaz veya değiştirilemez."
+        },
+        "disclaimer": {
+            "title": "Garanti Reddi",
+            "content": "Uygulama \"olduğu gibi\" sağlanır. ZifroMania LLC Uygulamanın kesintisiz, hatasız veya güvenli olacağına dair garanti vermez."
+        },
+        "limitation": {
+            "title": "Sorumluluk Sınırlaması",
+            "content": "Yasal olarak izin verilen azami ölçüde, ZifroMania LLC Uygulamayı kullanımınızdan kaynaklanan veya bununla bağlantılı dolaylı, tesadüfi, özel veya sonuçsal zararlardan sorumlu olmayacaktır."
+        },
+        "termination": {
+            "title": "Sonlandırma",
+            "content": "Bu Şartları Uygulamayı kaldırarak istediğiniz zaman sonlandırabilirsiniz. Bu Şartları ihlal ettiğinize makul şekilde inanırsak hesabınızı bildirimsiz askıya alabilir veya sonlandırabiliriz."
+        },
+        "contact": {
+            "title": "İletişim",
+            "content": "Herhangi bir sorunuz, şikayetiniz veya geri bildiriminiz varsa, lütfen bize <a href=\"mailto:rasul.ramixanov@gmail.com\">rasul.ramixanov@gmail.com</a> adresinden e-posta gönderin."
+        },
+        "final_note": "Uygulamayı kullanmaya devam ederek, yukarıdaki tüm Şartları okuduğunuzu ve kabul ettiğinizi beyan etmiş olursunuz."
+    },
+    "feedback": {
+        "title": "Geri Bildirim",
+        "header_title": "Bizimle Paylaş",
+        "header_subtitle": "Deneyimini, önerilerini veya sorunlarını bizimle paylaş.\nGörüşlerin bizim için çok değerli!",
+        "name_label": "Adınız",
+        "name_hint": "Adınızı girin",
+        "name_error": "Adınızı girin",
+        "email_label": "Email Adresiniz",
+        "email_hint": "email@example.com",
+        "email_error_empty": "Email adresinizi girin",
+        "email_error_invalid": "Geçerli bir email adresi girin",
+        "subject_label": "Konu",
+        "subject_hint": "Feedback konusunu belirtin",
+        "subject_error": "Konuyu belirtin",
+        "message_label": "Mesajınız",
+        "message_hint": "Detaylı açıklamanızı yazın...",
+        "message_error_empty": "Mesajınızı yazın",
+        "message_error_short": "Mesaj en az 10 karakter olmalıdır",
+        "image_label": "Resim Ekle (Opsiyonel)",
+        "image_add": "Resim Ekle",
+        "image_sub": "Sorunu göstermek için ekran görüntüsü ekleyebilirsiniz",
+        "send": "Gönder",
+        "footer_text": "Geri bildiriminiz 24 saat içinde değerlendirilecek ve size dönüş yapılacaktır.",
+        "pick_image_error": "Resim seçilirken hata oluştu: {error}",
+        "feedback_sent": "Geri bildirim başarıyla gönderildi!",
+        "feedback_error": "Geri bildirim gönderilirken hata oluştu: {error}",
+        "email_subject": "ZifroMania Feedback: {subject}",
+        "email_html_title": "ZifroMania Geri Bildirim",
+        "email_html_contact": "İletişim Bilgileri",
+        "email_html_name": "Ad:",
+        "email_html_email": "Email:",
+        "email_html_subject": "Konu:",
+        "email_html_message": "Mesaj",
+        "email_html_footer": "Bu mesaj ZifroMania uygulaması üzerinden {date} tarihinde gönderilmiştir."
+    }
+}
