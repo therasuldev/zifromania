@@ -23,37 +23,33 @@ class EnhancedOpenAIService {
   // final String _apiKeyDeepSeekAI = 'sk-b42f1ca5be854ea6b8be5acba7b8a28a';
 
   Future<List<MathQuestion>> generateQuestions(GameCategory gameCategory, {int questionCount = 5}) async {
-    // Təhlükəsizlik yoxlaması
+    // Kateqoriya üçün API limit yoxlaması
     if (!_cacheService.canMakeApiCall(gameCategory)) {
-      final securityStats = _cacheService.getSecurityStats();
-
-      if (securityStats['remainingTotalApiCalls'] <= 0) {
-        throw Exception('API limit exceeded. Total calls: ${securityStats['totalApiCalls']}');
-      }
-
-      if (securityStats['remainingTodayApiCalls'] <= 0) {
-        throw Exception('Daily API limit exceeded. Try again tomorrow.');
-      }
-
-      // Kəşdən istifadə etməyə məcbur et
+      // API limiti bitibsə, keştən sualları gətir
       if (_cacheService.hasSufficientCachedQuestions(gameCategory)) {
+        log.i('API limit reached for ${gameCategory.name}. Using cached questions.');
         final questions = _cacheService.getShuffledQuestionsFromCache(gameCategory, questionCount);
         return questions;
+      } else {
+        // Həm API limiti bitib, həm də keşdə kifayət qədər sual yoxdur
+        final stats = _cacheService.getCacheStats(gameCategory);
+        throw Exception(
+            'API limit reached for ${gameCategory.name} (${stats['apiCallCount']}/4 calls used) and insufficient cached questions (${stats['cachedQuestionsCount']} available, need $questionCount).');
       }
     }
 
-    // Kəşdə kifayət qədər sual yoxdursa API istifadə et
+    // API istifadə edə bilərik
     log.i('Generating questions from API for ${gameCategory.name}');
 
     final questions = await _generateFromAPI(gameCategory, questionCount, aiModel: openAIModel);
-    // ✅ API çağırıldıqdan sonra gündəlik və ümumi sayacı artır
-    await _cacheService.incrementTodayApiCalls();
 
-    // Sualları kəşə əlavə et
+    // ✅ API çağırıldıqdan sonra kateqoriya üçün sayacı artır
+    await _cacheService.incrementCategoryApiCallCount(gameCategory);
+
+    // Sualları keşə əlavə et
     await _cacheService.addQuestionsToCache(gameCategory, questions);
 
-    // Oyun sayını artır
-    await _cacheService.incrementPlayCount(gameCategory);
+    log.i('API call count for ${gameCategory.name}: ${_cacheService.getCategoryApiCallCount(gameCategory)}/4');
 
     return questions;
   }
