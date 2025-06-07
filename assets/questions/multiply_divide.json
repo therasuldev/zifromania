@@ -1,0 +1,1674 @@
+{
+    "questions": [
+        {
+            "question": "7 × 8 = ?",
+            "options": {
+                "A": "56",
+                "B": "54",
+                "C": "48",
+                "D": "64"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "36 ÷ 6 = ?",
+            "options": {
+                "A": "5",
+                "B": "6",
+                "C": "7",
+                "D": "8"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "9 × 4 = ?",
+            "options": {
+                "A": "32",
+                "B": "35",
+                "C": "36",
+                "D": "40"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "72 ÷ 8 = ?",
+            "options": {
+                "A": "8",
+                "B": "7",
+                "C": "10",
+                "D": "9"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "6 × 3 = ?",
+            "options": {
+                "A": "18",
+                "B": "21",
+                "C": "15",
+                "D": "24"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "45 ÷ 5 = ?",
+            "options": {
+                "A": "8",
+                "B": "9",
+                "C": "10",
+                "D": "7"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "8 × 6 = ?",
+            "options": {
+                "A": "42",
+                "B": "54",
+                "C": "48",
+                "D": "56"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "63 ÷ 7 = ?",
+            "options": {
+                "A": "8",
+                "B": "7",
+                "C": "10",
+                "D": "9"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "5 × 7 = ?",
+            "options": {
+                "A": "35",
+                "B": "30",
+                "C": "42",
+                "D": "28"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "24 ÷ 4 = ?",
+            "options": {
+                "A": "5",
+                "B": "6",
+                "C": "7",
+                "D": "8"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "9 × 9 = ?",
+            "options": {
+                "A": "72",
+                "B": "90",
+                "C": "81",
+                "D": "63"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "40 ÷ 8 = ?",
+            "options": {
+                "A": "6",
+                "B": "4",
+                "C": "7",
+                "D": "5"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "4 × 9 = ?",
+            "options": {
+                "A": "36",
+                "B": "32",
+                "C": "45",
+                "D": "40"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "56 ÷ 7 = ?",
+            "options": {
+                "A": "7",
+                "B": "8",
+                "C": "9",
+                "D": "6"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "3 × 8 = ?",
+            "options": {
+                "A": "21",
+                "B": "32",
+                "C": "24",
+                "D": "27"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "54 ÷ 6 = ?",
+            "options": {
+                "A": "8",
+                "B": "7",
+                "C": "10",
+                "D": "9"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "7 × 6 = ?",
+            "options": {
+                "A": "42",
+                "B": "36",
+                "C": "48",
+                "D": "35"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "35 ÷ 5 = ?",
+            "options": {
+                "A": "6",
+                "B": "7",
+                "C": "8",
+                "D": "9"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "8 × 4 = ?",
+            "options": {
+                "A": "28",
+                "B": "36",
+                "C": "32",
+                "D": "40"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "27 ÷ 3 = ?",
+            "options": {
+                "A": "8",
+                "B": "7",
+                "C": "10",
+                "D": "9"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "6 × 9 = ?",
+            "options": {
+                "A": "54",
+                "B": "63",
+                "C": "45",
+                "D": "48"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "49 ÷ 7 = ?",
+            "options": {
+                "A": "6",
+                "B": "7",
+                "C": "8",
+                "D": "9"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "5 × 8 = ?",
+            "options": {
+                "A": "35",
+                "B": "45",
+                "C": "40",
+                "D": "32"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "32 ÷ 4 = ?",
+            "options": {
+                "A": "7",
+                "B": "6",
+                "C": "9",
+                "D": "8"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "9 × 7 = ?",
+            "options": {
+                "A": "63",
+                "B": "56",
+                "C": "72",
+                "D": "54"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "18 ÷ 2 = ?",
+            "options": {
+                "A": "8",
+                "B": "9",
+                "C": "10",
+                "D": "7"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "4 × 7 = ?",
+            "options": {
+                "A": "24",
+                "B": "32",
+                "C": "28",
+                "D": "21"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "50 ÷ 10 = ?",
+            "options": {
+                "A": "4",
+                "B": "6",
+                "C": "7",
+                "D": "5"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "8 × 9 = ?",
+            "options": {
+                "A": "72",
+                "B": "63",
+                "C": "81",
+                "D": "64"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "42 ÷ 6 = ?",
+            "options": {
+                "A": "6",
+                "B": "7",
+                "C": "8",
+                "D": "9"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "3 × 9 = ?",
+            "options": {
+                "A": "24",
+                "B": "32",
+                "C": "27",
+                "D": "36"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "64 ÷ 8 = ?",
+            "options": {
+                "A": "7",
+                "B": "9",
+                "C": "6",
+                "D": "8"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "7 × 9 = ?",
+            "options": {
+                "A": "63",
+                "B": "72",
+                "C": "56",
+                "D": "54"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "28 ÷ 4 = ?",
+            "options": {
+                "A": "6",
+                "B": "7",
+                "C": "8",
+                "D": "9"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "6 × 8 = ?",
+            "options": {
+                "A": "42",
+                "B": "54",
+                "C": "48",
+                "D": "56"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "81 ÷ 9 = ?",
+            "options": {
+                "A": "8",
+                "B": "7",
+                "C": "10",
+                "D": "9"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "5 × 6 = ?",
+            "options": {
+                "A": "30",
+                "B": "25",
+                "C": "35",
+                "D": "28"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "21 ÷ 3 = ?",
+            "options": {
+                "A": "6",
+                "B": "7",
+                "C": "8",
+                "D": "9"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "4 × 8 = ?",
+            "options": {
+                "A": "28",
+                "B": "36",
+                "C": "32",
+                "D": "24"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "60 ÷ 10 = ?",
+            "options": {
+                "A": "5",
+                "B": "7",
+                "C": "8",
+                "D": "6"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "9 × 6 = ?",
+            "options": {
+                "A": "54",
+                "B": "63",
+                "C": "48",
+                "D": "45"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "14 ÷ 2 = ?",
+            "options": {
+                "A": "6",
+                "B": "7",
+                "C": "8",
+                "D": "9"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "3 × 7 = ?",
+            "options": {
+                "A": "18",
+                "B": "28",
+                "C": "21",
+                "D": "24"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "30 ÷ 5 = ?",
+            "options": {
+                "A": "5",
+                "B": "7",
+                "C": "8",
+                "D": "6"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "8 × 8 = ?",
+            "options": {
+                "A": "64",
+                "B": "56",
+                "C": "72",
+                "D": "48"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "16 ÷ 4 = ?",
+            "options": {
+                "A": "3",
+                "B": "4",
+                "C": "5",
+                "D": "6"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "7 × 4 = ?",
+            "options": {
+                "A": "24",
+                "B": "32",
+                "C": "28",
+                "D": "21"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "70 ÷ 10 = ?",
+            "options": {
+                "A": "6",
+                "B": "8",
+                "C": "9",
+                "D": "7"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "6 × 6 = ?",
+            "options": {
+                "A": "36",
+                "B": "42",
+                "C": "30",
+                "D": "48"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "48 ÷ 6 = ?",
+            "options": {
+                "A": "7",
+                "B": "8",
+                "C": "9",
+                "D": "6"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "5 × 9 = ?",
+            "options": {
+                "A": "40",
+                "B": "54",
+                "C": "45",
+                "D": "36"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "12 ÷ 3 = ?",
+            "options": {
+                "A": "3",
+                "B": "5",
+                "C": "6",
+                "D": "4"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "9 × 8 = ?",
+            "options": {
+                "A": "72",
+                "B": "63",
+                "C": "81",
+                "D": "64"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "20 ÷ 4 = ?",
+            "options": {
+                "A": "4",
+                "B": "5",
+                "C": "6",
+                "D": "7"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "4 × 6 = ?",
+            "options": {
+                "A": "20",
+                "B": "28",
+                "C": "24",
+                "D": "32"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "90 ÷ 9 = ?",
+            "options": {
+                "A": "9",
+                "B": "8",
+                "C": "11",
+                "D": "10"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "8 × 5 = ?",
+            "options": {
+                "A": "40",
+                "B": "35",
+                "C": "45",
+                "D": "32"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "25 ÷ 5 = ?",
+            "options": {
+                "A": "4",
+                "B": "5",
+                "C": "6",
+                "D": "7"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "3 × 6 = ?",
+            "options": {
+                "A": "15",
+                "B": "21",
+                "C": "18",
+                "D": "24"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "80 ÷ 8 = ?",
+            "options": {
+                "A": "9",
+                "B": "11",
+                "C": "12",
+                "D": "10"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "7 × 7 = ?",
+            "options": {
+                "A": "49",
+                "B": "42",
+                "C": "56",
+                "D": "35"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "36 ÷ 4 = ?",
+            "options": {
+                "A": "8",
+                "B": "9",
+                "C": "10",
+                "D": "7"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "6 × 7 = ?",
+            "options": {
+                "A": "35",
+                "B": "48",
+                "C": "42",
+                "D": "36"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "15 ÷ 3 = ?",
+            "options": {
+                "A": "4",
+                "B": "6",
+                "C": "7",
+                "D": "5"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "4 × 5 = ?",
+            "options": {
+                "A": "20",
+                "B": "15",
+                "C": "25",
+                "D": "16"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "56 ÷ 8 = ?",
+            "options": {
+                "A": "6",
+                "B": "7",
+                "C": "8",
+                "D": "9"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "9 × 5 = ?",
+            "options": {
+                "A": "40",
+                "B": "54",
+                "C": "45",
+                "D": "36"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "24 ÷ 6 = ?",
+            "options": {
+                "A": "3",
+                "B": "5",
+                "C": "6",
+                "D": "4"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "8 × 7 = ?",
+            "options": {
+                "A": "56",
+                "B": "48",
+                "C": "64",
+                "D": "49"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "10 ÷ 2 = ?",
+            "options": {
+                "A": "4",
+                "B": "5",
+                "C": "6",
+                "D": "7"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "3 × 5 = ?",
+            "options": {
+                "A": "12",
+                "B": "18",
+                "C": "15",
+                "D": "20"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "100 ÷ 10 = ?",
+            "options": {
+                "A": "9",
+                "B": "11",
+                "C": "12",
+                "D": "10"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "7 × 5 = ?",
+            "options": {
+                "A": "35",
+                "B": "30",
+                "C": "40",
+                "D": "28"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "6 ÷ 2 = ?",
+            "options": {
+                "A": "2",
+                "B": "3",
+                "C": "4",
+                "D": "5"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "2 × 9 = ?",
+            "options": {
+                "A": "16",
+                "B": "20",
+                "C": "18",
+                "D": "14"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "8 ÷ 4 = ?",
+            "options": {
+                "A": "1",
+                "B": "3",
+                "C": "4",
+                "D": "2"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "10 × 6 = ?",
+            "options": {
+                "A": "60",
+                "B": "50",
+                "C": "70",
+                "D": "54"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "4 ÷ 2 = ?",
+            "options": {
+                "A": "1",
+                "B": "2",
+                "C": "3",
+                "D": "4"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "3 × 4 = ?",
+            "options": {
+                "A": "9",
+                "B": "16",
+                "C": "12",
+                "D": "15"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "9 ÷ 3 = ?",
+            "options": {
+                "A": "2",
+                "B": "4",
+                "C": "5",
+                "D": "3"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "10 × 8 = ?",
+            "options": {
+                "A": "80",
+                "B": "70",
+                "C": "90",
+                "D": "72"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "6 ÷ 3 = ?",
+            "options": {
+                "A": "1",
+                "B": "2",
+                "C": "3",
+                "D": "4"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "2 × 8 = ?",
+            "options": {
+                "A": "14",
+                "B": "18",
+                "C": "16",
+                "D": "12"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "10 ÷ 5 = ?",
+            "options": {
+                "A": "1",
+                "B": "3",
+                "C": "4",
+                "D": "2"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "10 × 9 = ?",
+            "options": {
+                "A": "90",
+                "B": "80",
+                "C": "100",
+                "D": "81"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "2 ÷ 2 = ?",
+            "options": {
+                "A": "0",
+                "B": "1",
+                "C": "2",
+                "D": "3"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "1 × 9 = ?",
+            "options": {
+                "A": "8",
+                "B": "10",
+                "C": "9",
+                "D": "7"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "2 ÷ 1 = ?",
+            "options": {
+                "A": "1",
+                "B": "3",
+                "C": "4",
+                "D": "2"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "1 × 8 = ?",
+            "options": {
+                "A": "8",
+                "B": "7",
+                "C": "9",
+                "D": "6"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "3 ÷ 1 = ?",
+            "options": {
+                "A": "2",
+                "B": "3",
+                "C": "4",
+                "D": "1"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "2 × 7 = ?",
+            "options": {
+                "A": "12",
+                "B": "16",
+                "C": "14",
+                "D": "10"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "4 ÷ 1 = ?",
+            "options": {
+                "A": "3",
+                "B": "5",
+                "C": "6",
+                "D": "4"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "1 × 7 = ?",
+            "options": {
+                "A": "7",
+                "B": "6",
+                "C": "8",
+                "D": "5"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "5 ÷ 1 = ?",
+            "options": {
+                "A": "4",
+                "B": "5",
+                "C": "6",
+                "D": "3"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "2 × 6 = ?",
+            "options": {
+                "A": "10",
+                "B": "14",
+                "C": "12",
+                "D": "8"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "6 ÷ 1 = ?",
+            "options": {
+                "A": "5",
+                "B": "7",
+                "C": "8",
+                "D": "6"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "1 × 6 = ?",
+            "options": {
+                "A": "6",
+                "B": "5",
+                "C": "7",
+                "D": "4"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "7 ÷ 1 = ?",
+            "options": {
+                "A": "6",
+                "B": "7",
+                "C": "8",
+                "D": "5"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "2 × 5 = ?",
+            "options": {
+                "A": "8",
+                "B": "12",
+                "C": "10",
+                "D": "6"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "8 ÷ 1 = ?",
+            "options": {
+                "A": "7",
+                "B": "9",
+                "C": "10",
+                "D": "8"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "36 ÷ 9 = ?",
+            "options": {
+                "A": "3",
+                "B": "5",
+                "C": "6",
+                "D": "4"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "42 ÷ 7 = ?",
+            "options": {
+                "A": "5",
+                "B": "6",
+                "C": "7",
+                "D": "8"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "63 ÷ 9 = ?",
+            "options": {
+                "A": "6",
+                "B": "8",
+                "C": "9",
+                "D": "7"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "45 ÷ 9 = ?",
+            "options": {
+                "A": "4",
+                "B": "6",
+                "C": "7",
+                "D": "5"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "40 ÷ 5 = ?",
+            "options": {
+                "A": "7",
+                "B": "8",
+                "C": "9",
+                "D": "6"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "10 × 7 = ?",
+            "options": {
+                "A": "60",
+                "B": "80",
+                "C": "70",
+                "D": "75"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "8 ÷ 2 = ?",
+            "options": {
+                "A": "3",
+                "B": "4",
+                "C": "5",
+                "D": "6"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "12 ÷ 4 = ?",
+            "options": {
+                "A": "2",
+                "B": "4",
+                "C": "5",
+                "D": "3"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "2 × 4 = ?",
+            "options": {
+                "A": "6",
+                "B": "10",
+                "C": "8",
+                "D": "12"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "1 × 5 = ?",
+            "options": {
+                "A": "5",
+                "B": "4",
+                "C": "6",
+                "D": "3"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "2 × 3 = ?",
+            "options": {
+                "A": "4",
+                "B": "8",
+                "C": "6",
+                "D": "5"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "9 ÷ 1 = ?",
+            "options": {
+                "A": "8",
+                "B": "10",
+                "C": "11",
+                "D": "9"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "1 × 4 = ?",
+            "options": {
+                "A": "4",
+                "B": "3",
+                "C": "5",
+                "D": "2"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "10 ÷ 1 = ?",
+            "options": {
+                "A": "9",
+                "B": "10",
+                "C": "11",
+                "D": "12"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "2 × 2 = ?",
+            "options": {
+                "A": "2",
+                "B": "6",
+                "C": "4",
+                "D": "8"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "1 ÷ 1 = ?",
+            "options": {
+                "A": "0",
+                "B": "2",
+                "C": "3",
+                "D": "1"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "1 × 3 = ?",
+            "options": {
+                "A": "3",
+                "B": "2",
+                "C": "4",
+                "D": "1"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "1 × 2 = ?",
+            "options": {
+                "A": "1",
+                "B": "3",
+                "C": "2",
+                "D": "4"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "3 ÷ 3 = ?",
+            "options": {
+                "A": "0",
+                "B": "2",
+                "C": "3",
+                "D": "1"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "1 × 1 = ?",
+            "options": {
+                "A": "1",
+                "B": "0",
+                "C": "2",
+                "D": "3"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "5 ÷ 5 = ?",
+            "options": {
+                "A": "0",
+                "B": "1",
+                "C": "2",
+                "D": "5"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "8 ÷ 8 = ?",
+            "options": {
+                "A": "0",
+                "B": "2",
+                "C": "8",
+                "D": "1"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "20 ÷ 5 = ?",
+            "options": {
+                "A": "3",
+                "B": "5",
+                "C": "6",
+                "D": "4"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "35 ÷ 7 = ?",
+            "options": {
+                "A": "6",
+                "B": "5",
+                "C": "4",
+                "D": "7"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "18 ÷ 3 = ?",
+            "options": {
+                "A": "5",
+                "B": "6",
+                "C": "7",
+                "D": "4"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "10 × 3 = ?",
+            "options": {
+                "A": "25",
+                "B": "35",
+                "C": "30",
+                "D": "20"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "24 ÷ 8 = ?",
+            "options": {
+                "A": "4",
+                "B": "2",
+                "C": "5",
+                "D": "3"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "40 ÷ 10 = ?",
+            "options": {
+                "A": "3",
+                "B": "4",
+                "C": "5",
+                "D": "6"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "30 ÷ 6 = ?",
+            "options": {
+                "A": "4",
+                "B": "6",
+                "C": "7",
+                "D": "5"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "14 ÷ 7 = ?",
+            "options": {
+                "A": "3",
+                "B": "2",
+                "C": "4",
+                "D": "1"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "50 ÷ 5 = ?",
+            "options": {
+                "A": "8",
+                "B": "12",
+                "C": "9",
+                "D": "10"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "4 × 4 = ?",
+            "options": {
+                "A": "12",
+                "B": "20",
+                "C": "16",
+                "D": "8"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "5 × 5 = ?",
+            "options": {
+                "A": "25",
+                "B": "30",
+                "C": "20",
+                "D": "35"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "27 ÷ 9 = ?",
+            "options": {
+                "A": "2",
+                "B": "4",
+                "C": "5",
+                "D": "3"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "3 × 3 = ?",
+            "options": {
+                "A": "9",
+                "B": "6",
+                "C": "12",
+                "D": "15"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "12 ÷ 6 = ?",
+            "options": {
+                "A": "3",
+                "B": "2",
+                "C": "4",
+                "D": "1"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "10 × 10 = ?",
+            "options": {
+                "A": "90",
+                "B": "110",
+                "C": "100",
+                "D": "80"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "48 ÷ 8 = ?",
+            "options": {
+                "A": "7",
+                "B": "5",
+                "C": "8",
+                "D": "6"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "80 ÷ 10 = ?",
+            "options": {
+                "A": "6",
+                "B": "7",
+                "C": "9",
+                "D": "8"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "15 ÷ 5 = ?",
+            "options": {
+                "A": "2",
+                "B": "4",
+                "C": "5",
+                "D": "3"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "60 ÷ 6 = ?",
+            "options": {
+                "A": "9",
+                "B": "11",
+                "C": "8",
+                "D": "10"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "16 ÷ 2 = ?",
+            "options": {
+                "A": "7",
+                "B": "8",
+                "C": "9",
+                "D": "6"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "28 ÷ 7 = ?",
+            "options": {
+                "A": "3",
+                "B": "5",
+                "C": "6",
+                "D": "4"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "22 ÷ 2 = ?",
+            "options": {
+                "A": "10",
+                "B": "11",
+                "C": "12",
+                "D": "9"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "7 ÷ 7 = ?",
+            "options": {
+                "A": "0",
+                "B": "1",
+                "C": "7",
+                "D": "2"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "8 × 3 = ?",
+            "options": {
+                "A": "21",
+                "B": "27",
+                "C": "24",
+                "D": "18"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "6 × 4 = ?",
+            "options": {
+                "A": "20",
+                "B": "28",
+                "C": "24",
+                "D": "22"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "72 ÷ 9 = ?",
+            "options": {
+                "A": "9",
+                "B": "7",
+                "C": "8",
+                "D": "6"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "54 ÷ 9 = ?",
+            "options": {
+                "A": "5",
+                "B": "6",
+                "C": "7",
+                "D": "8"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "32 ÷ 8 = ?",
+            "options": {
+                "A": "3",
+                "B": "4",
+                "C": "5",
+                "D": "6"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "9 × 3 = ?",
+            "options": {
+                "A": "24",
+                "B": "30",
+                "C": "27",
+                "D": "21"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "21 ÷ 7 = ?",
+            "options": {
+                "A": "2",
+                "B": "3",
+                "C": "4",
+                "D": "5"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "24 ÷ 3 = ?",
+            "options": {
+                "A": "7",
+                "B": "8",
+                "C": "9",
+                "D": "6"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "18 ÷ 6 = ?",
+            "options": {
+                "A": "2",
+                "B": "3",
+                "C": "4",
+                "D": "5"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "12 ÷ 2 = ?",
+            "options": {
+                "A": "5",
+                "B": "6",
+                "C": "7",
+                "D": "4"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "10 × 4 = ?",
+            "options": {
+                "A": "30",
+                "B": "50",
+                "C": "40",
+                "D": "35"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "70 ÷ 7 = ?",
+            "options": {
+                "A": "9",
+                "B": "11",
+                "C": "8",
+                "D": "10"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "6 × 5 = ?",
+            "options": {
+                "A": "25",
+                "B": "35",
+                "C": "30",
+                "D": "20"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "44 ÷ 4 = ?",
+            "options": {
+                "A": "10",
+                "B": "12",
+                "C": "9",
+                "D": "11"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "16 ÷ 8 = ?",
+            "options": {
+                "A": "3",
+                "B": "2",
+                "C": "4",
+                "D": "1"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "33 ÷ 3 = ?",
+            "options": {
+                "A": "10",
+                "B": "11",
+                "C": "12",
+                "D": "9"
+            },
+            "correct_option": "B"
+        },
+        {
+            "question": "10 × 5 = ?",
+            "options": {
+                "A": "45",
+                "B": "55",
+                "C": "50",
+                "D": "40"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "3 × 10 = ?",
+            "options": {
+                "A": "33",
+                "B": "27",
+                "C": "30",
+                "D": "25"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "18 ÷ 9 = ?",
+            "options": {
+                "A": "1",
+                "B": "3",
+                "C": "4",
+                "D": "2"
+            },
+            "correct_option": "D"
+        },
+        {
+            "question": "1 × 10 = ?",
+            "options": {
+                "A": "10",
+                "B": "9",
+                "C": "11",
+                "D": "8"
+            },
+            "correct_option": "A"
+        },
+        {
+            "question": "4 × 10 = ?",
+            "options": {
+                "A": "35",
+                "B": "45",
+                "C": "40",
+                "D": "30"
+            },
+            "correct_option": "C"
+        },
+        {
+            "question": "2 × 10 = ?",
+            "options": {
+                "A": "20",
+                "B": "18",
+                "C": "22",
+                "D": "15"
+            },
+            "correct_option": "A"
+        }
+    ]
+}
