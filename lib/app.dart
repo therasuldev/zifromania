@@ -8,9 +8,9 @@ import 'domain/entities/constant.dart';
 import 'presentation/screens/auth_screen.dart';
 import 'presentation/screens/game_intro_screen.dart';
 import 'presentation/screens/splash_screen.dart';
-import 'presentation/state_managment/auth/auth_bloc.dart';
-import 'presentation/state_managment/auth/auth_event.dart';
-import 'presentation/state_managment/auth/auth_state.dart';
+import 'presentation/state-managment/auth/auth_bloc.dart';
+import 'presentation/state-managment/auth/auth_event.dart';
+import 'presentation/state-managment/auth/auth_state.dart';
 import 'services/settings_service.dart';
 import 'services/sound_service.dart';
 
