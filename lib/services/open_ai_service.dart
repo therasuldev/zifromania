@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:zifromania/domain/entities/global.dart';
 import '../domain/entities/enums.dart';
@@ -41,7 +40,7 @@ class EnhancedOpenAIService {
     // API istifadə edə bilərik
     log.i('Generating questions from API for ${gameCategory.name}');
 
-    final questions = await _generateFromAPI(gameCategory, questionCount, aiModel: openAIModel);
+    final questions = <MathQuestion>[]; //await _generateFromAPI(gameCategory, questionCount, aiModel: openAIModel);
 
     // ✅ API çağırıldıqdan sonra kateqoriya üçün sayacı artır
     await _cacheService.incrementCategoryApiCallCount(gameCategory);
@@ -54,57 +53,57 @@ class EnhancedOpenAIService {
     return questions;
   }
 
-  Future<List<MathQuestion>> _generateFromAPI(GameCategory gameCategory, int questionCount, {required String aiModel}) async {
-    _cancelToken = CancelToken();
+  // Future<List<MathQuestion>> _generateFromAPI(GameCategory gameCategory, int questionCount, {required String aiModel}) async {
+  //   _cancelToken = CancelToken();
 
-    try {
-      final categoryString = _getCategoryString(gameCategory);
-      log.i('Using model: $aiModel for ${gameCategory.name}');
+  //   try {
+  //     final categoryString = _getCategoryString(gameCategory);
+  //     log.i('Using model: $aiModel for ${gameCategory.name}');
 
-      final response = await _dio.post(
-        _baseUrlOpenAI,
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $_apiKeyOpenAI',
-          },
-        ),
-        data: {
-          "model": aiModel,
-          "response_format": {"type": "json_object"},
-          "messages": [
-            {"role": "system", "content": _getSystemPrompt(categoryString, questionCount)},
-            {
-              "role": "user",
-              "content":
-                  "Generate $questionCount mathematically accurate questions for the `$categoryString` category. Ensure proper answer distribution and double-check all calculations."
-            }
-          ]
-        },
-        cancelToken: _cancelToken,
-      );
+  //     final response = await _dio.post(
+  //       _baseUrlOpenAI,
+  //       options: Options(
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'Authorization': 'Bearer $_apiKeyOpenAI',
+  //         },
+  //       ),
+  //       data: {
+  //         "model": aiModel,
+  //         "response_format": {"type": "json_object"},
+  //         "messages": [
+  //           {"role": "system", "content": _getSystemPrompt(categoryString, questionCount)},
+  //           {
+  //             "role": "user",
+  //             "content":
+  //                 "Generate $questionCount mathematically accurate questions for the `$categoryString` category. Ensure proper answer distribution and double-check all calculations."
+  //           }
+  //         ]
+  //       },
+  //       cancelToken: _cancelToken,
+  //     );
 
-      final rawContent = response.data['choices'][0]['message']['content'];
-      final dynamic decodedJson = json.decode(rawContent);
+  //     final rawContent = response.data['choices'][0]['message']['content'];
+  //     final dynamic decodedJson = json.decode(rawContent);
 
-      List<dynamic> questions;
-      if (decodedJson is Map<String, dynamic> && decodedJson.containsKey('questions')) {
-        questions = decodedJson['questions'];
-      } else if (decodedJson is List) {
-        questions = decodedJson;
-      } else {
-        throw Exception('Unexpected JSON format');
-      }
+  //     List<dynamic> questions;
+  //     if (decodedJson is Map<String, dynamic> && decodedJson.containsKey('questions')) {
+  //       questions = decodedJson['questions'];
+  //     } else if (decodedJson is List) {
+  //       questions = decodedJson;
+  //     } else {
+  //       throw Exception('Unexpected JSON format');
+  //     }
 
-      return _convertToMathQuestions(questions, gameCategory);
-    } catch (e) {
-      if (e is DioException && CancelToken.isCancel(e)) {
-        throw Exception('Request was cancelled');
-      }
-      log.e('Error generating questions: $e');
-      throw Exception('Failed to generate questions: $e');
-    }
-  }
+  //     return _convertToMathQuestions(questions, gameCategory);
+  //   } catch (e) {
+  //     if (e is DioException && CancelToken.isCancel(e)) {
+  //       throw Exception('Request was cancelled');
+  //     }
+  //     log.e('Error generating questions: $e');
+  //     throw Exception('Failed to generate questions: $e');
+  //   }
+  // }
 
   String _getSystemPrompt(String categoryString, int questionCount) {
     // Daha təfərrüatlı sistem prompt-u
@@ -157,58 +156,58 @@ You must provide mathematically accurate questions where the correct_option trul
     };
   }
 
-  List<MathQuestion> _convertToMathQuestions(List<dynamic> questions, GameCategory gameCategory) {
-    final List<MathQuestion> mathQuestions = [];
+  // List<MathQuestion> _convertToMathQuestions(List<dynamic> questions, GameCategory gameCategory) {
+  //   final List<MathQuestion> mathQuestions = [];
 
-    for (var questionData in questions) {
-      final String questionText = questionData['question'];
-      final Map<String, dynamic> options = Map<String, dynamic>.from(questionData['options']);
-      final String correctOptionKey = questionData['correct_option'];
+  //   for (var questionData in questions) {
+  //     final String questionText = questionData['question'];
+  //     final Map<String, dynamic> options = Map<String, dynamic>.from(questionData['options']);
+  //     final String correctOptionKey = questionData['correct_option'];
 
-      bool isTrueFalse = gameCategory == GameCategory.trueOrFalse ||
-          (options.containsKey('A') && options['A'] == 'True' && options.containsKey('B') && options['B'] == 'False');
+  //     bool isTrueFalse = gameCategory == GameCategory.trueOrFalse ||
+  //         (options.containsKey('A') && options['A'] == 'True' && options.containsKey('B') && options['B'] == 'False');
 
-      if (isTrueFalse) {
-        int correctAnswerValue = options[correctOptionKey] == 'True' ? 1 : 0;
-        List<dynamic> answerOptions = [];
-        options.forEach((key, value) {
-          if (value != '-') {
-            answerOptions.add(value);
-          }
-        });
+  //     if (isTrueFalse) {
+  //       int correctAnswerValue = options[correctOptionKey] == 'True' ? 1 : 0;
+  //       List<dynamic> answerOptions = [];
+  //       options.forEach((key, value) {
+  //         if (value != '-') {
+  //           answerOptions.add(value);
+  //         }
+  //       });
 
-        mathQuestions.add(MathQuestion(
-          question: questionText,
-          correctAnswer: correctAnswerValue,
-          answerOptions: answerOptions,
-        ));
-      } else {
-        int? correctAnswerValue;
-        try {
-          correctAnswerValue = int.tryParse(options[correctOptionKey]?.toString() ?? '0');
-        } catch (e) {
-          print('Error parsing correct answer: $e for question: $questionText');
-          correctAnswerValue = 0;
-        }
+  //       mathQuestions.add(MathQuestion(
+  //         question: questionText,
+  //         correctAnswer: correctAnswerValue,
+  //         answerOptions: answerOptions,
+  //       ));
+  //     } else {
+  //       int? correctAnswerValue;
+  //       try {
+  //         correctAnswerValue = int.tryParse(options[correctOptionKey]?.toString() ?? '0');
+  //       } catch (e) {
+  //         print('Error parsing correct answer: $e for question: $questionText');
+  //         correctAnswerValue = 0;
+  //       }
 
-        final List<dynamic> answerOptions = [];
-        options.forEach((key, value) {
-          final parsed = int.tryParse(value.toString());
-          if (parsed != null) {
-            answerOptions.add(parsed);
-          }
-        });
+  //       final List<dynamic> answerOptions = [];
+  //       options.forEach((key, value) {
+  //         final parsed = int.tryParse(value.toString());
+  //         if (parsed != null) {
+  //           answerOptions.add(parsed);
+  //         }
+  //       });
 
-        mathQuestions.add(MathQuestion(
-          question: questionText,
-          correctAnswer: correctAnswerValue ?? 0,
-          answerOptions: answerOptions,
-        ));
-      }
-    }
+  //       mathQuestions.add(MathQuestion(
+  //         question: questionText,
+  //         correctAnswer: correctAnswerValue ?? 0,
+  //         answerOptions: answerOptions,
+  //       ));
+  //     }
+  //   }
 
-    return mathQuestions;
-  }
+  //   return mathQuestions;
+  // }
 
   void cancel() {
     _cancelToken?.cancel('Request cancelled by user');

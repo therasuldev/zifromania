@@ -64,3 +64,67 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton> with SingleTick
     );
   }
 }
+
+class PressableFilledButton extends StatefulWidget {
+  const PressableFilledButton({
+    super.key,
+    required this.onPressed,
+    required this.child,
+    this.style,
+  });
+
+  final VoidCallback? onPressed;
+  final Widget child;
+  final ButtonStyle? style;
+
+  @override
+  State<PressableFilledButton> createState() => _PressableFilledButtonState();
+}
+
+class _PressableFilledButtonState extends State<PressableFilledButton> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 90),
+      lowerBound: 0.7,
+      upperBound: 1.0,
+      value: 1.0,
+    );
+    _scale = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _spring() async {
+    await _controller.reverse();
+    await _controller.forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => _controller.reverse(),
+      onTapUp: (_) async => await _spring(),
+      onTapCancel: () => _controller.forward(),
+      onTap: widget.onPressed,
+      child: ScaleTransition(
+        scale: _scale,
+        child: FilledButton(
+          onPressed: widget.onPressed,
+          style: widget.style,
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}

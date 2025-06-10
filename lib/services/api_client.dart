@@ -1,13 +1,13 @@
 import 'package:dio/dio.dart';
-import 'access_token_service.dart';
+import 'firebase_auth_service.dart';
 
 class ApiClient {
   final Dio dio;
-  final AccessTokenService tokenService;
+  final FirebaseAuthService firebaseAuthService;
 
   ApiClient({
     required this.dio,
-    required this.tokenService,
+    required this.firebaseAuthService,
   }) {
     _setupInterceptors();
   }
@@ -40,7 +40,7 @@ class ApiClient {
     ErrorInterceptorHandler handler,
   ) async {
     try {
-      final newToken = await tokenService.getAccessToken();
+      final newToken = await firebaseAuthService.getServiceAccountToken();
 
       final clonedRequest = await dio.request(
         exception.requestOptions.path,

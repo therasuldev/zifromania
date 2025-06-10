@@ -52,7 +52,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     // Cancel any ongoing request
-    locator.get<OpenAIService>().cancel();
+    locator.get<EnhancedOpenAIService>().cancel();
     buttonAnimationController.dispose();
     super.dispose();
   }
@@ -87,7 +87,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return PopScope(
       onPopInvokedWithResult: (q, result) {
         // Cancel request when back button is pressed
-        locator.get<OpenAIService>().cancel();
+        locator.get<EnhancedOpenAIService>().cancel();
       },
       child: Scaffold(
         backgroundColor: backgroundColor,
@@ -118,7 +118,83 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 // Show error message if question generation fails
                 if (state.errorMessage != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.errorMessage!)),
+                    SnackBar(
+                      content: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: const Icon(
+                                Icons.calculate_outlined,
+                                color: Colors.white,
+                                size: 24.0,
+                              ),
+                            ),
+                            const SizedBox(width: 12.0),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    '🔢 Math Challenge',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14.0,
+                                      fontFamily: 'Scabber',
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2.0),
+                                  Text(
+                                    state.errorMessage!,
+                                    style: const TextStyle(
+                                      fontFamily: 'Scabber',
+                                      color: Colors.white,
+                                      fontSize: 13.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 18.0,
+                                ),
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                },
+                                constraints: const BoxConstraints(
+                                  minWidth: 36.0,
+                                  minHeight: 36.0,
+                                ),
+                                padding: EdgeInsets.zero,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      backgroundColor: const Color(0xFF6366F1), // İndigo rengi
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      margin: const EdgeInsets.all(16.0),
+                      elevation: 8.0,
+                      duration: const Duration(seconds: 4),
+                    ),
                   );
                 }
               },
@@ -230,6 +306,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           const SizedBox(height: 12),
           Text(
             context.tr('game.loading_description'),
+            textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 16,
               fontFamily: 'Scabber',
@@ -254,8 +331,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             fit: BoxFit.contain,
           ),
           const SizedBox(height: 16),
-           Text(
+          Text(
             context.tr('game.no_questions'),
+            textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 18,
               color: Colors.white,

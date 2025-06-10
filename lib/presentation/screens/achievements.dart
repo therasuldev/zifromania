@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,10 @@ import 'package:zifromania/models/title_model.dart';
 import 'package:zifromania/presentation/state-managment/auth/auth_bloc.dart';
 import 'package:zifromania/presentation/state-managment/tasks-bloc/task_bloc.dart';
 import 'package:zifromania/presentation/state-managment/titles-bloc/title_bloc.dart';
+
+String getTitleIconAsset(String titleKey) {
+  return "assets/title-avatars/$titleKey.png";
+}
 
 class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
@@ -66,8 +71,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
 
         await SharePlus.instance.share(ShareParams(
           files: [XFile(file.path)],
-          text: 'I earned "$title" achievement! Try the Math Game yourself!',
-          subject: 'Math Game Achievement',
+          text: 'achievements.share.share_text'.tr(args: [title]),
+          subject: 'achievements.share.share_subtext'.tr(),
         ));
       }
     });
@@ -77,8 +82,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     final achievement = Achievement(
       title: title.name,
       description: title.description,
-      icon: title.iconUrl,
-      color: Colors.purple,
+      icon: getTitleIconAsset(title.key),
+      color: Colors.purple, // TODO: DEYISECEK
+      titleKey: title.key,
       isUnlocked: isUnlocked,
       unlockedDate: isUnlocked ? DateTime.now() : null,
     );
@@ -105,6 +111,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
       description: task.description,
       icon: task.iconUrl,
       color: Colors.blue,
+      titleKey: null,
       isUnlocked: isCompleted,
       score: '${task.xpReward}XP',
       unlockedDate: isCompleted ? DateTime.now() : null,
@@ -147,7 +154,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
                 children: [
                   CustomBackButton(color: lightBrownColor),
                   const SizedBox(width: 12),
-                  Text('Achievements',
+                  Text('achievements.title'.tr(),
                       style: TextStyle(
                         color: lightBrownColor,
                         fontSize: 22,
@@ -162,30 +169,30 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: backgroundColor.withOpacity(0.7),
+                color: backgroundColor.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: TabBar(
                 controller: _tabController,
                 indicatorSize: TabBarIndicatorSize.tab,
                 indicator: BoxDecoration(
-                  color: lightIndigoColor.withOpacity(0.3),
+                  color: lightIndigoColor.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF4C87FF).withOpacity(0.4),
+                      color: const Color(0xFF4C87FF).withValues(alpha: 0.4),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                unselectedLabelColor: _textColor.withOpacity(0.5),
+                unselectedLabelColor: _textColor.withValues(alpha: 0.5),
                 labelColor: Colors.white,
                 dividerColor: Colors.transparent,
                 labelStyle: const TextStyle(fontSize: 16, fontFamily: 'Scabber'),
-                tabs: const [
-                  Tab(text: 'TITLES'),
-                  Tab(text: 'TASKS'),
+                tabs: [
+                  Tab(text: 'achievements.titles'.tr()),
+                  Tab(text: 'achievements.tasks'.tr()),
                 ],
               ),
             ),
@@ -204,7 +211,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
                       if (state.titles.isEmpty) {
                         return _buildEmptyState(
                           icon: 'assets/icons/empty.png',
-                          message: 'No titles available yet.',
+                          message: 'achievements.no_titles'.tr(),
                           noButton: true,
                         );
                       }
@@ -225,7 +232,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
                       if (state.tasks.isEmpty) {
                         return _buildEmptyState(
                           icon: 'assets/icons/empty.png',
-                          message: 'No tasks available yet.',
+                          message: 'achievements.no_tasks'.tr(),
                           noButton: true,
                         );
                       }
@@ -306,6 +313,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
           title: title.name,
           description: title.description,
           icon: title.iconUrl,
+          titleKey: title.key,
           color: Colors.purple,
           isUnlocked: isUnlocked,
         );
@@ -340,6 +348,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
           title: task.title,
           description: task.description,
           icon: task.iconUrl,
+          titleKey: null,
           color: Colors.blue,
           isUnlocked: isCompleted,
           score: '${task.xpReward}XP',
@@ -364,6 +373,7 @@ class Achievement {
   final Color color;
   final bool isUnlocked;
   final String? score;
+  final String? titleKey;
   final DateTime? unlockedDate;
 
   const Achievement({
@@ -371,6 +381,7 @@ class Achievement {
     required this.description,
     required this.icon,
     required this.color,
+    required this.titleKey,
     required this.isUnlocked,
     this.score,
     this.unlockedDate,
@@ -403,12 +414,12 @@ class AchievementCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: achievement.isUnlocked ? achievement.color.withOpacity(0.3) : Colors.black.withOpacity(0.1),
+              color: achievement.isUnlocked ? achievement.color.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
           ],
-          border: achievement.isUnlocked ? Border.all(color: achievement.color.withOpacity(0.5), width: 2) : null,
+          border: achievement.isUnlocked ? Border.all(color: achievement.color.withValues(alpha: 0.5), width: 2) : null,
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
@@ -424,8 +435,8 @@ class AchievementCard extends StatelessWidget {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: achievement.color.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(50),
+                      color: achievement.color.withValues(alpha: 0.08),
                     ),
                   ),
                 ),
@@ -434,180 +445,168 @@ class AchievementCard extends StatelessWidget {
             // Achievement content
             Padding(
               padding: const EdgeInsets.all(12.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Achievement icon
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: achievement.isUnlocked ? achievement.color.withOpacity(0.1) : Colors.grey.withOpacity(0.05),
-                          shape: BoxShape.circle,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    // Achievement icon
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: achievement.isUnlocked ? achievement.color.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.05),
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                      Container(
-                        width: 70,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          color: achievement.isUnlocked ? achievement.color.withOpacity(0.15) : Colors.grey.withOpacity(0.08),
-                          shape: BoxShape.circle,
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: achievement.isUnlocked ? achievement.color.withValues(alpha: 0.15) : Colors.grey.withValues(alpha: 0.08),
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: achievement.isUnlocked ? achievement.color.withOpacity(0.2) : Colors.grey.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                          boxShadow: achievement.isUnlocked
-                              ? [
-                                  BoxShadow(
-                                    color: achievement.color.withOpacity(0.5),
-                                    blurRadius: 15,
-                                    spreadRadius: -5,
-                                  )
-                                ]
-                              : null,
-                        ),
-                        child: achievement.isUnlocked
-                            ? Image.asset(
-                                achievement.icon,
-                                width: 32,
-                                height: 32,
+                        achievement.isUnlocked
+                            ? ClipOval(
+                                child: Image.asset(
+                                  getTitleIconAsset(achievement.titleKey!),
+                                  width: 80,
+                                  height: 80,
+                                ),
                               )
                             : Icon(
                                 Icons.lock,
                                 size: 32,
-                                color: Colors.grey.withOpacity(0.5),
+                                color: Colors.grey.withValues(alpha: 0.5),
                               ),
-                      ),
-                      if (achievement.isUnlocked && achievement.score != null)
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: achievement.color,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: achievement.color.withOpacity(0.3),
-                                  blurRadius: 4,
+                        if (achievement.isUnlocked && achievement.score != null)
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: achievement.color,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: achievement.color.withValues(alpha: 0.3),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                achievement.score!,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontFamily: 'Scabber',
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
+                              ),
                             ),
-                            child: Text(
-                              achievement.score!,
+                          ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Achievement title
+                    Text(
+                      achievement.title,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Scabber',
+                        color: achievement.isUnlocked ? achievement.color : Colors.grey.withValues(alpha: 0.8),
+                      ),
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    Flexible(
+                      fit: FlexFit.loose,
+                      child: Text(
+                        achievement.description,
+                        textAlign: TextAlign.center,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'Scabber',
+                          color: subTextColor,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Earned/Locked label
+                    if (achievement.isUnlocked)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              achievement.color.withValues(alpha: 0.8),
+                              achievement.color,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: achievement.color.withValues(alpha: 0.3),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.check_circle,
+                              color: Colors.white,
+                              size: 12,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'achievements.earned'.tr(),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
                                 fontFamily: 'Scabber',
                                 fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
                               ),
                             ),
-                          ),
-                        ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Achievement title
-                  Text(
-                    achievement.title,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Scabber',
-                      color: achievement.isUnlocked ? achievement.color : Colors.grey.withOpacity(0.8),
-                    ),
-                  ),
-
-                  const SizedBox(height: 6),
-
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: Text(
-                      achievement.description,
-                      textAlign: TextAlign.center,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontFamily: 'Scabber',
-                        color: subTextColor,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Earned/Locked label
-                  if (achievement.isUnlocked)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            achievement.color.withOpacity(0.8),
-                            achievement.color,
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: achievement.color.withOpacity(0.3),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'achievements.locked'.tr(),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 10,
+                            fontFamily: 'Scabber',
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
                           ),
-                        ],
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            color: Colors.white,
-                            size: 12,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            'EARNED',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontFamily: 'Scabber',
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  else
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'LOCKED',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 10,
-                          fontFamily: 'Scabber',
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
@@ -651,7 +650,7 @@ class AchievementDetailsSheet extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -666,7 +665,7 @@ class AchievementDetailsSheet extends StatelessWidget {
             height: 5,
             margin: const EdgeInsets.only(bottom: 24),
             decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.3),
+              color: Colors.grey.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(3),
             ),
           ),
@@ -684,10 +683,10 @@ class AchievementDetailsSheet extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     cardBackgroundColor,
-                    achievement.isUnlocked ? achievement.color.withOpacity(0.1) : cardBackgroundColor,
+                    achievement.isUnlocked ? achievement.color.withValues(alpha: 0.1) : cardBackgroundColor,
                   ],
                 ),
-                border: Border.all(color: achievement.isUnlocked ? achievement.color.withOpacity(0.5) : Colors.transparent, width: 2),
+                border: Border.all(color: achievement.isUnlocked ? achievement.color.withValues(alpha: 0.5) : Colors.transparent, width: 2),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -701,7 +700,7 @@ class AchievementDetailsSheet extends StatelessWidget {
                         width: 120,
                         height: 120,
                         decoration: BoxDecoration(
-                          color: achievement.isUnlocked ? achievement.color.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                          color: achievement.isUnlocked ? achievement.color.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -709,38 +708,25 @@ class AchievementDetailsSheet extends StatelessWidget {
                         width: 100,
                         height: 100,
                         decoration: BoxDecoration(
-                          color: achievement.isUnlocked ? achievement.color.withOpacity(0.15) : Colors.grey.withOpacity(0.15),
+                          color: achievement.isUnlocked ? achievement.color.withValues(alpha: 0.15) : Colors.grey.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                       ),
                       // Icon container
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: achievement.isUnlocked ? achievement.color.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                          boxShadow: achievement.isUnlocked
-                              ? [
-                                  BoxShadow(
-                                    color: achievement.color.withOpacity(0.5),
-                                    blurRadius: 15,
-                                    spreadRadius: -5,
-                                  )
-                                ]
-                              : null,
-                        ),
-                        child: achievement.isUnlocked
-                            ? Image.asset(
+                      achievement.isUnlocked
+                          ? ClipOval(
+                              child: Image.asset(
                                 achievement.icon,
-                                width: 48,
-                                height: 48,
-                              )
-                            : Icon(
-                                Icons.lock,
-                                size: 48,
-                                color: Colors.grey.withOpacity(0.7),
+                                width: 80,
+                                height: 80,
                               ),
-                      ),
+                            )
+                          : Icon(
+                              Icons.lock,
+                              size: 48,
+                              color: Colors.grey.withValues(alpha: 0.7),
+                            ),
+
                       if (achievement.isUnlocked && achievement.score != null)
                         Positioned(
                           bottom: 0,
@@ -752,7 +738,7 @@ class AchievementDetailsSheet extends StatelessWidget {
                               borderRadius: BorderRadius.circular(15),
                               boxShadow: [
                                 BoxShadow(
-                                  color: achievement.color.withOpacity(0.3),
+                                  color: achievement.color.withValues(alpha: 0.3),
                                   blurRadius: 6,
                                 ),
                               ],
@@ -781,7 +767,7 @@ class AchievementDetailsSheet extends StatelessWidget {
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Scabber',
-                      color: achievement.isUnlocked ? achievement.color : Colors.grey.withOpacity(0.8),
+                      color: achievement.isUnlocked ? achievement.color : Colors.grey.withValues(alpha: 0.8),
                     ),
                   ),
 
@@ -807,31 +793,31 @@ class AchievementDetailsSheet extends StatelessWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            achievement.color.withOpacity(0.8),
+                            achievement.color.withValues(alpha: 0.8),
                             achievement.color,
                           ],
                         ),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: achievement.color.withOpacity(0.3),
+                            color: achievement.color.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
                         ],
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.check_circle,
                             color: Colors.white,
                             size: 16,
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Text(
-                            'EARNED',
-                            style: TextStyle(
+                            'achievements.earned'.tr(),
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
                               fontFamily: 'Scabber',
@@ -846,21 +832,21 @@ class AchievementDetailsSheet extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.2),
+                        color: Colors.grey.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.lock_outline,
                             color: Colors.grey,
                             size: 16,
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Text(
-                            'LOCKED',
-                            style: TextStyle(
+                            'achievements.locked'.tr(),
+                            style: const TextStyle(
                               color: Colors.grey,
                               fontSize: 14,
                               fontFamily: 'Scabber',
@@ -877,7 +863,9 @@ class AchievementDetailsSheet extends StatelessWidget {
                   // Earned date (only for unlocked achievements)
                   if (achievement.isUnlocked && achievement.unlockedDate != null)
                     Text(
-                      'Earned date: ${achievement.unlockedDate!.day}/${achievement.unlockedDate!.month}/${achievement.unlockedDate!.year}',
+                      'achievements.earned_date'.tr(
+                        args: ['${achievement.unlockedDate!.day}/${achievement.unlockedDate!.month}/${achievement.unlockedDate!.year}'],
+                      ),
                       style: TextStyle(
                         fontSize: 14,
                         fontFamily: 'Scabber',
@@ -891,15 +879,15 @@ class AchievementDetailsSheet extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
-                        'assets/icons/app_logo.png',
+                        'assets/images/zifromania.png',
                         width: 24,
                         height: 24,
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'MATEMATİK OYUNU',
+                        'ZifroMania',
                         style: TextStyle(
-                          color: textColor.withOpacity(0.7),
+                          color: textColor.withValues(alpha: 0.7),
                           fontSize: 12,
                           fontFamily: 'Scabber',
                           fontWeight: FontWeight.bold,
@@ -933,9 +921,9 @@ class AchievementDetailsSheet extends StatelessWidget {
                     elevation: 4,
                   ),
                   icon: const Icon(Icons.share),
-                  label: const Text(
-                    'PAYLAŞ',
-                    style: TextStyle(
+                  label: Text(
+                    'achievements.share.title'.tr(),
+                    style: const TextStyle(
                       fontFamily: 'Scabber',
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1,
@@ -952,9 +940,9 @@ class AchievementDetailsSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text(
-                    'KAPAT',
-                    style: TextStyle(
+                  child: Text(
+                    'achievements.close'.tr(),
+                    style: const TextStyle(
                       fontFamily: 'Scabber',
                       color: Colors.redAccent,
                       fontWeight: FontWeight.bold,

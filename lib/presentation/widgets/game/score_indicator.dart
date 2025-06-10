@@ -9,7 +9,7 @@ class ScoreIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.star, color: Colors.yellow),
+        Image.asset('assets/icons/star.png', height: 24, width: 24),
         const SizedBox(width: 8),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
@@ -22,10 +22,9 @@ class ScoreIndicator extends StatelessWidget {
           },
           child: Text(
             '$score',
-            key: ValueKey<int>(score), // Ensures the widget updates when the score changes
+            key: ValueKey<int>(score),
             style: const TextStyle(
-              fontFamily: 'Onacona',
-              // letterSpacing: 2.5,
+              fontFamily: 'Scabber',
               fontSize: 25,
               fontWeight: FontWeight.bold,
               color: Colors.yellow,

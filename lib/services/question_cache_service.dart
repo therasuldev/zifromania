@@ -7,14 +7,41 @@ import 'package:crypto/crypto.dart';
 import '../../domain/entities/enums.dart';
 import '../../domain/entities/math_question.dart';
 
+enum SubscriptionType { free, oneMonth, threeMonths, sixMonths }
+
 class QuestionCacheService {
   static const String _cachePrefix = 'cached_questions_';
   static const String _apiCallCountPrefix = 'api_call_count_'; // Hər kateqoriya üçün API çağırışı sayacı
+  static const String _dailyGameCountPrefix = 'daily_game_count_'; // Günlük oyun sayacı
   static const String _lastClearPrefix = 'last_clear_';
   static const String _deviceIdPrefix = 'device_id_';
   static const String _installDatePrefix = 'install_date_';
+  static const String _subscriptionTypePrefix = 'subscription_type_';
 
-  static const int _maxApiCallsPerCategory = 4; // Hər kateqoriya üçün maksimum 4 API çağırışı
+  // Free user limits
+  static const int _freeMaxApiCallsPerCategory = 4;
+  static const int _freeMaxGamesPerCategoryDaily = 0; // Free userlar unlimited amma API limiti var
+
+  // Subscription limits
+  static const Map<SubscriptionType, Map<String, int>> _subscriptionLimits = {
+    SubscriptionType.free: {
+      'maxApiCallsPerCategory': 3,
+      'maxGamesPerCategoryDaily': 5, // 3 API + 2 keş = 5 oyun
+    },
+    SubscriptionType.oneMonth: {
+      'maxApiCallsPerCategory': 5,
+      'maxGamesPerCategoryDaily': 9, // 5 API + 4 keş = 9 oyun
+    },
+    SubscriptionType.threeMonths: {
+      'maxApiCallsPerCategory': 8,
+      'maxGamesPerCategoryDaily': 12, // 9 API + 3 keş = 12 oyun
+    },
+    SubscriptionType.sixMonths: {
+      'maxApiCallsPerCategory': 15,
+      'maxGamesPerCategoryDaily': 25, // 15 API + 10 keş = 25 oyun
+    },
+  };
+
   static const int _questionsPerGame = 50; // Hər oyunda 50 sual
   static const int _minHoursBetweenClears = 24; // Keş silmə arası minimum 24 saat
 
@@ -34,6 +61,28 @@ class QuestionCacheService {
     }
   }
 
+  // Abunəlik tipini təyin et
+  Future<void> setSubscriptionType(SubscriptionType subscriptionType) async {
+    await _prefs.setString(_subscriptionTypePrefix, subscriptionType.name);
+  }
+
+  // Abunəlik tipini al
+  SubscriptionType getSubscriptionType() {
+    final subscriptionName = _prefs.getString(_subscriptionTypePrefix);
+    if (subscriptionName == null) return SubscriptionType.free;
+
+    return SubscriptionType.values.firstWhere(
+      (type) => type.name == subscriptionName,
+      orElse: () => SubscriptionType.free,
+    );
+  }
+
+  // İstifadəçinin abunə tipinə görə limitləri al
+  Map<String, int> _getUserLimits() {
+    final subscriptionType = getSubscriptionType();
+    return _subscriptionLimits[subscriptionType]!;
+  }
+
   String _generateDeviceId() {
     final random = Random.secure();
     final bytes = List<int>.generate(32, (i) => random.nextInt(256));
@@ -42,8 +91,39 @@ class QuestionCacheService {
 
   // Kateqoriya üçün API çağırışı limitini yoxla
   bool canMakeApiCall(GameCategory category) {
+    final userLimits = _getUserLimits();
     final apiCallCount = getCategoryApiCallCount(category);
-    return apiCallCount < _maxApiCallsPerCategory;
+    return apiCallCount < userLimits['maxApiCallsPerCategory']!;
+  }
+
+  // Günlük oyun limitini yoxla
+  bool canPlayGame(GameCategory category) {
+    final subscriptionType = getSubscriptionType();
+
+    // Free userlar üçün yalnız API limiti var
+    if (subscriptionType == SubscriptionType.free) {
+      return canMakeApiCall(category) || hasSufficientCachedQuestions(category);
+    }
+
+    // Premium userlar üçün günlük oyun limiti
+    final userLimits = _getUserLimits();
+    final dailyGames = getDailyGameCount(category);
+    return dailyGames < userLimits['maxGamesPerCategoryDaily']!;
+  }
+
+  // Günlük oyun sayını al
+  int getDailyGameCount(GameCategory category) {
+    final today = DateTime.now();
+    final todayKey = '$_dailyGameCountPrefix${category.name}_${today.year}_${today.month}_${today.day}';
+    return _prefs.getInt(todayKey) ?? 0;
+  }
+
+  // Günlük oyun sayını artır
+  Future<void> incrementDailyGameCount(GameCategory category) async {
+    final today = DateTime.now();
+    final todayKey = '$_dailyGameCountPrefix${category.name}_${today.year}_${today.month}_${today.day}';
+    final currentCount = getDailyGameCount(category);
+    await _prefs.setInt(todayKey, currentCount + 1);
   }
 
   // Kateqoriya üçün API çağırışı sayını al
@@ -91,7 +171,7 @@ class QuestionCacheService {
           .map((q) => MathQuestion(
                 question: q['question'],
                 correctAnswer: q['correctAnswer'],
-                answerOptions: List<dynamic>.from(q['answerOptions']),
+                answerOptions: Map<String, String>.from(q['answerOptions']),
               ))
           .toList();
     } catch (e) {
@@ -146,6 +226,11 @@ class QuestionCacheService {
       await _prefs.remove('$_cachePrefix${category.name}');
       await _prefs.remove('$_apiCallCountPrefix${category.name}');
       await _prefs.remove('$_lastClearPrefix${category.name}');
+
+      // Günlük oyun sayaclarını da təmizlə
+      final today = DateTime.now();
+      final todayKey = '$_dailyGameCountPrefix${category.name}_${today.year}_${today.month}_${today.day}';
+      await _prefs.remove(todayKey);
     }
 
     return true;
@@ -162,11 +247,16 @@ class QuestionCacheService {
       totalApiCalls += getCategoryApiCallCount(category);
     }
 
+    final subscriptionType = getSubscriptionType();
+    final userLimits = _getUserLimits();
+
     return {
       'deviceId': '${_deviceId.substring(0, 8)}...', // Yalnız ilk 8 simvol
       'daysSinceInstall': daysSinceInstall.round(),
       'totalApiCalls': totalApiCalls,
-      'maxApiCallsPerCategory': _maxApiCallsPerCategory,
+      'subscriptionType': subscriptionType.name,
+      'maxApiCallsPerCategory': userLimits['maxApiCallsPerCategory'],
+      'maxGamesPerCategoryDaily': userLimits['maxGamesPerCategoryDaily'],
     };
   }
 
@@ -193,15 +283,26 @@ class QuestionCacheService {
   Map<String, dynamic> getCacheStats(GameCategory category) {
     final clearInfo = getClearInfo(category);
     final apiCallCount = getCategoryApiCallCount(category);
+    final subscriptionType = getSubscriptionType();
+    final userLimits = _getUserLimits();
+    final dailyGames = getDailyGameCount(category);
 
     return {
+      'subscriptionType': subscriptionType.name,
       'apiCallCount': apiCallCount,
-      'remainingApiCalls': math.max(0, _maxApiCallsPerCategory - apiCallCount),
+      'remainingApiCalls': math.max(0, userLimits['maxApiCallsPerCategory']! - apiCallCount),
       'canMakeApiCall': canMakeApiCall(category),
+      'dailyGameCount': dailyGames,
+      'remainingDailyGames': subscriptionType == SubscriptionType.free
+          ? -1 // Unlimited (amma API limiti var)
+          : math.max(0, userLimits['maxGamesPerCategoryDaily']! - dailyGames),
+      'canPlayGame': canPlayGame(category),
       'cachedQuestionsCount': getCachedQuestions(category).length,
       'canUseCache': hasSufficientCachedQuestions(category),
       'canClearCache': clearInfo['canClear'],
       'hoursUntilNextClear': clearInfo['hoursUntilNextClear'],
+      'maxApiCallsPerCategory': userLimits['maxApiCallsPerCategory'],
+      'maxGamesPerCategoryDaily': userLimits['maxGamesPerCategoryDaily'],
     };
   }
 }

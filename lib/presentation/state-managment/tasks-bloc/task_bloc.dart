@@ -1,6 +1,6 @@
 // task_bloc.dart
 import 'package:bloc/bloc.dart';
-import 'package:zifromania/models/title_model.dart';
+import 'package:zifromania/models/task_model.dart';
 import 'package:zifromania/services/task_service.dart';
 
 part 'task_event.dart';

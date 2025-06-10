@@ -6,7 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 
-import 'access_token_service.dart';
+import 'firebase_auth_service.dart';
 import 'api_client.dart';
 import 'log_service.dart';
 
@@ -45,7 +45,7 @@ class NotificationService {
   // === Topic subscription ====================================================
   Future<void> _subscribeToTopic(String topic) async {
     try {
-      final token = await _locator<AccessTokenService>().getAccessToken();
+      final token = await _locator<FirebaseAuthService>().getServiceAccountToken();
       if (token == null) {
         _log.w('Skipped topic subscription – server token is null');
         return;

@@ -8,9 +8,8 @@ class AudioService {
   }
 
   Future<void> reset() async {
-    await _audioPlayer.stop(); // dispose YOX!
-    await _audioPlayer.release(); // nativeni boşalt
-    // burda yeni AudioPlayer yaratmağa ehtiyac yoxdur
+    await _audioPlayer.stop();
+    await _audioPlayer.release();
   }
 
   Future<void> playSoundEffect(bool isCorrect) async {
@@ -21,7 +20,7 @@ class AudioService {
     }
   }
 
-  Future<void> dispose() async {
-    await _audioPlayer.dispose();
-  }
+  // Future<void> dispose() async {
+  //   await _audioPlayer.dispose();
+  // }
 }

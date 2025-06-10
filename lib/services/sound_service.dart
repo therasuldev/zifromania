@@ -17,6 +17,10 @@ class SoundService {
   String? _currentBackgroundMusic;
   bool _isMusicPlaying = false;
 
+  bool get isMusicPlaying => _isMusicPlaying;
+
+  bool get isMusicPaused => !_isMusicPlaying && _currentBackgroundMusic != null;
+
   // Initialize the service
   Future<void> init() async {
     await _settingsService.init();
@@ -40,17 +44,17 @@ class SoundService {
 
   // Play background music
   Future<void> playBackgroundMusic(String assetPath) async {
-    if (_settingsService.getMusicEnabled()) {
-      try {
-        if (_currentBackgroundMusic != assetPath || !_isMusicPlaying) {
-          _currentBackgroundMusic = assetPath;
-          await _musicPlayer.stop();
-          await _musicPlayer.play(AssetSource(assetPath));
-          _isMusicPlaying = true;
-        }
-      } catch (e) {
-        print('Error playing background music: $e');
-      }
+    if (!_settingsService.getMusicEnabled()) return;
+
+    if (_currentBackgroundMusic != assetPath) {
+      _currentBackgroundMusic = assetPath;
+      await _musicPlayer.setSource(AssetSource(assetPath));
+      await _musicPlayer.setReleaseMode(ReleaseMode.loop); // kritik addım
+    }
+
+    if (!_isMusicPlaying) {
+      await _musicPlayer.resume();
+      _isMusicPlaying = true;
     }
   }
 

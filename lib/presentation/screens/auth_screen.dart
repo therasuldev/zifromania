@@ -6,9 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zifromania/presentation/common/partial_modal_route.dart';
 import 'package:zifromania/presentation/screens/privacy_policy.dart';
 import 'package:zifromania/presentation/screens/terms_of_service.dart';
-import 'package:zifromania/presentation/state_managment/auth/auth_bloc.dart';
-import 'package:zifromania/presentation/state_managment/auth/auth_event.dart';
-import 'package:zifromania/presentation/state_managment/auth/auth_state.dart';
+import 'package:zifromania/presentation/state-managment/auth/auth_bloc.dart';
+import 'package:zifromania/presentation/state-managment/auth/auth_event.dart';
+import 'package:zifromania/presentation/state-managment/auth/auth_state.dart';
 
 /// Sign‑in screen with mandatory Terms of Service acceptance.
 /// Google button remains disabled (greyed‑out) until the checkbox is ticked.
@@ -69,7 +69,7 @@ class _AuthScreenState extends State<AuthScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Spacer(flex: 2),
-        Center(child: Image.asset('assets/icons/app_logo.png', height: 180)),
+        Center(child: Image.asset('assets/images/zifromania.png', height: 180)),
         const SizedBox(height: 32),
         _buildTitle(),
         const SizedBox(height: 16),
@@ -208,7 +208,7 @@ class SignInButton extends StatelessWidget {
             border: Border.all(color: borderColor),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(enabled ? 0.05 : 0.02),
+                color: Colors.black.withValues(alpha: enabled ? 0.05 : 0.02),
                 offset: const Offset(0, 4),
                 blurRadius: 10,
               ),

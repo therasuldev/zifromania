@@ -225,7 +225,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             ),
                             child: Image.asset(
                               'assets/icons/feedback.png',
-                              opacity: AlwaysStoppedAnimation(0.7),
+                              opacity: const AlwaysStoppedAnimation(0.7),
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -500,7 +500,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             'assets/icons/information.png',
                             height: 24,
                             width: 24,
-                            opacity: AlwaysStoppedAnimation(0.7),
+                            opacity: const AlwaysStoppedAnimation(0.7),
                           ),
                           const SizedBox(width: 12),
                           Expanded(

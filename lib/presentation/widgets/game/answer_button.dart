@@ -1,4 +1,4 @@
-import 'package:equation_quest/presentation/state_managment/game_bloc/game_bloc.dart';
+import 'package:zifromania/presentation/state-managment/game/game_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -39,7 +39,7 @@ class _AnswerButtonState extends State<AnswerButton> with SingleTickerProviderSt
 
   Color _getButtonColor({
     required dynamic answerValue,
-    required int correctAnswer,
+    required String correctAnswer,
     required int index,
     int? lastSelectedAnswer,
     required int currentQuestionIndex,
@@ -51,12 +51,12 @@ class _AnswerButtonState extends State<AnswerButton> with SingleTickerProviderSt
 
     // Handle true/false as 1/0
     if (answerValue is String && (answerValue == "True" || answerValue == "False")) {
-      final numeric = answerValue == "True" ? 1 : 0;
-      if (numeric == correctAnswer) return const Color(0xFF1CAC78);
-      if (lastSelectedAnswer == index) return const Color(0xFFE32636);
+      final numeric = answerValue == "True" ? "1" : "0";
+      if (numeric == correctAnswer) return const Color.fromARGB(50, 50, 255, 153);
+      if (lastSelectedAnswer == index) return const Color.fromARGB(50, 255, 50, 50);
     } else {
-      if (answerValue == correctAnswer) return const Color(0xFF1CAC78);
-      if (lastSelectedAnswer == index) return const Color(0xFFE32636);
+      if (answerValue == correctAnswer) return const Color.fromARGB(50, 50, 255, 153);
+      if (lastSelectedAnswer == index) return const Color.fromARGB(50, 255, 50, 50);
     }
 
     return Colors.transparent;
@@ -88,36 +88,23 @@ class _AnswerButtonState extends State<AnswerButton> with SingleTickerProviderSt
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: state.lastSelectedAnswer != null
-                    ? [
-                        BoxShadow(
-                          color: _getButtonColor(
-                            answerValue: answerValue,
-                            correctAnswer: correctAnswer,
-                            index: widget.index,
-                            lastSelectedAnswer: state.lastSelectedAnswer,
-                            currentQuestionIndex: state.currentQuestionIndex,
-                            state: state,
-                          ),
-                          spreadRadius: 2,
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : [],
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.1),
-                  width: 2,
+                color: _getButtonColor(
+                  answerValue: answerValue,
+                  correctAnswer: correctAnswer,
+                  index: widget.index,
+                  currentQuestionIndex: state.currentQuestionIndex,
+                  state: state,
+                  lastSelectedAnswer: state.lastSelectedAnswer,
                 ),
-                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 2),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
               child: Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: state.lastSelectedAnswer != null ? Colors.white.withOpacity(0.1) : Colors.transparent,
+                    color: state.lastSelectedAnswer != null ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Text(
@@ -125,7 +112,7 @@ class _AnswerButtonState extends State<AnswerButton> with SingleTickerProviderSt
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 24,
-                      fontFamily: 'Onacona',
+                      fontFamily: 'Scabber',
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),

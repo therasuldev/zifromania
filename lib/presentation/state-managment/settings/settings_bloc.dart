@@ -45,8 +45,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         case SettingsEvents.vibrate:
           await _onVibrate(event, emit);
           break;
-        case SettingsEvents.changeLanguage:
-          await _onChangeLanguage(event, emit);
+        case SettingsEvents.setLanguage:
+          await _onSetLanguage(event, emit);
+          break;
+        case SettingsEvents.getLanguage:
+          _onGetLanguage(emit);
           break;
       }
     });
@@ -129,8 +132,14 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     await _soundService.vibrate(duration: duration);
   }
 
-  Future<void> _onChangeLanguage(SettingsEvent event, Emitter<SettingsState> emit) async {
+  Future<void> _onSetLanguage(SettingsEvent event, Emitter<SettingsState> emit) async {
     final language = event.payload as String;
     await _settingsService.setLanguage(language);
+    emit(state.copyWith(language: language));
+  }
+
+  void _onGetLanguage(Emitter<SettingsState> emit) {
+    final language = _settingsService.getLanguage();
+    emit(state.copyWith(language: language));
   }
 }

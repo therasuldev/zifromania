@@ -16,13 +16,14 @@ class GameState {
   final int questionTimeRemaining;
 
   final DateTime? gameStartTime; // 🆕 Track game start time
-  final List<String> newlyEarnedTitles; // 🆕 Newly earned titles
+  final List<TitleModel> newlyEarnedTitles; // 🆕 Newly earned titles
+  // final List<Color> earnedTitleColors; // 🆕 Color for title reward animation
 
   final List<MathQuestion> questions;
   final int currentQuestionIndex;
   final bool isLoading;
   final String? errorMessage;
-  final GameDifficulty? difficulty;
+  final GameCategory? gameCategory;
   final bool? showResultDialog;
   final bool showSubscribeDialog;
 
@@ -41,13 +42,14 @@ class GameState {
     required this.currentQuestionIndex,
     required this.isLoading,
     this.errorMessage,
-    this.difficulty,
+    this.gameCategory,
     this.lastAnsweredQuestionIndex,
     this.showResultDialog = false,
     this.showSubscribeDialog = false,
     this.useQuestionTimer = false,
     this.questionTimeRemaining = 0,
     this.gameStartTime,
+    // this.earnedTitleColors = const [],
     this.newlyEarnedTitles = const [],
   });
 
@@ -66,7 +68,7 @@ class GameState {
       currentQuestionIndex: 0,
       isLoading: false,
       errorMessage: null,
-      difficulty: null,
+      gameCategory: null,
       lastAnsweredQuestionIndex: null,
       showResultDialog: false,
       showSubscribeDialog: false,
@@ -74,6 +76,7 @@ class GameState {
       questionTimeRemaining: 0,
       xpEarned: 0,
       gameStartTime: null,
+      // earnedTitleColors: const [],
       newlyEarnedTitles: const [],
     );
   }
@@ -92,7 +95,7 @@ class GameState {
     int? currentQuestionIndex,
     bool? isLoading,
     String? errorMessage,
-    GameDifficulty? difficulty,
+    GameCategory? gameCategory,
     int? lastAnsweredQuestionIndex,
     bool? showResultDialog,
     bool? showSubscribeDialog,
@@ -100,7 +103,8 @@ class GameState {
     int? questionTimeRemaining,
     int? xpEarned,
     DateTime? gameStartTime,
-    List<String>? newlyEarnedTitles,
+    // List<Color>? earnedTitleColors,
+    List<TitleModel>? newlyEarnedTitles,
   }) {
     return GameState(
       score: score ?? this.score,
@@ -113,7 +117,7 @@ class GameState {
       currentQuestionIndex: currentQuestionIndex ?? this.currentQuestionIndex,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
-      difficulty: difficulty ?? this.difficulty,
+      gameCategory: gameCategory ?? this.gameCategory,
       lastAnsweredQuestionIndex: lastAnsweredQuestionIndex ?? this.lastAnsweredQuestionIndex,
       showResultDialog: showResultDialog ?? this.showResultDialog,
       showSubscribeDialog: showSubscribeDialog ?? this.showSubscribeDialog,
@@ -124,6 +128,7 @@ class GameState {
       playerXp: playerXp ?? this.playerXp,
       playerXpTarget: playerXpTarget ?? this.playerXpTarget,
       gameStartTime: gameStartTime ?? this.gameStartTime,
+      // earnedTitleColors: earnedTitleColors ?? this.earnedTitleColors,
       newlyEarnedTitles: newlyEarnedTitles ?? this.newlyEarnedTitles,
     );
   }

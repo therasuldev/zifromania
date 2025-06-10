@@ -15,7 +15,7 @@ class PartialModalRoute<T> extends PageRouteBuilder<T> {
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                 clipBehavior: Clip.antiAlias,
                 child: FractionallySizedBox(
-                  heightFactor: 0.9, // half screen; adjust as needed
+                  heightFactor: .99,
                   widthFactor: 1,
                   child: child,
                 ),

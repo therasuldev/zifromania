@@ -14,16 +14,9 @@ const _kNotificationIdScheduled = 200;
 const _kChannelId = 'daily_reward';
 const _kChannelName = 'Daily Reward';
 const _kChannelDescription = 'Alerts you when your free daily coin reward is ready.';
-const _kCooldown = Duration(minutes: 2);
+const _kCooldown = Duration(hours: 24);
 
 class DailyRewardService {
-  // ---------------------------------------------------------------------------
-  // Singleton boilerplate
-  DailyRewardService._internal();
-  static final DailyRewardService _instance = DailyRewardService._internal();
-  factory DailyRewardService() => _instance;
-  // ---------------------------------------------------------------------------
-
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
 
   /// Call this once — e.g. in main() before runApp().
@@ -89,14 +82,16 @@ class DailyRewardService {
 
   /// Convenience helper to render a nice short string from a [Duration].
   static String formatRemainingTime(Duration d) {
-    if (d <= Duration.zero) return '0s';
+    if (d <= Duration.zero) return '0 dəq';
+
     final hours = d.inHours;
     final minutes = d.inMinutes.remainder(60);
-    final seconds = d.inSeconds.remainder(60);
 
-    if (hours > 0) return '${hours}h ${minutes}m';
-    if (minutes > 0) return '${minutes}m ${seconds}s';
-    return '${seconds}s';
+    // Əgər ümumilikdə 1 dəqiqədən az qalıbsa (amma sıfırdan çoxdursa), 1 dəq göstər
+    if (d.inMinutes == 0) return '1 deq';
+
+    if (hours > 0) return '$hours saat $minutes deq';
+    return '$minutes deq';
   }
 
   /// Call this when the user collects their daily reward.

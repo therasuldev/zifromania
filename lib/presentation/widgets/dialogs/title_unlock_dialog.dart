@@ -1,6 +1,5 @@
 // Create this as a separate widget file: title_reward_dialog.dart
 
-import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:zifromania/models/title_model.dart';
@@ -10,8 +9,9 @@ import '../fireworks_congratulations.dart';
 
 class TitleRewardDialog extends StatefulWidget {
   final List<TitleModel> titles;
+  final VoidCallback? onComplete;
 
-  const TitleRewardDialog({super.key, required this.titles});
+  const TitleRewardDialog({super.key, required this.titles, this.onComplete,});
 
   @override
   State<TitleRewardDialog> createState() => _TitleRewardDialogState();
@@ -21,11 +21,14 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
   late AnimationController _mainController;
   late AnimationController _particleController;
   late AnimationController _textController;
+  late AnimationController _transitionController; // Yeni controller
 
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotationAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  late Animation<Offset> _slideFromRightAnimation; // Sağdan sola animasiya
+  late Animation<Offset> _slideToLeftAnimation; // Soldan çıxış animasiyası
 
   int _currentTitleIndex = 0;
 
@@ -48,6 +51,12 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
     // Text animation controller
     _textController = AnimationController(
       duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    // Transition controller for title switching
+    _transitionController = AnimationController(
+      duration: const Duration(milliseconds: 600),
       vsync: this,
     );
 
@@ -84,6 +93,24 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
       curve: Curves.easeOutCubic,
     ));
 
+    // Sağdan sola animasiya
+    _slideFromRightAnimation = Tween<Offset>(
+      begin: const Offset(1.0, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _transitionController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    // Soldan çıxış animasiyası
+    _slideToLeftAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(-1.0, 0),
+    ).animate(CurvedAnimation(
+      parent: _transitionController,
+      curve: Curves.easeInCubic,
+    ));
+
     _startAnimationSequence();
   }
 
@@ -91,43 +118,38 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
     // Start particle animation
     _particleController.repeat();
 
+    // Initialize transition controller for first title
+    await _transitionController.forward();
+
     // Start main trophy animation
     await _mainController.forward();
 
     // Start text animation
     await _textController.forward();
-
-    // If multiple titles, cycle through them
-    //if (widget.titles.length > 1) {
-    _cycleThroughTitles();
-    // //} else {
-    //   // Auto close after delay for single title
-    //   Future.delayed(const Duration(milliseconds: 3000), () {
-    //     if (mounted) {
-    //       Navigator.of(context).pop();
-    //     }
-    //   });
-    // }
   }
 
-  void _cycleThroughTitles() async {
-    for (int i = 1; i < widget.titles.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 2000));
-      if (mounted) {
-        setState(() {
-          _currentTitleIndex = i;
-        });
-        _textController.reset();
-        await _textController.forward();
+   void _nextTitle() async {
+    if (_currentTitleIndex < widget.titles.length - 1) {
+      // Start transition animation
+      await _transitionController.forward();
+
+      // Update to next title
+      setState(() {
+        _currentTitleIndex++;
+      });
+
+      // Reset and start transition animation for new title
+      _transitionController.reset();
+      await _transitionController.forward();
+    } else {
+      // 🆕 Call the onComplete callback when finishing all titles
+      if (widget.onComplete != null) {
+        widget.onComplete!();
+      } else {
+        // Fallback: close dialog if no callback provided
+        Navigator.of(context).pop();
       }
     }
-
-    // Auto close after showing all titles
-    // Future.delayed(const Duration(milliseconds: 2000), () {
-    //   if (mounted) {
-    //     Navigator.of(context).pop();
-    //   }
-    // });
   }
 
   String _getTitleIconAsset(String key) {
@@ -156,6 +178,7 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
     _mainController.dispose();
     _particleController.dispose();
     _textController.dispose();
+    _transitionController.dispose();
     super.dispose();
   }
 
@@ -188,41 +211,32 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
                 },
               ),
 
-              // Main trophy/medal animation
+              // Main trophy/medal animation with transition
               AnimatedBuilder(
-                animation: _mainController,
+                animation: Listenable.merge([_mainController, _transitionController]),
                 builder: (context, child) {
-                  return Transform.scale(
-                    scale: _scaleAnimation.value,
-                    child: Transform.rotate(
-                      angle: _rotationAnimation.value * math.sin(_mainController.value * 4 * math.pi),
-                      child: Container(
-                        width: 220,
-                        height: 220,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: _getTitleColor(widget.titles[_currentTitleIndex].key).withValues(alpha: 0.6),
-                              blurRadius: 20,
-                              spreadRadius: 5,
+                  return SlideTransition(
+                    position: _slideFromRightAnimation,
+                    child: Transform.scale(
+                      scale: _scaleAnimation.value,
+                      child: Transform.rotate(
+                        angle: _rotationAnimation.value * math.sin(_mainController.value * 4 * math.pi),
+                        child: Container(
+                          width: 220,
+                          height: 220,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: _getTitleColor(widget.titles[_currentTitleIndex].key).withValues(alpha: 0.6),
+                                blurRadius: 20,
+                                spreadRadius: 5,
+                              ),
+                            ],
+                            image: DecorationImage(
+                              image: AssetImage(_getTitleIconAsset(widget.titles[_currentTitleIndex].key)),
+                              fit: BoxFit.cover,
                             ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: Image.asset(
-                            _getTitleIconAsset(widget.titles[_currentTitleIndex].key),
-                            // width: 80,
-                            // height: 80,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              // Əgər asset tapılmasa, fallback icon
-                              return const Icon(
-                                Icons.military_tech,
-                                size: 60,
-                                color: Colors.white,
-                              );
-                            },
                           ),
                         ),
                       ),
@@ -233,60 +247,64 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
             ],
           ),
           const SizedBox(height: 20),
-          // Title text animation
+
+          // Title text animation with transition
           AnimatedBuilder(
-            animation: _textController,
+            animation: Listenable.merge([_textController, _transitionController]),
             builder: (context, child) {
               return SlideTransition(
                 position: _slideAnimation,
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Column(
-                    children: [
-                      Text(
-                        'New Title Unlocked!',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blueGrey[300],
-                          fontFamily: 'Scabber',
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                            color: _getTitleColor(widget.titles[_currentTitleIndex].key).withValues(alpha: .5),
-                            width: 2,
-                          ),
-                        ),
-                        child: Text(
-                          widget.titles[_currentTitleIndex].name,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      if (widget.titles.length > 1) ...[
-                        const SizedBox(height: 10),
+                child: SlideTransition(
+                  position: _slideFromRightAnimation,
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Column(
+                      children: [
                         Text(
-                          '${_currentTitleIndex + 1} / ${widget.titles.length}',
+                          'New Title Unlocked!',
                           style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueGrey[300],
+                            fontFamily: 'Scabber',
                           ),
                         ),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(
+                              color: _getTitleColor(widget.titles[_currentTitleIndex].key).withValues(alpha: .5),
+                              width: 2,
+                            ),
+                          ),
+                          child: Text(
+                            widget.titles[_currentTitleIndex].name,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        if (widget.titles.length > 1) ...[
+                          const SizedBox(height: 10),
+                          Text(
+                            '${_currentTitleIndex + 1} / ${widget.titles.length}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               );
@@ -295,27 +313,28 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
 
           const SizedBox(height: 30),
 
-          // Close button (appears after animation)
+          // Continue/Close button
           AnimatedBuilder(
             animation: _textController,
             builder: (context, child) {
               return Opacity(
-                  opacity: _textController.value,
-                  child: PressableFilledButton(
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(_getTitleColor(widget.titles[_currentTitleIndex].key).withValues(alpha: .2)),
-                      foregroundColor: WidgetStateProperty.all(Colors.white),
+                opacity: _textController.value,
+                child: PressableFilledButton(
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(_getTitleColor(widget.titles[_currentTitleIndex].key).withValues(alpha: .2)),
+                    foregroundColor: WidgetStateProperty.all(Colors.white),
+                  ),
+                  onPressed: _nextTitle,
+                  child: Text(
+                    _currentTitleIndex < widget.titles.length - 1 ? 'Devam Et' : 'Bağla',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'Scabber',
+                      fontWeight: FontWeight.w600,
                     ),
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text(
-                      'Devam Et',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Scabber',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ));
+                  ),
+                ),
+              );
             },
           ),
         ],

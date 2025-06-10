@@ -11,7 +11,9 @@ enum SettingsEvents {
   stopBackgroundMusic,
   playClickSound,
   vibrate,
-  changeLanguage
+
+  setLanguage,
+  getLanguage
 }
 
 class SettingsEvent {
@@ -54,7 +56,11 @@ class SettingsEvent {
       : type = SettingsEvents.vibrate,
         payload = duration;
 
-  SettingsEvent.changeLanguage({required String language})
-      : type = SettingsEvents.changeLanguage,
+  SettingsEvent.setLanguage({required String language})
+      : type = SettingsEvents.setLanguage,
         payload = language;
+
+  SettingsEvent.getLanguage()
+      : type = SettingsEvents.getLanguage,
+        payload = null;
 }

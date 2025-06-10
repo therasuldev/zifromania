@@ -1,5 +1,6 @@
 class TitleLogicService {
-  static bool doesUserMeetRequirements(Map<String, dynamic> req, {
+  static bool doesUserMeetRequirements(
+    Map<String, dynamic> req, {
     required int score,
     required int level,
     required int incorrectAnswers,

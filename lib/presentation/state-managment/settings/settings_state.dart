@@ -6,12 +6,14 @@ class SettingsState {
   final bool musicEnabled;
   final bool vibrationEnabled;
   final bool isLoading;
+  final String language;
 
   SettingsState({
     required this.soundEnabled,
     required this.musicEnabled,
     required this.vibrationEnabled,
     this.isLoading = false,
+    this.language = 'en',
   });
 
   factory SettingsState.initial() => SettingsState(
@@ -19,6 +21,7 @@ class SettingsState {
         musicEnabled: SettingsService.defaultMusicEnabled,
         vibrationEnabled: SettingsService.defaultVibrationEnabled,
         isLoading: true,
+        language: 'en',
       );
 
   SettingsState copyWith({
@@ -26,12 +29,14 @@ class SettingsState {
     bool? musicEnabled,
     bool? vibrationEnabled,
     bool? isLoading,
+    String? language, 
   }) {
     return SettingsState(
       soundEnabled: soundEnabled ?? this.soundEnabled,
       musicEnabled: musicEnabled ?? this.musicEnabled,
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
       isLoading: isLoading ?? this.isLoading,
+      language: language ?? this.language,
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:zifromania/models/subscription_model.dart';
 import 'package:zifromania/models/user_model.dart';
 
 class SecureCacheService {
@@ -63,8 +64,7 @@ class SecureCacheService {
             xpForNextLevel: decoded['xpForNextLevel'] is int ? decoded['xpForNextLevel'] : 1000,
             level: decoded['level'] is int ? decoded['level'] : 0,
             achievements: (decoded['achievements'] as List<dynamic>?)?.cast<String>() ?? const <String>[],
-            subscription:
-                decoded['subscription'] != null ? SubscriptionModel.fromMap(decoded['subscription']) : const SubscriptionModel(),
+            subscription: decoded['subscription'] != null ? SubscriptionModel.fromMap(decoded['subscription']) : const SubscriptionModel(),
             coins: decoded['coins'] is int ? decoded['coins'] : 0,
             hasActiveSubscription: decoded['hasActiveSubscription'] is bool ? decoded['hasActiveSubscription'] : false,
           ) as T;

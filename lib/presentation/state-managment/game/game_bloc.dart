@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:developer' as logger;
 import 'dart:math';
 import 'package:dio/dio.dart';
-import 'package:zifromania/locator.dart';
+import 'package:zifromania/models/title_model.dart';
 import 'package:zifromania/models/user_model.dart';
 import 'package:zifromania/services/auth_service.dart';
 import 'package:zifromania/services/in_app_purchase_service.dart';
@@ -11,7 +11,6 @@ import 'package:zifromania/domain/entities/enums.dart';
 import 'package:zifromania/domain/entities/math_question.dart';
 import 'package:zifromania/services/audio_service.dart';
 import 'package:zifromania/services/open_ai_service.dart';
-import 'package:zifromania/services/title_logic_service.dart';
 import 'package:zifromania/services/title_service.dart';
 import 'package:zifromania/services/user_service.dart';
 import 'package:zifromania/services/xp_service.dart';
@@ -21,16 +20,16 @@ part 'game_state.dart';
 
 class GameBloc extends Bloc<GameEvent, GameState> {
   static const int MAX_INCORRECT_ANSWERS = 4;
-  static const int SPEED_CALCULATION_TIME = 60;
-  static const int MULTIPLICATION_TABLE_TIME = 60;
-  static const int TRUE_FALSE_PER_QUESTION_TIME = 3;
+  static const int QUICK_THINKING_TIME = 60;
+  static const int MULTIPLY_DIVIDE_TIME = 60;
+  static const int TRUE_OR_FALSE_PER_QUESTION_TIME = 3;
   static const int EXPERT_MODE_TIME = 120;
   static const int TRAINING_MODE_QUESTIONS = 100;
 
   final AuthService _authService;
   final UserService _userService;
   final AudioService _audioService;
-  final OpenAIService _openAIService;
+  final EnhancedOpenAIService _openAIService;
   final TitleService _titleService;
   final InAppPurchaseService _inAppPurchaseService;
 
@@ -41,7 +40,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     required AuthService authService,
     required UserService userService,
     required AudioService audioService,
-    required OpenAIService openAIService,
+    required EnhancedOpenAIService openAIService,
     required TitleService titleService,
     required InAppPurchaseService inAppPurchaseService,
   })  : _authService = authService,
@@ -54,7 +53,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     on<GameEvent>((event, emit) async {
       switch (event.type) {
         case GameEvents.startGame:
-          await _onStartGame(event.payload as GameDifficulty, emit);
+          await _onStartGame(event.payload as GameCategory, emit);
           break;
         case GameEvents.endGame:
           await _onEndGame(emit);
@@ -77,7 +76,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           _onShowNextQuestion(emit);
           break;
         case GameEvents.playAgain:
-          await _onPlayAgain(event.payload as GameDifficulty, emit);
+          await _onPlayAgain(event.payload as GameCategory, emit);
           break;
         default:
           break;
@@ -85,48 +84,46 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     });
   }
 
-  Future<void> _onStartGame(GameDifficulty difficulty, Emitter<GameState> emit) async {
+  Future<void> _onStartGame(GameCategory gameCategory, Emitter<GameState> emit) async {
     _gameTimer?.cancel();
     _questionTimer?.cancel();
 
-    // Set initial game state based on difficulty
+    // Set initial game state based on gameCategory
     int startingTime;
     bool useQuestionTimer = false;
 
-    switch (difficulty) {
-      case GameDifficulty.speedCalculation:
-        startingTime = SPEED_CALCULATION_TIME;
+    switch (gameCategory) {
+      case GameCategory.quickThinking:
+        startingTime = QUICK_THINKING_TIME;
         break;
-      case GameDifficulty.multiplyDivideBattle:
-        startingTime = MULTIPLICATION_TABLE_TIME;
+      case GameCategory.multiplyDivide:
+        startingTime = MULTIPLY_DIVIDE_TIME;
         break;
-      case GameDifficulty.trueFalse:
-        startingTime = TRUE_FALSE_PER_QUESTION_TIME;
+      case GameCategory.trueOrFalse:
+        startingTime = TRUE_OR_FALSE_PER_QUESTION_TIME;
         useQuestionTimer = true;
         break;
-      case GameDifficulty.expert:
+      case GameCategory.expert:
         startingTime = EXPERT_MODE_TIME;
         break;
-      case GameDifficulty.endless:
+      case GameCategory.training:
         startingTime = 0; // No time limit
         break;
-      default:
-        startingTime = SPEED_CALCULATION_TIME;
     }
 
     emit(GameState.initial().copyWith(
       isLoading: true,
-      difficulty: difficulty,
+      gameCategory: gameCategory,
       secondsRemaining: startingTime,
       useQuestionTimer: useQuestionTimer,
     ));
 
     try {
-      // Generate questions based on selected difficulty
-      List<MathQuestion> questions = await _openAIService.generateQuestions(difficulty);
+      // Generate questions based on selected gameCategory
+      List<MathQuestion> questions = await _openAIService.generateQuestions(gameCategory);
 
       // Start the timer based on mode
-      if (difficulty != GameDifficulty.endless) {
+      if (gameCategory != GameCategory.training) {
         if (useQuestionTimer) {
           await _startQuestionTimer();
         } else {
@@ -140,10 +137,16 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         isGameActive: true,
         gameStartTime: DateTime.now(), // 🆕 Track game start time
       ));
-    } on DioException catch (e) {
+    } on DioException catch (exp) {
       emit(state.copyWith(
         isLoading: false,
-        errorMessage: e.message,
+        errorMessage: exp.message,
+        isGameActive: false,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(), // Burada istisna mesajı gələcək
         isGameActive: false,
       ));
     }
@@ -179,7 +182,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         currentQuestionIndex: nextIndex,
         lastSelectedAnswer: null,
         isLastAnswerCorrect: null,
-        secondsRemaining: TRUE_FALSE_PER_QUESTION_TIME, // Reset timer for next question
+        secondsRemaining: TRUE_OR_FALSE_PER_QUESTION_TIME, // Reset timer for next question
       ));
       await _startQuestionTimer(); // Restart timer for next question
     } else {
@@ -194,23 +197,23 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     if (state.useQuestionTimer) {
       _questionTimer?.cancel();
     }
-
+  // TODO GAME BLOC IMP
     // Determine correctness
-    bool isCorrect;
-    if (question.answerOptions.isNotEmpty &&
-        question.answerOptions.first is String &&
-        (question.answerOptions.first == "True" || question.answerOptions.first == "False")) {
-      final String selectedAnswer = question.answerOptions[selectedIndex].toString();
-      final bool correctIsTrue = question.correctAnswer == 1;
-      isCorrect = (selectedAnswer == "True" && correctIsTrue) || (selectedAnswer == "False" && !correctIsTrue);
-    } else {
-      isCorrect = question.answerOptions[selectedIndex] == question.correctAnswer;
-    }
+    bool isCorrect = true;
+    // if (question.answerOptions.isNotEmpty &&
+    //     question.answerOptions.first is String &&
+    //     (question.answerOptions.first == "True" || question.answerOptions.first == "False")) {
+    //   final String selectedAnswer = question.answerOptions[selectedIndex].toString();
+    //   final bool correctIsTrue = question.correctAnswer == 1;
+    //   isCorrect = (selectedAnswer == "True" && correctIsTrue) || (selectedAnswer == "False" && !correctIsTrue);
+    // } else {
+    //   isCorrect = question.answerOptions[selectedIndex] == question.correctAnswer;
+    // }
 
     // Update score & incorrect count (except in endless mode)
     int newScore = state.score;
     int newIncorrect = state.incorrectAnswersCount;
-    if (state.difficulty != GameDifficulty.endless) {
+    if (state.gameCategory != GameCategory.training) {
       if (isCorrect) {
         newScore++;
       } else {
@@ -248,7 +251,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
     final nextIndex = state.currentQuestionIndex + 1;
 
-    if (state.difficulty == GameDifficulty.endless) {
+    if (state.gameCategory == GameCategory.training) {
       // Endless mode: only one free run, then require subscription
       if (nextIndex < state.questions.length) {
         // Still have preloaded questions: just advance
@@ -262,7 +265,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         if (_inAppPurchaseService.hasActiveSubscription) {
           // Premium user: generate more questions and advance
           try {
-            List<MathQuestion> more = await _openAIService.generateQuestions(state.difficulty!);
+            List<MathQuestion> more = await _openAIService.generateQuestions(state.gameCategory!);
             emit(state.copyWith(
               questions: [...state.questions, ...more],
               currentQuestionIndex: nextIndex,
@@ -286,12 +289,12 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
     // Non-endless modes: standard advance or end
     if (nextIndex < state.questions.length) {
-      if (state.useQuestionTimer && state.difficulty == GameDifficulty.trueFalse) {
+      if (state.useQuestionTimer && state.gameCategory == GameCategory.trueOrFalse) {
         emit(state.copyWith(
           currentQuestionIndex: nextIndex,
           lastSelectedAnswer: null,
           isLastAnswerCorrect: null,
-          secondsRemaining: TRUE_FALSE_PER_QUESTION_TIME,
+          secondsRemaining: TRUE_OR_FALSE_PER_QUESTION_TIME,
         ));
         await _startQuestionTimer();
       } else {
@@ -306,12 +309,12 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     }
   }
 
-  Future<void> _onPlayAgain(GameDifficulty difficulty, Emitter<GameState> emit) async {
-    await _onResetGame(emit, difficulty: difficulty, isLoading: true);
+  Future<void> _onPlayAgain(GameCategory gameCategory, Emitter<GameState> emit) async {
+    await _onResetGame(emit, gameCategory: gameCategory, isLoading: true);
 
     try {
       // Yeni sualları əldə edirik
-      List<MathQuestion> newQuestions = await _openAIService.generateQuestions(difficulty);
+      List<MathQuestion> newQuestions = await _openAIService.generateQuestions(gameCategory);
       // Timer-i yenidən başladırıq
       await _startTimer();
       emit(state.copyWith(
@@ -327,10 +330,10 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     }
   }
 
-  Future<void> _onResetGame(Emitter<GameState> emit, {GameDifficulty? difficulty, bool? isLoading}) async {
+  Future<void> _onResetGame(Emitter<GameState> emit, {GameCategory? gameCategory, bool? isLoading}) async {
     _gameTimer?.cancel();
     _questionTimer?.cancel();
-    emit(GameState.initial().copyWith(difficulty: difficulty, isLoading: isLoading));
+    emit(GameState.initial().copyWith(gameCategory: gameCategory, isLoading: isLoading));
   }
 
   Future<void> _startTimer() async {
@@ -341,7 +344,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
   // First, add this new method for handling timer ticks specifically for True/False mode
   Future<void> _onTimerTick(Emitter<GameState> emit) async {
-    if (state.useQuestionTimer && state.difficulty == GameDifficulty.trueFalse) {
+    if (state.useQuestionTimer && state.gameCategory == GameCategory.trueOrFalse) {
       if (state.secondsRemaining > 0) {
         emit(state.copyWith(secondsRemaining: state.secondsRemaining - 1));
       } else {
@@ -365,8 +368,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     final uid = _authService.currentUser?.uid;
     if (uid == null) return;
 
-    // Determine XP earned based on difficulty
-    int multiplier = switch (state.difficulty) { GameDifficulty.multiplyDivideBattle || GameDifficulty.expert => 2, _ => 1 };
+    // Determine XP earned based on gameCategory
+    int multiplier = switch (state.gameCategory) { GameCategory.multiplyDivide || GameCategory.expert => 2, _ => 1 };
 
     // Calculate XP using the service
     final int xp = XpService.calculateGameXp(
@@ -375,7 +378,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       multiplier: multiplier,
     );
 
-    List<String> newlyEarnedTitles = [];
+    List<TitleModel> newlyEarnedTitles = [];
 
     try {
       // 1️⃣ Update XP and handle level up
@@ -409,7 +412,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
     final gameEndTime = DateTime.now();
     final gameDurationSeconds = gameEndTime.difference(state.gameStartTime!).inSeconds;
-    final categoryString = _getCategoryString(state.difficulty);
+    final categoryString = _getCategoryString(state.gameCategory);
 
     await _userService.updateGameStatistics(
       uid: uid,
@@ -422,7 +425,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   }
 
   /// Check for newly earned titles and award them
-  Future<List<String>> _checkAndAwardTitles(String uid) async {
+  Future<List<TitleModel>> _checkAndAwardTitles(String uid) async {
     try {
       // Get current user data (refreshed after updates)
       final user = await _userService.fetchFullUser(uid);
@@ -430,7 +433,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       // Get all available titles
       final allTitles = await _titleService.getAllTitles();
 
-      List<String> newTitles = [];
+      List<TitleModel> newTitles = [];
 
       for (final title in allTitles) {
         // Skip if user already has this title
@@ -442,7 +445,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         if (meetsRequirements) {
           // Award the title
           await _titleService.awardTitleToUser(uid, title.id);
-          newTitles.add(title.name);
+          newTitles.add(title);
           logger.log('Title awarded: ${title.name}');
         }
       }
@@ -482,7 +485,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           break;
 
         case 'category':
-          final currentCategory = _getCategoryString(state.difficulty);
+          final currentCategory = _getCategoryString(state.gameCategory);
           if (currentCategory != value) return false;
           break;
 
@@ -519,17 +522,16 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     return totalQuestions > 0 ? gameDurationSeconds / totalQuestions : 0.0;
   }
 
-  /// Convert GameDifficulty to category string
-  String _getCategoryString(GameDifficulty? difficulty) {
-    if (difficulty == null) return 'unknown';
+  /// Convert GameCategory to category string
+  String _getCategoryString(GameCategory? gameCategory) {
+    if (gameCategory == null) return 'unknown';
 
-    return switch (difficulty) {
-      GameDifficulty.multiplyDivideBattle => 'multiplyDivideBattle',
-      GameDifficulty.expert => 'expert',
-      GameDifficulty.trueFalse => 'trueFalse',
-      GameDifficulty.speedCalculation => 'speedCalculation',
-      GameDifficulty.endless => 'endless',
-      _ => 'unknown',
+    return switch (gameCategory) {
+      GameCategory.quickThinking => 'quickThinking',
+      GameCategory.multiplyDivide => 'multiplyDivide',
+      GameCategory.trueOrFalse => 'trueOrFalse',
+      GameCategory.expert => 'expert',
+      GameCategory.training => 'training',
     };
   }
 

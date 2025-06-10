@@ -1,0 +1,19 @@
+{
+    // show vertical rulers at 80 and 150 characters
+    "editor.rulers": [
+        80,
+        150
+    ],
+    // if you only want that in Dart/Flutter files:
+    "[dart]": {
+        "editor.rulers": [
+            80,
+            150
+        ]
+    },
+    // tell the Dart formatter to wrap at 150 instead of 80
+    "dart.lineLength": 150,
+    // optional: make word-wrap break at 150 chars
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.wordWrapColumn": 150
+}

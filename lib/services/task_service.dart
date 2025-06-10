@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:zifromania/models/title_model.dart';
+import 'package:zifromania/models/task_model.dart';
 import 'package:zifromania/models/user_model.dart';
 import 'package:zifromania/services/user_service.dart';
 

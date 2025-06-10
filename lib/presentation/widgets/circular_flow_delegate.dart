@@ -33,7 +33,7 @@ class CircularFlowDelegate extends FlowDelegate {
     }
 
     // Calculate the arc range based on the number of children
-    final double arcLength = pi; // Half circle by default
+    const double arcLength = pi; // Half circle by default
 
     for (int i = 0; i < context.childCount; i++) {
       final childSize = context.getChildSize(i)!;

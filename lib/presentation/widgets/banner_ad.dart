@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:zifromania/locator.dart';
-import 'package:zifromania/presentation/state_managment/ad_manager.dart';
+import 'package:zifromania/presentation/state-managment/ad_manager.dart';
 
 class BannerAdWidget extends StatelessWidget {
   const BannerAdWidget({super.key});

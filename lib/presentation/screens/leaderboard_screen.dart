@@ -21,7 +21,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   final RankService _rankService = RankService();
   late Future<List<UserModel>> _topUsersForLevel;
   late Future<int> _userRankPosition;
-  late Future<List<UserModel>> _usersAroundCurrent;
+  // late Future<List<UserModel>> _usersAroundCurrent;
   late String _currentUserId;
 
   @override
@@ -35,7 +35,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     _topUsersForLevel = _rankService.fetchTopRankedUsers(limit: 50);
     if (_currentUserId.isNotEmpty) {
       _userRankPosition = _rankService.getUserRankPosition(_currentUserId);
-      _usersAroundCurrent = _rankService.getUsersAroundRank(_currentUserId, range: 2);
+      // _usersAroundCurrent = _rankService.getUsersAroundRank(_currentUserId, range: 2);
     }
   }
 
@@ -66,239 +66,232 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           ),
         ),
         child: SafeArea(
-          child: RefreshIndicator(
-            onRefresh: () async {
-              setState(() {
-                _loadRankData();
-              });
-            },
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 16),
-                    // Top 3 Players Section
-                    FutureBuilder<List<UserModel>>(
-                      future: _topUsersForLevel,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return _buildTop3Shimmer();
-                        }
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  // Top 3 Players Section
+                  FutureBuilder<List<UserModel>>(
+                    future: _topUsersForLevel,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return _buildTop3Shimmer();
+                      }
 
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text(
-                              'Error: ${snapshot.error}',
-                              style: const TextStyle(color: Colors.red),
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            'Error: ${snapshot.error}',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        );
+                      }
+
+                      final users = snapshot.data ?? [];
+                      if (users.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'leaderboard.no_players'.tr(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontFamily: 'Scabber',
                             ),
-                          );
-                        }
+                          ),
+                        );
+                      }
 
-                        final users = snapshot.data ?? [];
-                        if (users.isEmpty) {
-                          return Center(
-                            child: Text(
-                              'leaderboard.no_players'.tr(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontFamily: 'Scabber',
-                              ),
-                            ),
-                          );
-                        }
+                      // Get top 3 users
+                      final top3Users = users.length > 3 ? users.sublist(0, 3) : users;
 
-                        // Get top 3 users
-                        final top3Users = users.length > 3 ? users.sublist(0, 3) : users;
+                      return _buildTop3Section(top3Users);
+                    },
+                  ),
 
-                        return _buildTop3Section(top3Users);
-                      },
-                    ),
+                  const SizedBox(height: 24),
 
-                    const SizedBox(height: 24),
-
-                    // Current User's Rank Section
-                    if (_currentUserId.isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.brown.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.brown.shade500.withValues(alpha: .5), width: 2),
-                        ),
-                        child: Row(
-                          children: [
-                            Image.asset('assets/icons/star.png', height: 32, width: 32),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: FutureBuilder<int>(
-                                future: _userRankPosition,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
-                                    return Shimmer.fromColors(
-                                      baseColor: Colors.brown.shade500.withValues(alpha: .3),
-                                      highlightColor: Colors.brown.withValues(alpha: 0.2),
-                                      child: Container(
-                                        height: 20,
-                                        width: 150,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                      ),
-                                    );
-                                  }
-
-                                  return FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      'leaderboard.your_rank'.tr(args: ['${snapshot.data ?? 0}']),
-                                      style: TextStyle(
-                                        color: lightBrownColor,
-                                        fontFamily: 'Scabber',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                  // Current User's Rank Section
+                  if (_currentUserId.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.brown.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.brown.shade500.withValues(alpha: .5), width: 2),
+                      ),
+                      child: Row(
+                        children: [
+                          Image.asset('assets/icons/star.png', height: 32, width: 32),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: FutureBuilder<int>(
+                              future: _userRankPosition,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return Shimmer.fromColors(
+                                    baseColor: Colors.brown.shade500.withValues(alpha: .3),
+                                    highlightColor: Colors.brown.withValues(alpha: 0.2),
+                                    child: Container(
+                                      height: 20,
+                                      width: 150,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(4),
                                       ),
                                     ),
                                   );
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            PressableFilledButton(
-                              onPressed: () {
-                                setState(() {
-                                  _loadRankData();
-                                });
-                              },
-                              style: FilledButton.styleFrom(
-                                backgroundColor: Colors.red.shade300.withValues(alpha: .2),
-                                foregroundColor: Colors.white70,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Image.asset('assets/icons/refresh.png', height: 20, width: 20),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'leaderboard.refresh'.tr(),
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontFamily: 'Scabber',
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
+                                }
 
-                    const SizedBox(height: 24),
-
-                    // Full Leaderboard
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.white.withValues(alpha: 0.05),
-                      ),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Row(
-                              children: [
-                                const SizedBox(width: 45),
-                                Expanded(
+                                return FittedBox(
+                                  fit: BoxFit.scaleDown,
                                   child: Text(
-                                    'leaderboard.player'.tr(),
-                                    style: const TextStyle(
-                                      color: Colors.white70,
+                                    'leaderboard.your_rank'.tr(args: ['${snapshot.data ?? 0}']),
+                                    style: TextStyle(
+                                      color: lightBrownColor,
                                       fontFamily: 'Scabber',
                                       fontWeight: FontWeight.bold,
+                                      fontSize: 16,
                                     ),
                                   ),
-                                ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          PressableFilledButton(
+                            onPressed: () {
+                              setState(() {
+                                _loadRankData();
+                              });
+                            },
+                            style: FilledButton.styleFrom(
+                              backgroundColor: Colors.red.shade300.withValues(alpha: .2),
+                              foregroundColor: Colors.white70,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset('assets/icons/refresh.png', height: 20, width: 20),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'leaderboard.level'.tr(args: ['']),
+                                  'leaderboard.refresh'.tr(),
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontFamily: 'Scabber',
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+
+                  const SizedBox(height: 24),
+
+                  // Full Leaderboard
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white.withValues(alpha: 0.05),
+                    ),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 45),
+                              Expanded(
+                                child: Text(
+                                  'leaderboard.player'.tr(),
                                   style: const TextStyle(
                                     color: Colors.white70,
                                     fontFamily: 'Scabber',
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const SizedBox(width: 36),
-                                const Text(
-                                  'XP',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontFamily: 'Scabber',
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'leaderboard.level'.tr(args: ['']),
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontFamily: 'Scabber',
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                const SizedBox(width: 12),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(width: 36),
+                              const Text(
+                                'XP',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontFamily: 'Scabber',
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                            ],
                           ),
-                          const Divider(height: 1, color: Colors.white24),
-                          FutureBuilder<List<UserModel>>(
-                            future: _topUsersForLevel,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return _buildLeaderboardShimmer();
-                              }
+                        ),
+                        const Divider(height: 1, color: Colors.white24),
+                        FutureBuilder<List<UserModel>>(
+                          future: _topUsersForLevel,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return _buildLeaderboardShimmer();
+                            }
 
-                              if (snapshot.hasError) {
-                                return Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(20.0),
-                                    child: Text(
-                                      'Error: ${snapshot.error}',
-                                      style: const TextStyle(color: Colors.red),
-                                    ),
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Text(
+                                    'Error: ${snapshot.error}',
+                                    style: const TextStyle(color: Colors.red),
                                   ),
-                                );
-                              }
-
-                              final allUsers = snapshot.data ?? [];
-                              final users = allUsers.length > 3 ? allUsers.sublist(3) : <UserModel>[];
-
-                              return ListView.separated(
-                                physics: const NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: users.length,
-                                separatorBuilder: (context, index) => const Divider(
-                                  height: 1,
-                                  color: Colors.white10,
-                                  indent: 16,
-                                  endIndent: 16,
                                 ),
-                                itemBuilder: (context, index) {
-                                  final user = users[index];
-                                  final isCurrentUser = user.uid == _currentUserId;
-
-                                  return _buildRankListItem(
-                                    user: user,
-                                    position: index + 4, // +4 because we skip the top 3
-                                    isCurrentUser: isCurrentUser,
-                                  );
-                                },
                               );
-                            },
-                          ),
-                        ],
-                      ),
+                            }
+
+                            final allUsers = snapshot.data ?? [];
+                            final users = allUsers.length > 3 ? allUsers.sublist(3) : <UserModel>[];
+
+                            return ListView.separated(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: users.length,
+                              separatorBuilder: (context, index) => const Divider(
+                                height: 1,
+                                color: Colors.white10,
+                                indent: 16,
+                                endIndent: 16,
+                              ),
+                              itemBuilder: (context, index) {
+                                final user = users[index];
+                                final isCurrentUser = user.uid == _currentUserId;
+
+                                return _buildRankListItem(
+                                  user: user,
+                                  position: index + 4, // +4 because we skip the top 3
+                                  isCurrentUser: isCurrentUser,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
           ),
@@ -853,10 +846,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: isPremium
-                          ? LinearGradient(
+                          ? const LinearGradient(
                               colors: [
-                                const Color(0xFFFFD700),
-                                const Color(0xFFFFA500),
+                                Color(0xFFFFD700),
+                                Color(0xFFFFA500),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -916,10 +909,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                   decoration: isPremium
                       ? BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             colors: [
-                              const Color(0xFFFFD700),
-                              const Color(0xFFFFA500),
+                              Color(0xFFFFD700),
+                              Color(0xFFFFA500),
                             ],
                           ),
                           boxShadow: [
@@ -954,10 +947,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                       width: 16,
                       height: 16,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [
-                            const Color(0xFFFFD700),
-                            const Color(0xFFFFA500),
+                            Color(0xFFFFD700),
+                            Color(0xFFFFA500),
                           ],
                         ),
                         shape: BoxShape.circle,

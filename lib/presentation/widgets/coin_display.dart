@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class CoinDisplay extends StatefulWidget {
   final int coins;
-  final Function()? onTap;
+  final VoidCallback? onTap;
   final double size;
   final bool showLabel;
 

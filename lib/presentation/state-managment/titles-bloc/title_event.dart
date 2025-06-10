@@ -21,7 +21,7 @@ class TitleEvent {
     type = TitleEvents.fetchAllTitlesStart;
   }
 
-  TitleEvent.fetchUserTitlesStart({required this.payload}) {
+  TitleEvent.fetchUserTitlesStart({this.payload}) {
     type = TitleEvents.fetchUserTitlesStart;
   }
 

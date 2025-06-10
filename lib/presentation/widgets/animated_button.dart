@@ -36,7 +36,6 @@ class AnimatedButton extends StatefulWidget {
 
 class _AnimatedButtonState extends State<AnimatedButton> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late Color _buttonColor;
 
   @override
   void initState() {
@@ -47,7 +46,6 @@ class _AnimatedButtonState extends State<AnimatedButton> with SingleTickerProvid
       lowerBound: 0.9,
       upperBound: 1.0,
     );
-    _buttonColor = widget.color;
     _animationController.forward();
   }
 
@@ -59,18 +57,15 @@ class _AnimatedButtonState extends State<AnimatedButton> with SingleTickerProvid
 
   void _onTapDown(TapDownDetails _) {
     _animationController.reverse();
-    setState(() => _buttonColor = widget.color.withValues(alpha: 0.9));
   }
 
   void _onTapUp(TapUpDetails _) {
     _animationController.forward();
-    setState(() => _buttonColor = widget.color);
     widget.onTap();
   }
 
   void _onTapCancel() {
     _animationController.animateTo(1.0);
-    setState(() => _buttonColor = widget.color);
   }
 
   @override
@@ -86,7 +81,7 @@ class _AnimatedButtonState extends State<AnimatedButton> with SingleTickerProvid
           child: _ButtonContent(
             title: widget.title,
             icon: widget.icon,
-            color: _buttonColor,
+            color: widget.color,
             width: widget.width,
             height: widget.height,
             fontSize: widget.fontSize,
@@ -138,9 +133,10 @@ class _ButtonContent extends StatelessWidget {
             title ?? '',
             textAlign: TextAlign.center,
             style: TextStyle(
+              letterSpacing: 2.5,
               fontSize: fontSize,
               fontFamily: fontFamily,
-              color: Colors.white,
+              color: Colors.grey.shade200.withValues(alpha: 0.7),
             ),
           );
 
@@ -149,25 +145,8 @@ class _ButtonContent extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         color: color,
-        gradient: useGradient
-            ? LinearGradient(
-                colors: [
-                  color.withValues(alpha: 0.1),
-                  color.withValues(alpha: 0.1),
-                ],
-                begin: Alignment.bottomRight,
-                end: Alignment.topLeft,
-              )
-            : null,
+        border: Border.all(color: Colors.brown.shade100.withValues(alpha: 0.2), width: 1.5),
         borderRadius: borderRadius,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
-            offset: const Offset(5, 5),
-            blurRadius: 3,
-            spreadRadius: 1,
-          ),
-        ],
       ),
       child: Padding(
         padding: padding,

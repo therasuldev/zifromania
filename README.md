@@ -5,7 +5,7 @@ Zifromania is a dynamic math puzzle game designed to boost your brainpower. It's
 ## Features
 
 - Engaging math puzzles
-- Multiple difficulty levels
+- Multiple categories
 - Diverse mathematical operations
 - User authentication (Firebase Auth)
 - Leaderboards (Cloud Firestore)

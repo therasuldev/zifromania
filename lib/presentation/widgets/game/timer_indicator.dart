@@ -24,8 +24,7 @@ class TimerIndicator extends StatelessWidget {
             '$secondsRemaining',
             key: ValueKey<int>(secondsRemaining),
             style: TextStyle(
-              fontFamily: 'Onacona',
-              // letterSpacing: 2.5,
+              fontFamily: 'Scabber',
               fontSize: 25,
               fontWeight: FontWeight.bold,
               color: secondsRemaining < 10 ? Colors.red : Colors.green,

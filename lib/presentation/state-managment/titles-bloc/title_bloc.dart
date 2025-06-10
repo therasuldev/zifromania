@@ -1,13 +1,23 @@
 // title_bloc.dart
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zifromania/models/title_model.dart';
+import 'package:zifromania/models/user_model.dart';
 import 'package:zifromania/services/title_service.dart';
+import 'package:zifromania/services/cache_service.dart';
 
 part 'title_event.dart';
 part 'title_state.dart';
 
 class TitleBloc extends Bloc<TitleEvent, TitleState> {
-  TitleBloc() : super(TitleState.initial()) {
+  final TitleService _titleService;
+  final SecureCacheService _cacheService;
+
+  TitleBloc({
+    required TitleService titleService,
+    required SecureCacheService cacheService,
+  })  : _titleService = titleService,
+        _cacheService = cacheService,
+        super(TitleState.initial()) {
     on<TitleEvent>((event, emit) async {
       switch (event.type) {
         case TitleEvents.fetchAllTitlesStart:
@@ -24,8 +34,6 @@ class TitleBloc extends Bloc<TitleEvent, TitleState> {
     });
   }
 
-  final TitleService _titleService = TitleService();
-
   Future<void> _onFetchAllTitles(TitleEvent event, Emitter<TitleState> emit) async {
     emit(TitleState(titles: [], event: TitleEvents.fetchAllTitlesStart));
     try {
@@ -39,7 +47,13 @@ class TitleBloc extends Bloc<TitleEvent, TitleState> {
   Future<void> _onFetchUserTitles(TitleEvent event, Emitter<TitleState> emit) async {
     emit(TitleState(titles: [], event: TitleEvents.fetchUserTitlesStart));
     try {
-      final titles = await _titleService.getUserTitles(event.payload);
+      final cachedUser = await _cacheService.read<UserModel>('user');
+      if (cachedUser == null) {
+        emit(TitleState(titles: [], event: TitleEvents.fetchUserTitlesFailure));
+        return;
+      }
+
+      final titles = await _titleService.getUserTitles(cachedUser.uid);
       emit(TitleState(titles: titles, event: TitleEvents.fetchUserTitlesSuccess));
     } catch (e) {
       emit(TitleState(titles: [], event: TitleEvents.fetchUserTitlesFailure));

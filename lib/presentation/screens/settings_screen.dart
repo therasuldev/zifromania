@@ -416,10 +416,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         SettingsTile(
           leading: Image.asset('assets/icons/language.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
           title: context.tr('languages'),
-          trailing: IconButton(
-            key: languageButtonKey,
-            icon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
-            onPressed: () => _showLanguageMenu(context, languageButtonKey),
+          trailing: BlocBuilder<SettingsBloc, SettingsState>(
+            builder: (context, state) {
+              return IconButton(
+                key: languageButtonKey,
+                icon: switch (state.language) {
+                  'tr' => const Text('🇹🇷', style: TextStyle(fontSize: 20)),
+                  'en' || _ => const Text('🇺🇸', style: TextStyle(fontSize: 20)),
+                },
+                onPressed: () => _showLanguageMenu(context, languageButtonKey),
+              );
+            },
           ),
         ),
         SettingsTile(
@@ -462,7 +469,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               const Text('🇺🇸', style: TextStyle(fontSize: 20)),
               const SizedBox(width: 12),
-              Text(context.tr('en'), style: const TextStyle(fontFamily: 'Scabber', fontSize: 16)),
+              Text(context.tr('langs.en'), style: const TextStyle(fontFamily: 'Scabber', fontSize: 16)),
             ],
           ),
         ),
@@ -472,7 +479,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               const Text('🇹🇷', style: TextStyle(fontSize: 20)),
               const SizedBox(width: 12),
-              Text(context.tr('tr'), style: const TextStyle(fontFamily: 'Scabber', fontSize: 16)),
+              Text(context.tr('langs.tr'), style: const TextStyle(fontFamily: 'Scabber', fontSize: 16)),
             ],
           ),
         ),
@@ -482,7 +489,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _soundService.hapticFeedback(HapticFeedbackType.light);
         if (!context.mounted) return;
         context.setLocale(Locale(selectedLanguage));
-        context.read<SettingsBloc>().add(SettingsEvent.changeLanguage(language: selectedLanguage));
+        context.read<SettingsBloc>().add(SettingsEvent.setLanguage(language: selectedLanguage));
       }
     });
   }
@@ -490,7 +497,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildFooter(BuildContext context) {
     return Center(
       child: Text(
-        context.tr('version', namedArgs: {'version': '1.0.0'}),
+        context.tr('version', args: ['1.0.0']),
         style: TextStyle(
           fontFamily: 'Scabber',
           color: lightBrownColor,

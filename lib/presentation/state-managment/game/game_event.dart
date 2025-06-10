@@ -15,9 +15,9 @@ class GameEvent {
   GameEvents? type;
   dynamic payload;
 
-  GameEvent.startGame({required GameDifficulty difficulty}) {
+  GameEvent.startGame({required GameCategory gameCategory}) {
     type = GameEvents.startGame;
-    payload = difficulty;
+    payload = gameCategory;
   }
 
   GameEvent.endGame() {
@@ -51,9 +51,9 @@ class GameEvent {
     payload = null;
   }
 
-  GameEvent.playAgain({required GameDifficulty difficulty}) {
+  GameEvent.playAgain({required GameCategory gameCategory}) {
     type = GameEvents.playAgain;
-    payload = difficulty;
+    payload = gameCategory;
   }
 
   GameEvent.autoAdvanceQuestion() {
