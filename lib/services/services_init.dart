@@ -13,8 +13,8 @@ import 'daily_reward_service.dart';
 import 'in_app_purchase_service.dart';
 import 'log_service.dart';
 import 'notification_service.dart';
-import 'open_ai_service.dart';
-import 'question_cache_service.dart';
+import 'question_service.dart';
+import 'game_limit_service.dart';
 import 'settings_service.dart';
 import 'sound_service.dart';
 import 'task_service.dart';
@@ -44,7 +44,7 @@ Future<void> initializeServices() async {
     ..registerLazySingleton(() => UserService())
     ..registerLazySingleton(() => SecureCacheService())
     ..registerSingleton<SharedPreferences>(await SharedPreferences.getInstance())
-    ..registerLazySingleton(() => QuestionCacheService(locator<SharedPreferences>()))
+    ..registerLazySingleton(() => GameLimitService(locator<SharedPreferences>()))
     ..registerLazySingleton(() => SettingsService())
     ..registerLazySingleton(() => SoundService())
     ..registerLazySingleton(() => AdManager())
@@ -54,8 +54,8 @@ Future<void> initializeServices() async {
     ..registerLazySingleton(() => TaskService())
     ..registerLazySingleton(() => TitleService())
     ..registerLazySingleton(
-      () => EnhancedOpenAIService(
-        cacheService: locator<QuestionCacheService>(),
+      () => QuestionService(
+        gameLimitService: locator<GameLimitService>(),
       ),
     )
     ..registerLazySingleton(
