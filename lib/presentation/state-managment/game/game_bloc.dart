@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as logger;
 import 'dart:math';
-import 'package:dio/dio.dart';
+import 'package:zifromania/app_exception.dart';
 import 'package:zifromania/models/title_model.dart';
 import 'package:zifromania/models/user_model.dart';
 import 'package:zifromania/services/auth_service.dart';
@@ -10,13 +10,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zifromania/domain/entities/enums.dart';
 import 'package:zifromania/domain/entities/math_question.dart';
 import 'package:zifromania/services/audio_service.dart';
-import 'package:zifromania/services/open_ai_service.dart';
+import 'package:zifromania/services/question_service.dart';
 import 'package:zifromania/services/title_service.dart';
 import 'package:zifromania/services/user_service.dart';
 import 'package:zifromania/services/xp_service.dart';
 
 part 'game_event.dart';
 part 'game_state.dart';
+
+class CancelToken {
+  bool _isCancelled = false;
+
+  bool get isCancelled => _isCancelled;
+
+  void cancel() {
+    _isCancelled = true;
+  }
+}
 
 class GameBloc extends Bloc<GameEvent, GameState> {
   static const int MAX_INCORRECT_ANSWERS = 4;
@@ -29,24 +39,25 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   final AuthService _authService;
   final UserService _userService;
   final AudioService _audioService;
-  final EnhancedOpenAIService _openAIService;
+  final QuestionService _questionService;
   final TitleService _titleService;
   final InAppPurchaseService _inAppPurchaseService;
 
   Timer? _gameTimer;
   Timer? _questionTimer; // For True/False mode per-question timer
+  CancelToken? _currentCancelToken;
 
   GameBloc({
     required AuthService authService,
     required UserService userService,
     required AudioService audioService,
-    required EnhancedOpenAIService openAIService,
+    required QuestionService questionService,
     required TitleService titleService,
     required InAppPurchaseService inAppPurchaseService,
   })  : _authService = authService,
         _userService = userService,
         _audioService = audioService,
-        _openAIService = openAIService,
+        _questionService = questionService,
         _titleService = titleService,
         _inAppPurchaseService = inAppPurchaseService,
         super(GameState.initial()) {
@@ -85,6 +96,13 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   }
 
   Future<void> _onStartGame(GameCategory gameCategory, Emitter<GameState> emit) async {
+    // Əvvəlki prosesi cancel et
+    _currentCancelToken?.cancel();
+
+    // Yeni cancel token yarat
+    _currentCancelToken = CancelToken();
+    final currentToken = _currentCancelToken!;
+
     _gameTimer?.cancel();
     _questionTimer?.cancel();
 
@@ -120,7 +138,15 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
     try {
       // Generate questions based on selected gameCategory
-      List<MathQuestion> questions = await _openAIService.generateQuestions(gameCategory);
+      List<MathQuestion> questions = await _questionService.generateQuestions(
+        gameCategory,
+        cancelToken: currentToken,
+      );
+
+      // Əgər cancel olunubsa, davam etmə
+      if (currentToken.isCancelled) {
+        return;
+      }
 
       // Start the timer based on mode
       if (gameCategory != GameCategory.training) {
@@ -131,25 +157,40 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         }
       }
 
+      // Yenə cancel yoxla
+      if (currentToken.isCancelled) {
+        return;
+      }
+
       emit(state.copyWith(
         isLoading: false,
         questions: questions,
         isGameActive: true,
         gameStartTime: DateTime.now(), // 🆕 Track game start time
       ));
-    } on DioException catch (exp) {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: exp.message,
-        isGameActive: false,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(), // Burada istisna mesajı gələcək
-        isGameActive: false,
-      ));
+    } on AppException catch (exp) {
+      if (!currentToken.isCancelled) {
+        emit(state.copyWith(
+          isLoading: false,
+          appException: exp,
+          errorMessage: exp.message,
+          isGameActive: false,
+        ));
+      }
+    } catch (exp) {
+      if (!currentToken.isCancelled) {
+        emit(state.copyWith(
+          isLoading: false,
+          appException: AppException(AppErrorType.unknown, exp.toString()),
+          errorMessage: exp.toString(),
+          isGameActive: false,
+        ));
+      }
     }
+  }
+
+  void cancelCurrentOperation() {
+    _currentCancelToken?.cancel();
   }
 
   // Add this new method for True/False mode
@@ -197,18 +238,42 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     if (state.useQuestionTimer) {
       _questionTimer?.cancel();
     }
-  // TODO GAME BLOC IMP
-    // Determine correctness
-    bool isCorrect = true;
-    // if (question.answerOptions.isNotEmpty &&
-    //     question.answerOptions.first is String &&
-    //     (question.answerOptions.first == "True" || question.answerOptions.first == "False")) {
-    //   final String selectedAnswer = question.answerOptions[selectedIndex].toString();
-    //   final bool correctIsTrue = question.correctAnswer == 1;
-    //   isCorrect = (selectedAnswer == "True" && correctIsTrue) || (selectedAnswer == "False" && !correctIsTrue);
-    // } else {
-    //   isCorrect = question.answerOptions[selectedIndex] == question.correctAnswer;
-    // }
+
+    // Determine correctness based on new Map<String, String> format
+    bool isCorrect = false;
+
+    // Get the option keys (A, B, C, D) as a list
+    final optionKeys = question.answerOptions.keys.toList();
+
+    // Make sure selectedIndex is valid
+    if (selectedIndex < 0 || selectedIndex >= optionKeys.length) {
+      // Invalid selection, treat as incorrect
+      isCorrect = false;
+    } else {
+      // Get the selected option key (A, B, C, D)
+      final selectedOptionKey = optionKeys[selectedIndex];
+
+      // Check if this is True/False question
+      if (question.answerOptions.values.contains('True') && question.answerOptions.values.contains('False')) {
+        // True/False logic
+        final selectedAnswer = question.answerOptions[selectedOptionKey]!;
+        final correctIsTrue = question.correctAnswer == 1;
+        isCorrect = (selectedAnswer == "True" && correctIsTrue) || (selectedAnswer == "False" && !correctIsTrue);
+      } else {
+        // Multiple choice numeric questions
+        final selectedAnswerString = question.answerOptions[selectedOptionKey]!;
+
+        // Try to parse the selected answer as integer
+        final selectedAnswerInt = int.tryParse(selectedAnswerString);
+
+        if (selectedAnswerInt != null) {
+          isCorrect = selectedAnswerInt == question.correctAnswer;
+        } else {
+          // If can't parse as int, compare as string with correctAnswer
+          isCorrect = selectedAnswerString == question.correctAnswer.toString();
+        }
+      }
+    }
 
     // Update score & incorrect count (except in endless mode)
     int newScore = state.score;
@@ -265,7 +330,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         if (_inAppPurchaseService.hasActiveSubscription) {
           // Premium user: generate more questions and advance
           try {
-            List<MathQuestion> more = await _openAIService.generateQuestions(state.gameCategory!);
+            List<MathQuestion> more = await _questionService.generateQuestions(state.gameCategory!);
             emit(state.copyWith(
               questions: [...state.questions, ...more],
               currentQuestionIndex: nextIndex,
@@ -310,24 +375,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   }
 
   Future<void> _onPlayAgain(GameCategory gameCategory, Emitter<GameState> emit) async {
-    await _onResetGame(emit, gameCategory: gameCategory, isLoading: true);
-
-    try {
-      // Yeni sualları əldə edirik
-      List<MathQuestion> newQuestions = await _openAIService.generateQuestions(gameCategory);
-      // Timer-i yenidən başladırıq
-      await _startTimer();
-      emit(state.copyWith(
-        isLoading: false,
-        isGameActive: true,
-        questions: newQuestions,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to load more questions: ${e.toString()}',
-      ));
-    }
+    await _onStartGame(gameCategory, emit);
   }
 
   Future<void> _onResetGame(Emitter<GameState> emit, {GameCategory? gameCategory, bool? isLoading}) async {

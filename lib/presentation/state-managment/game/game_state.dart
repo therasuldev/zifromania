@@ -17,7 +17,6 @@ class GameState {
 
   final DateTime? gameStartTime; // 🆕 Track game start time
   final List<TitleModel> newlyEarnedTitles; // 🆕 Newly earned titles
-  // final List<Color> earnedTitleColors; // 🆕 Color for title reward animation
 
   final List<MathQuestion> questions;
   final int currentQuestionIndex;
@@ -26,6 +25,7 @@ class GameState {
   final GameCategory? gameCategory;
   final bool? showResultDialog;
   final bool showSubscribeDialog;
+  final AppException? appException;
 
   GameState({
     required this.score,
@@ -49,8 +49,8 @@ class GameState {
     this.useQuestionTimer = false,
     this.questionTimeRemaining = 0,
     this.gameStartTime,
-    // this.earnedTitleColors = const [],
     this.newlyEarnedTitles = const [],
+    this.appException,
   });
 
   factory GameState.initial() {
@@ -76,8 +76,8 @@ class GameState {
       questionTimeRemaining: 0,
       xpEarned: 0,
       gameStartTime: null,
-      // earnedTitleColors: const [],
       newlyEarnedTitles: const [],
+      appException: null,
     );
   }
 
@@ -103,8 +103,8 @@ class GameState {
     int? questionTimeRemaining,
     int? xpEarned,
     DateTime? gameStartTime,
-    // List<Color>? earnedTitleColors,
     List<TitleModel>? newlyEarnedTitles,
+    AppException? appException,
   }) {
     return GameState(
       score: score ?? this.score,
@@ -128,8 +128,8 @@ class GameState {
       playerXp: playerXp ?? this.playerXp,
       playerXpTarget: playerXpTarget ?? this.playerXpTarget,
       gameStartTime: gameStartTime ?? this.gameStartTime,
-      // earnedTitleColors: earnedTitleColors ?? this.earnedTitleColors,
       newlyEarnedTitles: newlyEarnedTitles ?? this.newlyEarnedTitles,
+      appException: appException ?? this.appException,
     );
   }
 
