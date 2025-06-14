@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:zifromania/models/category_stats.dart';
 import 'package:zifromania/models/subscription_model.dart';
 import 'package:zifromania/models/user_model.dart';
 
@@ -209,15 +208,16 @@ class UserService {
   /// Update daily streak when user plays a game
   Future<void> updateDailyStreak(String uid) async {
     try {
-      final today = DateTime.now().toIso8601String().split('T')[0]; // yyyy-MM-dd format
-      final userDoc = await _firestore.collection(_usersCollection).doc(uid).get();
+      final today = DateTime.now().toIso8601String().split('T')[0]; // yyyy-MM-dd
+      final docRef = _firestore.collection(_usersCollection).doc(uid);
+      final snapshot = await docRef.get();
 
-      if (!userDoc.exists) return;
+      if (!snapshot.exists) return;
 
-      final user = UserModel.fromMap(userDoc.data()!);
-      final playedDates = List<String>.from(user.playedDates);
+      final data = snapshot.data()!;
+      final playedDates = List<String>.from(data['playedDates'] ?? []);
 
-      // If already played today, no need to update
+      // Artıq bu gün oynayıbsa, heç nə etmirik
       if (playedDates.contains(today)) return;
 
       // Add today to played dates
@@ -225,7 +225,8 @@ class UserService {
 
       // Calculate new streak
       final newStreak = _calculateStreak(playedDates);
-      final longestStreak = newStreak > user.longestStreak ? newStreak : user.longestStreak;
+      final currentLongestStreak = data['longestStreak'] ?? 0;
+      final longestStreak = newStreak > currentLongestStreak ? newStreak : currentLongestStreak;
 
       // Update user data
       await _firestore.collection(_usersCollection).doc(uid).update({
@@ -283,48 +284,72 @@ class UserService {
 
       if (!userDoc.exists) return;
 
-      final user = UserModel.fromMap(userDoc.data()!);
-      final currentStats = user.gameStats;
-      final currentCategoryStats = currentStats.categoryStats[category] ?? const CategoryStats();
+      final userData = userDoc.data()!;
+      final gameStatsData = userData['gameStats'] as Map<String, dynamic>? ?? {};
+
+      // Get current category stats
+      final categoryStatsData = gameStatsData['categoryStats'] as Map<String, dynamic>? ?? {};
+      final currentCategoryStats = categoryStatsData[category] as Map<String, dynamic>? ?? {};
+
+      // Current category values
+      final currentGamesPlayed = currentCategoryStats['gamesPlayed'] ?? 0;
+      final currentQuestionsAnswered = currentCategoryStats['questionsAnswered'] ?? 0;
+      final currentCorrectAnswers = currentCategoryStats['correctAnswers'] ?? 0;
+      final currentBestScore = currentCategoryStats['bestScore'] ?? 0;
+      final currentTotalTimeSpent = currentCategoryStats['totalTimeSpent'] ?? 0;
 
       // Calculate average time per question for this game
       final avgTimeThisGame = questionsAnswered > 0 ? gameTimeInSeconds / questionsAnswered : 0.0;
 
       // Update category statistics
-      final updatedCategoryStats = currentCategoryStats.copyWith(
-        gamesPlayed: currentCategoryStats.gamesPlayed + 1,
-        questionsAnswered: currentCategoryStats.questionsAnswered + questionsAnswered,
-        correctAnswers: currentCategoryStats.correctAnswers + correctAnswers,
-        bestScore: score > currentCategoryStats.bestScore ? score : currentCategoryStats.bestScore,
-        totalTimeSpent: currentCategoryStats.totalTimeSpent + gameTimeInSeconds,
-        averageTimePerQuestion: currentCategoryStats.questionsAnswered + questionsAnswered > 0
-            ? (currentCategoryStats.totalTimeSpent + gameTimeInSeconds) / (currentCategoryStats.questionsAnswered + questionsAnswered)
-            : 0.0,
-      );
+      final newGamesPlayed = currentGamesPlayed + 1;
+      final newQuestionsAnswered = currentQuestionsAnswered + questionsAnswered;
+      final newCorrectAnswers = currentCorrectAnswers + correctAnswers;
+      final newBestScore = score > currentBestScore ? score : currentBestScore;
+      final newTotalTimeSpent = currentTotalTimeSpent + gameTimeInSeconds;
+      final newAverageTimePerQuestion = newQuestionsAnswered > 0 ? newTotalTimeSpent / newQuestionsAnswered : 0.0;
+
+      final updatedCategoryStats = {
+        'gamesPlayed': newGamesPlayed,
+        'questionsAnswered': newQuestionsAnswered,
+        'correctAnswers': newCorrectAnswers,
+        'bestScore': newBestScore,
+        'totalTimeSpent': newTotalTimeSpent,
+        'averageTimePerQuestion': newAverageTimePerQuestion,
+      };
+
+      // Get current overall stats
+      final currentTotalGamesPlayed = gameStatsData['totalGamesPlayed'] ?? 0;
+      final currentTotalQuestionsAnswered = gameStatsData['totalQuestionsAnswered'] ?? 0;
+      final currentTotalCorrectAnswers = gameStatsData['totalCorrectAnswers'] ?? 0;
+      final currentOverallAvgTime = gameStatsData['averageTimePerQuestion'] ?? 0.0;
+      final categoriesPlayedData = gameStatsData['categoriesPlayed'] as Map<String, dynamic>? ?? {};
 
       // Update overall statistics
-      final totalQuestions = currentStats.totalQuestionsAnswered + questionsAnswered;
-      final totalTime = (currentStats.averageTimePerQuestion * currentStats.totalQuestionsAnswered) + (avgTimeThisGame * questionsAnswered);
-      final newOverallAverage = totalQuestions > 0 ? totalTime / totalQuestions : 0.0;
+      final newTotalQuestions = currentTotalQuestionsAnswered + questionsAnswered;
+      final totalTime = (currentOverallAvgTime * currentTotalQuestionsAnswered) + (avgTimeThisGame * questionsAnswered);
+      final newOverallAverage = newTotalQuestions > 0 ? totalTime / newTotalQuestions : 0.0;
 
-      final updatedStats = currentStats.copyWith(
-        categoriesPlayed: {
-          ...currentStats.categoriesPlayed,
-          category: (currentStats.categoriesPlayed[category] ?? 0) + 1,
-        },
-        categoryStats: {
-          ...currentStats.categoryStats,
-          category: updatedCategoryStats,
-        },
-        totalGamesPlayed: currentStats.totalGamesPlayed + 1,
-        totalQuestionsAnswered: totalQuestions,
-        totalCorrectAnswers: currentStats.totalCorrectAnswers + correctAnswers,
-        averageTimePerQuestion: newOverallAverage,
-      );
+      // Update categories played count
+      final newCategoriesPlayed = Map<String, dynamic>.from(categoriesPlayedData);
+      newCategoriesPlayed[category] = (newCategoriesPlayed[category] ?? 0) + 1;
+
+      // Update category stats map
+      final newCategoryStatsMap = Map<String, dynamic>.from(categoryStatsData);
+      newCategoryStatsMap[category] = updatedCategoryStats;
+
+      final updatedGameStats = {
+        'categoriesPlayed': newCategoriesPlayed,
+        'categoryStats': newCategoryStatsMap,
+        'totalGamesPlayed': currentTotalGamesPlayed + 1,
+        'totalQuestionsAnswered': newTotalQuestions,
+        'totalCorrectAnswers': currentTotalCorrectAnswers + correctAnswers,
+        'averageTimePerQuestion': newOverallAverage,
+      };
 
       // Update in Firestore
       await _firestore.collection(_usersCollection).doc(uid).update({
-        'gameStats': updatedStats.toMap(),
+        'gameStats': updatedGameStats,
       });
     } catch (e) {
       print('Error updating game statistics: $e');
@@ -339,8 +364,8 @@ class UserService {
 
       if (!userDoc.exists) return 0;
 
-      final user = UserModel.fromMap(userDoc.data()!);
-      return user.currentStreak;
+      final userData = userDoc.data()!;
+      return userData['currentStreak'] ?? 0;
     } catch (e) {
       print('Error getting current streak: $e');
       return 0;
@@ -354,8 +379,8 @@ class UserService {
 
       if (!userDoc.exists) return <String>{};
 
-      final user = UserModel.fromMap(userDoc.data()!);
-      return user.gameStats.categoriesPlayed.keys.toSet();
+      final userData = userDoc.data()!;
+      return userData['gameStats']['categoriesPlayed']?.keys.toSet() ?? <String>{};
     } catch (e) {
       print('Error getting distinct categories: $e');
       return <String>{};
@@ -369,10 +394,12 @@ class UserService {
 
       if (!userDoc.exists) return 0.0;
 
-      final user = UserModel.fromMap(userDoc.data()!);
-      final categoryStats = user.gameStats.categoryStats[category];
+      final userData = userDoc.data()!;
+      final gameStatsData = userData['gameStats'] as Map<String, dynamic>? ?? {};
+      final categoryStatsData = gameStatsData['categoryStats'] as Map<String, dynamic>? ?? {};
+      final specificCategoryStats = categoryStatsData[category] as Map<String, dynamic>? ?? {};
 
-      return categoryStats?.averageTimePerQuestion ?? 0.0;
+      return (specificCategoryStats['averageTimePerQuestion'] ?? 0.0).toDouble();
     } catch (e) {
       print('Error getting category average time: $e');
       return 0.0;
@@ -381,34 +408,34 @@ class UserService {
 }
 
 extension XpExtension on UserService {
-  /// Add [xpEarned] to the user, perform level‑up checks **looping** until the
-  /// stored XP is strictly below the requirement for the next level.
+  /// Adds XP to user and handles leveling up until XP is under threshold.
   ///
-  /// Firestore fields touched:
-  ///   * xp               – remaining XP **inside** current level
-  ///   * level            – absolute level (starting at 1)
-  ///   * xpForNextLevel   – target XP for the *next* level‑up
+  /// XP reset to 0 after each level up.
+  /// Updates Firestore fields:
+  /// - 'xp'
+  /// - 'level'
+  /// - 'xpForNextLevel'
   Future<void> addXpAndHandleLevelUp(String uid, int xpEarned) async {
-    // 1️⃣  Get current snapshot
     final docRef = _firestore.collection(_usersCollection).doc(uid);
     final snap = await docRef.get();
     if (!snap.exists) throw Exception('User not found');
 
+    // Read existing data or use defaults
     int level = (snap['level'] ?? 1) as int;
     int xp = (snap['xp'] ?? 0) as int;
     int xpForNextLevel = (snap['xpForNextLevel'] ?? XpService.xpForNextLevel(level)) as int;
 
-    // 2️⃣  Add freshly earned XP
+    // Add earned XP
     xp += xpEarned;
 
-    // 3️⃣  While we have enough XP –> level‑up 🔁
+    // Level up loop
     while (xp >= xpForNextLevel) {
-      xp -= xpForNextLevel; // Remove spent XP
-      level += 1; // Increment level
+      xp -= xpForNextLevel;
+      level += 1;
       xpForNextLevel = XpService.xpForNextLevel(level);
     }
 
-    // 4️⃣  Persist back
+    // Persist updated values
     await docRef.update({
       'level': level,
       'xp': xp,
