@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zifromania/domain/entities/constant.dart';
+import 'package:zifromania/locator.dart';
+import 'package:zifromania/models/user_model.dart';
 import 'package:zifromania/presentation/common/back_button.dart';
 import 'package:zifromania/presentation/common/partial_modal_route.dart';
 import 'package:zifromania/presentation/screens/about_zifromania.dart';
@@ -10,8 +12,8 @@ import 'package:zifromania/presentation/screens/privacy_policy.dart';
 import 'package:zifromania/presentation/screens/terms_of_service.dart';
 import 'package:zifromania/presentation/state-managment/auth/auth_bloc.dart';
 import 'package:zifromania/presentation/state-managment/auth/auth_event.dart';
-import 'package:zifromania/presentation/state-managment/auth/auth_state.dart';
 import 'package:zifromania/presentation/state-managment/settings/settings_bloc.dart';
+import 'package:zifromania/services/auth_service.dart';
 import 'package:zifromania/services/sound_service.dart';
 
 import 'feedback_screen.dart';
@@ -26,12 +28,6 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final SoundService _soundService = SoundService();
   final GlobalKey languageButtonKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-    _soundService.init();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,14 +102,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildUserProfileSection() {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, state) {
-        final user = state.user;
-        // These would come from user profile in real app
-        final int userLevel = user?.level ?? 0;
-        final int userXP = user?.xp ?? 0;
-        final int xpForNextLevel = user?.xpForNextLevel ?? 1000;
-        final int userCoins = user?.coins ?? 0;
+    final String? uid = locator<AuthService>().currentUser?.uid;
+    if (uid == null) return const SizedBox();
+
+    return StreamBuilder<UserModel?>(
+      stream: locator<AuthService>().userDocumentStream(uid),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final user = snapshot.data!;
+        final int userLevel = user.level;
+        final int userXP = user.xp;
+        final int xpForNextLevel = user.xpForNextLevel;
+        final int userCoins = user.coins;
 
         return Container(
           padding: const EdgeInsets.all(16),
@@ -123,7 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.3),
+                color: Colors.grey.withOpacity(0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
