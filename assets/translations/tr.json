@@ -28,6 +28,7 @@
         "training": "Antrenman"
     },
     "subscription": {
+        "upgrade_premium": "Premium'a Yükselt",
         "account": "Temel Hesap",
         "coins": "Jetonlar",
         "save_percentage": "%{} tasarruf et",
@@ -337,5 +338,25 @@
         "email_html_subject": "Konu:",
         "email_html_message": "Mesaj",
         "email_html_footer": "Bu mesaj ZifroMania uygulaması üzerinden {date} tarihinde gönderilmiştir."
+    },
+    "error": {
+        "daily_limit_reached": "Günlük soru limitiniz doldu. Premium'a geçerek daha fazla soruya erişebilirsiniz.",
+        "network_error": "İnternet bağlantınızı kontrol edin ve tekrar deneyin.",
+        "file_load_error": "Dosya yüklenirken bir hata oluştu. Lütfen tekrar deneyin.",
+        "invalid_json": "Geçersiz veri formatı. Lütfen tekrar deneyin.",
+        "unknown": "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin."
+    },
+    "titles": {
+        "truth-seeker": "Doğru veya Yanlış modunda 20 doğru cevap ver.",
+        "xp-seeker": "25. seviyeye ulaş.",
+        "expert-challenger": "Uzman modunda 15 veya daha fazla doğru cevap ver.",
+        "quick-thinker": "Ortalama 2 saniyeden daha kısa sürede 15+ doğru cevap ver.",
+        "speedster": "30 saniye içinde tüm soruları doğru cevapla.",
+        "marathon-mind": "Antrenman modunda 100+ soruya cevap ver.",
+        "no-mistake": "15 soruyu art arda hatasız cevapla.",
+        "persistent-player": "7 gün üst üste oyunu oyna.",
+        "legendary": "En yüksek seviye olan 50'ye ulaş!",
+        "multiplier-player": "Çarpım Tablosu kategorisinde 20 doğru cevap ver.",
+        "zifro-premium": "Premium bir kullanıcı oldun!"
     }
 }

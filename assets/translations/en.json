@@ -28,6 +28,7 @@
         "training": "Training"
     },
     "subscription": {
+        "upgrade_premium": "Upgrade to Premium",
         "account": "Basic Account",
         "coins": "Coins",
         "save_percentage": "Save {}% ",
@@ -337,5 +338,25 @@
         "email_html_subject": "Subject:",
         "email_html_message": "Message",
         "email_html_footer": "This message was sent via ZifroMania app on {date}."
+    },
+    "error": {
+        "daily_limit_reached": "You've reached your daily question limit. Upgrade to Premium to access more questions.",
+        "network_error": "Please check your internet connection and try again.",
+        "file_load_error": "An error occurred while loading the file. Please try again.",
+        "invalid_json": "Invalid data format. Please try again.",
+        "unknown": "An unexpected error occurred. Please try again."
+    },
+    "titles": {
+        "truth-seeker": "Give 20 correct answers in True or False mode.",
+        "xp-seeker": "Reach level 25.",
+        "expert-challenger": "Give 15 or more correct answers in Expert mode.",
+        "quick-thinker": "Give 15+ correct answers with an average time under 2 seconds.",
+        "speedster": "Answer all questions correctly within 30 seconds.",
+        "marathon-mind": "Answer 100+ questions in Training mode.",
+        "no-mistake": "Answer 15 questions in a row without mistakes.",
+        "persistent-player": "Play the game 7 days in a row.",
+        "legendary": "Reach the highest level: 50!",
+        "multiplier-player": "Give 20 correct answers in the Multiplication Table category.",
+        "zifro-premium": "You are a Premium user!"
     }
 }
