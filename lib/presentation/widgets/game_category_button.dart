@@ -1,5 +1,7 @@
+import 'package:zifromania/locator.dart';
 import 'package:zifromania/presentation/screens/game_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:zifromania/services/game_limit_service.dart';
 
 import '../../domain/entities/enums.dart';
 import 'dialogs/rules_dialog.dart';
@@ -58,17 +60,35 @@ class _GameCategoryButtonState extends State<GameCategoryButton> with SingleTick
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => RulesDialog(gameCategory: widget.category),
+      builder: (context) => StreamBuilder(
+          stream: locator.get<GameLimitService>().getCategoryLimitStream(widget.category),
+          builder: (context, asyncSnapshot) {
+            if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (asyncSnapshot.hasError) {
+              return AlertDialog(
+                title: const Text('Xəta'),
+                content: Text('Qaydalar yüklənərkən xəta baş verdi: ${asyncSnapshot.error}'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Bağla'),
+                  ),
+                ],
+              );
+            }
+            return RulesDialog(
+              gameCategory: widget.category,
+              limit: (asyncSnapshot.data?['current']! ?? 0, asyncSnapshot.data?['limit']! ?? 0),
+            );
+          }),
     );
 
     // Əgər istifadəçi oyuna başlamağı seçibsə:
     if (result == true && mounted) {
       // Create the UnifiedGameBloc provider and navigate to the game screen
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => GameScreen(gameCategory: widget.category),
-        ),
-      );
+      final page = GameScreen(gameCategory: widget.category);
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
     }
   }
 
