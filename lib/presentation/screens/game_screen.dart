@@ -1,24 +1,25 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
+import 'package:zifromania/app_exception.dart';
+
 import 'package:zifromania/domain/entities/constant.dart';
-import 'package:zifromania/locator.dart';
 import 'package:zifromania/models/title_model.dart';
+import 'package:zifromania/presentation/screens/subscription_screen.dart';
 import 'package:zifromania/presentation/state-managment/ad_manager.dart';
 import 'package:zifromania/presentation/state-managment/game/game_bloc.dart';
 import 'package:zifromania/presentation/widgets/dialogs/result_dialog.dart';
 import 'package:zifromania/presentation/widgets/dialogs/subscription_dialog.dart';
 import 'package:zifromania/presentation/widgets/dialogs/title_unlock_dialog.dart';
-import 'package:zifromania/services/open_ai_service.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lottie/lottie.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
 
 import '../../domain/entities/enums.dart';
 import '../../domain/entities/math_question.dart';
-import '../widgets/game/timer_indicator.dart';
-import '../widgets/game/score_indicator.dart';
-import '../widgets/game/question_container.dart';
 import '../widgets/game/answer_button.dart';
+import '../widgets/game/question_container.dart';
+import '../widgets/game/score_indicator.dart';
+import '../widgets/game/timer_indicator.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key, required this.gameCategory});
@@ -51,8 +52,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    // Cancel any ongoing request
-    locator.get<EnhancedOpenAIService>().cancel();
     buttonAnimationController.dispose();
     super.dispose();
   }
@@ -66,8 +65,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  void showSubscriptionDialog(BuildContext context) async {
-    const buildDialog = SubscriptionDialog();
+  void showSubscriptionDialog(BuildContext context, String message) async {
+    final buildDialog = SubscriptionDialog(message: message);
     await showDialog(
       context: context,
       barrierDismissible: false,
@@ -85,9 +84,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      onPopInvokedWithResult: (q, result) {
-        // Cancel request when back button is pressed
-        locator.get<EnhancedOpenAIService>().cancel();
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          // Geri gedəndə current operasiyanı cancel et
+          context.read<GameBloc>().cancelCurrentOperation();
+        }
       },
       child: Scaffold(
         backgroundColor: backgroundColor,
@@ -112,90 +113,25 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
                 // Show subscription dialog
                 if (state.showSubscribeDialog) {
-                  showSubscriptionDialog(context);
+                  showSubscriptionDialog(context, context.tr('error.daily_limit_reached'));
                 }
 
-                // Show error message if question generation fails
-                if (state.errorMessage != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: const Icon(
-                                Icons.calculate_outlined,
-                                color: Colors.white,
-                                size: 24.0,
-                              ),
-                            ),
-                            const SizedBox(width: 12.0),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Text(
-                                    '🔢 Math Challenge',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14.0,
-                                      fontFamily: 'Scabber',
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2.0),
-                                  Text(
-                                    state.errorMessage!,
-                                    style: const TextStyle(
-                                      fontFamily: 'Scabber',
-                                      color: Colors.white,
-                                      fontSize: 13.0,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: Colors.white,
-                                  size: 18.0,
-                                ),
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                },
-                                constraints: const BoxConstraints(
-                                  minWidth: 36.0,
-                                  minHeight: 36.0,
-                                ),
-                                padding: EdgeInsets.zero,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      backgroundColor: const Color(0xFF6366F1), // İndigo rengi
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      margin: const EdgeInsets.all(16.0),
-                      elevation: 8.0,
-                      duration: const Duration(seconds: 4),
-                    ),
-                  );
+                if (state.appException != null) {
+                  final error = state.appException!;
+
+                  switch (error.type) {
+                    case AppErrorType.dailyLimitReached:
+                      showSubscriptionDialog(context, context.tr('error.daily_limit_reached')); // Premium offer dialog
+                      break;
+                    case AppErrorType.fileLoadError:
+                      _showAlertDialog(context, 'File Error', error.message);
+                      break;
+                    case AppErrorType.invalidJson:
+                      _showAlertDialog(context, 'Data Error', 'Question data format is invalid.');
+                      break;
+                    default:
+                      _showSnackBar(context, error.message);
+                  }
                 }
               },
               builder: (context, state) {
@@ -206,7 +142,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
                 // No questions available
                 if (state.questions.isEmpty) {
-                  return _buildEmptyState();
+                  return _buildEmptyState(appErrorType: state.appException?.type);
                 }
 
                 // Game active with questions
@@ -220,6 +156,101 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: const Icon(
+                  Icons.calculate_outlined,
+                  color: Colors.white,
+                  size: 24.0,
+                ),
+              ),
+              const SizedBox(width: 12.0),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      '🔢 Math Challenge',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.0,
+                        fontFamily: 'Scabber',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 2.0),
+                    Text(
+                      message,
+                      style: const TextStyle(
+                        fontFamily: 'Scabber',
+                        color: Colors.white,
+                        fontSize: 13.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 18.0,
+                  ),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  },
+                  constraints: const BoxConstraints(
+                    minWidth: 36.0,
+                    minHeight: 36.0,
+                  ),
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+            ],
+          ),
+        ),
+        backgroundColor: const Color(0xFF6366F1), // İndigo rengi
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        margin: const EdgeInsets.all(16.0),
+        elevation: 8.0,
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
+  void _showAlertDialog(BuildContext context, String title, String content) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+        ],
       ),
     );
   }
@@ -319,30 +350,82 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState({AppErrorType? appErrorType}) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Lottie.asset(
-            'assets/lotties/timer.json',
-            width: 200,
-            height: 200,
-            fit: BoxFit.contain,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            context.tr('game.no_questions'),
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lottie.asset(
+              _getLottieAssetPath(),
+              width: 200,
+              height: 200,
+              fit: BoxFit.contain,
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Text(
+              _getErrorMessage(appErrorType),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 18,
+                fontFamily: 'Scabber',
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (appErrorType == AppErrorType.dailyLimitReached) ...[
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  // Subscription sayfasına git
+                  const page = SubscriptionScreen(tabType: TabType.subscription);
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => page));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                child: Text(
+                  context.tr('subscription.upgrade_premium'),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Scabber',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
+  }
+
+  String _getLottieAssetPath() {
+    return 'assets/lotties/timer.json';
+  }
+
+  String _getErrorMessage(AppErrorType? appErrorType) {
+    switch (appErrorType) {
+      case AppErrorType.dailyLimitReached:
+        return context.tr('error.daily_limit_reached');
+      case AppErrorType.networkError:
+        return context.tr('error.network_error');
+      case AppErrorType.fileLoadError:
+        return context.tr('error.file_load_error');
+      case AppErrorType.invalidJson:
+        return context.tr('error.invalid_json');
+      case AppErrorType.unknown:
+        return context.tr('error.unknown');
+      default:
+        return context.tr('game.no_questions');
+    }
   }
 
   Widget _buildGameContent(BuildContext context, GameState state, MathQuestion question) {
@@ -359,42 +442,159 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ],
             ),
           ),
-        if (state.gameCategory == GameCategory.training)
-          Text(
-            "${state.currentQuestionIndex + 1}/${state.questions.length}",
-            style: const TextStyle(
-              fontSize: 25,
-              color: Colors.white,
-              fontFamily: 'Scabber',
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GameQuestionContainer(question: question.question),
+        Text(
+          "${state.currentQuestionIndex + 1}/${state.questions.length}",
+          style: const TextStyle(
+            fontSize: 25,
+            color: Colors.white,
+            fontFamily: 'Scabber',
+            fontWeight: FontWeight.bold,
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
+        Expanded(
           child: Column(
-            children: List.generate(question.answerOptions.length, (index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GameQuestionContainer(question: question.question),
+              ),
+              const SizedBox(height: 20), // Aralarında boşluq
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: question.answerOptions.length == 2
+                    ? _buildTrueFalseLayout(context, state, question)
+                    : _buildMultipleChoiceLayout(context, state, question),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTrueFalseLayout(BuildContext context, GameState state, MathQuestion question) {
+    return SizedBox(
+      height: 300,
+      child: Stack(
+        children: [
+          // True button - sol tərəfdə yuxarıda
+          Positioned(
+            top: 20,
+            left: 0,
+            right: MediaQuery.of(context).size.width * 0.3, // Sağ tərəfi boş saxla
+            child: Transform.rotate(
+              angle: -0.07, // Yüngül meyillik
+              child: AnswerButton(
+                index: 0,
+                onTap: () {
+                  final event = GameEvent.checkAnswer(
+                    question: state.currentQuestion!,
+                    selectedAnswerIndex: 0,
+                  );
+                  context.read<GameBloc>().add(event);
+                },
+              ),
+            ),
+          ),
+          // False button - sağ tərəfdə aşağıda
+          Positioned(
+            bottom: 20,
+            right: 0,
+            left: MediaQuery.of(context).size.width * 0.3, // Sol tərəfi boş saxla
+            child: Transform.rotate(
+              angle: 0.07, // Əks istiqamətdə yüngül meyillik
+              child: AnswerButton(
+                index: 1,
+                onTap: () {
+                  final event = GameEvent.checkAnswer(
+                    question: state.currentQuestion!,
+                    selectedAnswerIndex: 1,
+                  );
+                  context.read<GameBloc>().add(event);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMultipleChoiceLayout(BuildContext context, GameState state, MathQuestion question) {
+    return Column(
+      children: [
+        // Birinci sıra - 2 button
+        Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8.0, bottom: 16.0),
                 child: AnswerButton(
-                  index: index,
+                  index: 0,
                   onTap: () {
                     final event = GameEvent.checkAnswer(
                       question: state.currentQuestion!,
-                      selectedAnswerIndex: index,
+                      selectedAnswerIndex: 0,
                     );
                     context.read<GameBloc>().add(event);
                   },
                 ),
-              );
-            }),
-          ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8.0, bottom: 16.0),
+                child: AnswerButton(
+                  index: 1,
+                  onTap: () {
+                    final event = GameEvent.checkAnswer(
+                      question: state.currentQuestion!,
+                      selectedAnswerIndex: 1,
+                    );
+                    context.read<GameBloc>().add(event);
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
+        // İkinci sıra - 2 button
+        Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: AnswerButton(
+                  index: 2,
+                  onTap: () {
+                    final event = GameEvent.checkAnswer(
+                      question: state.currentQuestion!,
+                      selectedAnswerIndex: 2,
+                    );
+                    context.read<GameBloc>().add(event);
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: AnswerButton(
+                  index: 3,
+                  onTap: () {
+                    final event = GameEvent.checkAnswer(
+                      question: state.currentQuestion!,
+                      selectedAnswerIndex: 3,
+                    );
+                    context.read<GameBloc>().add(event);
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+        // SizedBox(height: 56),
       ],
     );
   }
