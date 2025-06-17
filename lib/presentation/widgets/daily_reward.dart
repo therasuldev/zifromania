@@ -8,12 +8,9 @@ import 'package:zifromania/domain/entities/constant.dart';
 import 'package:zifromania/locator.dart';
 import 'package:zifromania/models/subscription_model.dart';
 import 'package:zifromania/models/user_model.dart';
-import 'package:zifromania/presentation/state-managment/auth/auth_bloc.dart';
-import 'package:zifromania/presentation/state-managment/auth/auth_event.dart';
+import 'package:zifromania/presentation/state-managment/user/user_bloc.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
-import 'package:zifromania/services/cache_service.dart';
 import 'package:zifromania/services/daily_reward_service.dart';
-import 'package:zifromania/services/user_service.dart';
 
 class DailyRewardWidget extends StatefulWidget {
   const DailyRewardWidget({super.key, this.user});
@@ -66,8 +63,8 @@ class _DailyRewardWidgetState extends State<DailyRewardWidget> {
 
   int get _coinsPerClaim => switch (widget.user?.subscription.type) {
         SubscriptionType.oneMonth => 15,
-        SubscriptionType.threeMonths => 30,
-        SubscriptionType.sixMonths => 50,
+        SubscriptionType.threeMonths => 20,
+        SubscriptionType.sixMonths => 30,
         _ => 7, // Default for no subscription or unknown type
       };
 
@@ -78,12 +75,10 @@ class _DailyRewardWidgetState extends State<DailyRewardWidget> {
 
     try {
       await _rewardService.claimReward();
-      final updatedUser = await locator.get<UserService>().addCoins(widget.user?.uid ?? '', _coinsPerClaim);
-      await locator.get<SecureCacheService>().write('user', updatedUser);
 
       if (!mounted) return;
+      context.read<UserBloc>().add(UserEvent.grantCoinsStart(_coinsPerClaim));
 
-      context.read<AuthBloc>().add(AuthEvent.profileSynced(updatedUser));
       _showRewardClaimedDialog(_coinsPerClaim);
       _refreshState();
     } finally {
@@ -332,17 +327,17 @@ class _AnimatedRewardWidgetState extends State<AnimatedRewardWidget> with Ticker
                             fontSize: 48,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Scabber',
-                            color: Colors.amberAccent.shade100,
+                            color: Colors.indigo.shade300,
                             decoration: TextDecoration.none,
                             shadows: [
                               Shadow(
-                                color: Colors.black.withValues(alpha: 0.4),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
+                                color: Colors.black.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
                               ),
                               Shadow(
-                                color: Colors.amberAccent.withValues(alpha: 0.6),
-                                blurRadius: 20,
+                                color: Colors.indigo.shade200.withValues(alpha: 0.5),
+                                blurRadius: 15,
                                 offset: const Offset(0, 0),
                               ),
                             ],
