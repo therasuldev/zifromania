@@ -14,112 +14,20 @@ class GameLimitService {
   static const String _installDatePrefix = 'install_date_';
   static const String _subscriptionTypePrefix = 'subscription_type_';
 
-  // Flexible Games üçün yeni key-lər
+  // Flexible Games üçün key-lər
   static const String _flexibleGamesCountPrefix = 'flexible_games_count_';
 
   // Ümumi reklam sayğacları üçün key-lər
   static const String _globalAdWatchedCountPrefix = 'global_ad_watched_count_';
   static const String _globalAdRewardEarnedPrefix = 'global_ad_reward_earned_';
 
-  // Bugün neçə flexible game var
-  int getFlexibleGamesCount() {
-    final today = DateTime.now();
-    final todayKey = '$_flexibleGamesCountPrefix${today.year}_${today.month}_${today.day}';
-    return _prefs.getInt(todayKey) ?? 0;
-  }
+  // Coin games üçün key-lər (user coin-i ayrı servicedə olduğu üçün yalnız oyun sayğacı)
+  static const String _coinGamesUsedPrefix = 'coin_games_used_';
+  static const String _coinGamesCountPrefix = 'coin_games_count_';
 
-  // Flexible game istifadə et
-  Future<void> useFlexibleGame() async {
-    final flexibleGames = getFlexibleGamesCount();
-    if (flexibleGames > 0) {
-      final today = DateTime.now();
-      final todayKey = '$_flexibleGamesCountPrefix${today.year}_${today.month}_${today.day}';
-      await _prefs.setInt(todayKey, flexibleGames - 1);
-
-      // Bütün kateqoriya stream-lərini yenilə
-      for (var category in GameCategory.values) {
-        _updateCategoryStream(category);
-      }
-    }
-  }
-
-  // Flexible games əlavə et
-  Future<void> _addFlexibleGames(int count) async {
-    final today = DateTime.now();
-    final todayKey = '$_flexibleGamesCountPrefix${today.year}_${today.month}_${today.day}';
-    final currentGames = getFlexibleGamesCount();
-    final newGames = currentGames + count;
-    await _prefs.setInt(todayKey, newGames);
-
-    // Bütün kateqoriya stream-lərini yenilə
-    for (var category in GameCategory.values) {
-      _updateCategoryStream(category);
-    }
-  }
-
-  // Bugün neçə reklam izlənib (ümumi)
-  int getGlobalAdWatchedCount() {
-    final today = DateTime.now();
-    final todayKey = '$_globalAdWatchedCountPrefix${today.year}_${today.month}_${today.day}';
-    return _prefs.getInt(todayKey) ?? 0;
-  }
-
-  // Bugün ümumi reklam mükafatı qazanılıbmı?
-  bool hasEarnedGlobalAdRewardToday() {
-    final today = DateTime.now();
-    final todayKey = '$_globalAdRewardEarnedPrefix${today.year}_${today.month}_${today.day}';
-    return _prefs.getBool(todayKey) ?? false;
-  }
-
-  // Ümumi reklam izləməsini qeyd et
-  Future<void> incrementGlobalAdWatchedCount() async {
-    final today = DateTime.now();
-    final todayKey = '$_globalAdWatchedCountPrefix${today.year}_${today.month}_${today.day}';
-    final currentCount = getGlobalAdWatchedCount();
-    final newCount = currentCount + 1;
-    await _prefs.setInt(todayKey, newCount);
-
-    // 3 reklam izlədikdən sonra 3 flexible game ver
-    if (newCount >= 3 && !hasEarnedGlobalAdRewardToday()) {
-      await _applyGlobalAdReward();
-    }
-  }
-
-  // 3 flexible game mükafatı ver
-  Future<void> _applyGlobalAdReward() async {
-    final today = DateTime.now();
-
-    // Mükafat verildi olaraq işarələ
-    final rewardEarnedKey = '$_globalAdRewardEarnedPrefix${today.year}_${today.month}_${today.day}';
-    await _prefs.setBool(rewardEarnedKey, true);
-
-    // 3 flexible game əlavə et
-    await _addFlexibleGames(3);
-  }
-
-  // Ümumi reklam vəziyyətini al
-  Map<String, dynamic> getGlobalAdStatus() {
-    final watchedAds = getGlobalAdWatchedCount();
-    final hasEarnedReward = hasEarnedGlobalAdRewardToday();
-    final remainingAds = hasEarnedReward ? 0 : (3 - watchedAds);
-    final flexibleGames = getFlexibleGamesCount();
-
-    return {
-      'watchedAds': watchedAds,
-      'maxAds': 3,
-      'remainingAds': remainingAds.clamp(0, 3),
-      'hasEarnedReward': hasEarnedReward,
-      'canWatchMore': watchedAds < 3 && !hasEarnedReward,
-      'flexibleGames': flexibleGames,
-    };
-  }
-
-  // Reklam izləyə bilər-yoxdur yoxla
-  bool canWatchAdForReward() {
-    final watchedAds = getGlobalAdWatchedCount();
-    final hasEarnedReward = hasEarnedGlobalAdRewardToday();
-    return watchedAds < 3 && !hasEarnedReward;
-  }
+  // Coin system constants
+  static const int coinCostPerCategory = 20;
+  static const int coinExtraGamesPerPurchase = 2;
 
   // Hər kateqoriya üçün abunəlik tipi əsasında limit
   static const Map<SubscriptionType, Map<GameCategory, int>> _categoryLimits = {
@@ -168,7 +76,7 @@ class GameLimitService {
     }
   }
 
-  // Cihaz izləməsini başlat
+  // DEVICE TRACKING
   void _initializeDeviceTracking() {
     _deviceId = _prefs.getString(_deviceIdPrefix) ?? _generateDeviceId();
     if (!_prefs.containsKey(_deviceIdPrefix)) {
@@ -177,7 +85,13 @@ class GameLimitService {
     }
   }
 
-  // Abunəlik tipini təyin et
+  String _generateDeviceId() {
+    final random = Random.secure();
+    final bytes = List<int>.generate(32, (i) => random.nextInt(256));
+    return sha256.convert(bytes).toString();
+  }
+
+  // SUBSCRIPTION MANAGEMENT
   Future<void> setSubscriptionType(SubscriptionType subscriptionType) async {
     await _prefs.setString(_subscriptionTypePrefix, subscriptionType.name);
 
@@ -187,7 +101,6 @@ class GameLimitService {
     }
   }
 
-  // Abunəlik tipini al
   SubscriptionType getSubscriptionType() {
     final subscriptionName = _prefs.getString(_subscriptionTypePrefix);
     if (subscriptionName == null) return SubscriptionType.free;
@@ -198,7 +111,156 @@ class GameLimitService {
     );
   }
 
-  // Stream qaytaran metod
+  // FLEXIBLE GAMES MANAGEMENT
+  int getFlexibleGamesCount() {
+    final today = DateTime.now();
+    final todayKey = '$_flexibleGamesCountPrefix${today.year}_${today.month}_${today.day}';
+    return _prefs.getInt(todayKey) ?? 0;
+  }
+
+  Future<void> useFlexibleGame() async {
+    final flexibleGames = getFlexibleGamesCount();
+    if (flexibleGames > 0) {
+      final today = DateTime.now();
+      final todayKey = '$_flexibleGamesCountPrefix${today.year}_${today.month}_${today.day}';
+      await _prefs.setInt(todayKey, flexibleGames - 1);
+
+      // Bütün kateqoriya stream-lərini yenilə
+      for (var category in GameCategory.values) {
+        _updateCategoryStream(category);
+      }
+    }
+  }
+
+  Future<void> _addFlexibleGames(int count) async {
+    final today = DateTime.now();
+    final todayKey = '$_flexibleGamesCountPrefix${today.year}_${today.month}_${today.day}';
+    final currentGames = getFlexibleGamesCount();
+    final newGames = currentGames + count;
+    await _prefs.setInt(todayKey, newGames);
+
+    // Bütün kateqoriya stream-lərini yenilə
+    for (var category in GameCategory.values) {
+      _updateCategoryStream(category);
+    }
+  }
+
+  // GLOBAL AD SYSTEM
+  int getGlobalAdWatchedCount() {
+    final today = DateTime.now();
+    final todayKey = '$_globalAdWatchedCountPrefix${today.year}_${today.month}_${today.day}';
+    return _prefs.getInt(todayKey) ?? 0;
+  }
+
+  bool hasEarnedGlobalAdRewardToday() {
+    final today = DateTime.now();
+    final todayKey = '$_globalAdRewardEarnedPrefix${today.year}_${today.month}_${today.day}';
+    return _prefs.getBool(todayKey) ?? false;
+  }
+
+  Future<void> incrementGlobalAdWatchedCount() async {
+    final today = DateTime.now();
+    final todayKey = '$_globalAdWatchedCountPrefix${today.year}_${today.month}_${today.day}';
+    final currentCount = getGlobalAdWatchedCount();
+    final newCount = currentCount + 1;
+    await _prefs.setInt(todayKey, newCount);
+
+    // 3 reklam izlədikdən sonra 3 flexible game ver
+    if (newCount >= 3 && !hasEarnedGlobalAdRewardToday()) {
+      await _applyGlobalAdReward();
+    }
+  }
+
+  Future<void> _applyGlobalAdReward() async {
+    final today = DateTime.now();
+
+    // Mükafat verildi olaraq işarələ
+    final rewardEarnedKey = '$_globalAdRewardEarnedPrefix${today.year}_${today.month}_${today.day}';
+    await _prefs.setBool(rewardEarnedKey, true);
+
+    // 3 flexible game əlavə et
+    await _addFlexibleGames(3);
+  }
+
+  Map<String, dynamic> getGlobalAdStatus() {
+    final watchedAds = getGlobalAdWatchedCount();
+    final hasEarnedReward = hasEarnedGlobalAdRewardToday();
+    final remainingAds = hasEarnedReward ? 0 : (3 - watchedAds);
+    final flexibleGames = getFlexibleGamesCount();
+
+    return {
+      'watchedAds': watchedAds,
+      'maxAds': 3,
+      'remainingAds': remainingAds.clamp(0, 3),
+      'hasEarnedReward': hasEarnedReward,
+      'canWatchMore': watchedAds < 3 && !hasEarnedReward,
+      'flexibleGames': flexibleGames,
+    };
+  }
+
+  bool canWatchAdForReward() {
+    final watchedAds = getGlobalAdWatchedCount();
+    final hasEarnedReward = hasEarnedGlobalAdRewardToday();
+    return watchedAds < 3 && !hasEarnedReward;
+  }
+
+  // COIN GAMES MANAGEMENT (Yalnız oyun sayğacı, coin əməliyyatları UserService-də)
+  bool hasPurchasedCoinGamesToday(GameCategory category) {
+    final today = DateTime.now();
+    final todayKey = '$_coinGamesUsedPrefix${category.name}_${today.year}_${today.month}_${today.day}';
+    return _prefs.getBool(todayKey) ?? false;
+  }
+
+  int getCoinGamesCount(GameCategory category) {
+    final today = DateTime.now();
+    final todayKey = '$_coinGamesCountPrefix${category.name}_${today.year}_${today.month}_${today.day}';
+    return _prefs.getInt(todayKey) ?? 0;
+  }
+
+  Future<void> useCoinGame(GameCategory category) async {
+    final coinGames = getCoinGamesCount(category);
+    if (coinGames > 0) {
+      final today = DateTime.now();
+      final todayKey = '$_coinGamesCountPrefix${category.name}_${today.year}_${today.month}_${today.day}';
+      await _prefs.setInt(todayKey, coinGames - 1);
+      _updateCategoryStream(category);
+    }
+  }
+
+  // Coin games yalnız əlavə etmək üçün (UserService coin-i çıxdıqdan sonra çağırır)
+  Future<void> addCoinGames(GameCategory category) async {
+    // Bugün artıq alınıbmı yoxla
+    if (hasPurchasedCoinGamesToday(category)) {
+      throw Exception('Bu kateqoriya üçün bugün artıq coin games alınıb');
+    }
+
+    final today = DateTime.now();
+
+    // Coin games əlavə et
+    final coinGamesKey = '$_coinGamesCountPrefix${category.name}_${today.year}_${today.month}_${today.day}';
+    await _prefs.setInt(coinGamesKey, coinExtraGamesPerPurchase);
+
+    // Bugün satın alındığını qeyd et
+    final usedKey = '$_coinGamesUsedPrefix${category.name}_${today.year}_${today.month}_${today.day}';
+    await _prefs.setBool(usedKey, true);
+
+    // Stream yenilə
+    _updateCategoryStream(category);
+  }
+
+  Map<String, dynamic> getCoinGamesInfo(GameCategory category) {
+    final coinGamesCount = getCoinGamesCount(category);
+    final hasPurchased = hasPurchasedCoinGamesToday(category);
+
+    return {
+      'coinGamesAvailable': coinGamesCount,
+      'costPerPurchase': coinCostPerCategory,
+      'gamesPerPurchase': coinExtraGamesPerPurchase,
+      'hasPurchasedToday': hasPurchased,
+    };
+  }
+
+  // CATEGORY LIMIT MANAGEMENT
   Stream<Map<String, int>> getCategoryLimitStream(GameCategory category) {
     // İlk vəziyyəti göndər
     Future.delayed(Duration.zero, () {
@@ -208,36 +270,27 @@ class GameLimitService {
     return _categoryControllers[category]!.stream;
   }
 
-  // Kateqoriya üçün günlük limiti al
   int getCategoryDailyLimit(GameCategory category) {
     final subscriptionType = getSubscriptionType();
     return _categoryLimits[subscriptionType]![category]!;
   }
 
-  String _generateDeviceId() {
-    final random = Random.secure();
-    final bytes = List<int>.generate(32, (i) => random.nextInt(256));
-    return sha256.convert(bytes).toString();
-  }
-
-  // Kateqoriya üçün oyun oynaya bilər-yoxdur yoxla (YENİ LOQIKA)
   bool canPlayGame(GameCategory category) {
     final categoryLimit = getCategoryDailyLimit(category);
     final dailyRequests = getDailyRequestCount(category);
     final flexibleGames = getFlexibleGamesCount();
+    final coinGames = getCoinGamesCount(category);
 
-    // Normal limitdən əlavə flexible games də var
-    return dailyRequests < categoryLimit || flexibleGames > 0;
+    // Normal limit, flexible games və coin games
+    return dailyRequests < categoryLimit || flexibleGames > 0 || coinGames > 0;
   }
 
-  // Kateqoriya üçün günlük request sayını al
   int getDailyRequestCount(GameCategory category) {
     final today = DateTime.now();
     final todayKey = '$_dailyRequestCountPrefix${category.name}_${today.year}_${today.month}_${today.day}';
     return _prefs.getInt(todayKey) ?? 0;
   }
 
-  // Kateqoriya üçün günlük request sayını artır
   Future<void> incrementDailyRequestCount(GameCategory category) async {
     final today = DateTime.now();
     final todayKey = '$_dailyRequestCountPrefix${category.name}_${today.year}_${today.month}_${today.day}';
@@ -248,26 +301,50 @@ class GameLimitService {
     _updateCategoryStream(category);
   }
 
-  // Kateqoriya stream-ini yenilə (YENİ LOQIKA)
   void _updateCategoryStream(GameCategory category) {
     final dailyRequests = getDailyRequestCount(category);
     final categoryLimit = getCategoryDailyLimit(category);
     final flexibleGames = getFlexibleGamesCount();
+    final coinGames = getCoinGamesCount(category);
 
-    // Əgər normal limit aşılıbsa, flexible games istifadə edilə bilər
+    // Əgər normal limit aşılıbsa, flexible games və ya coin games istifadə edilə bilər
     final remainingNormalGames = math.max(0, categoryLimit - dailyRequests);
-    final totalAvailableGames = remainingNormalGames + flexibleGames;
+    final totalAvailableGames = remainingNormalGames + flexibleGames + coinGames;
 
     _categoryControllers[category]?.add({
       'current': dailyRequests,
       'limit': categoryLimit,
       'flexibleGames': flexibleGames,
+      'coinGames': coinGames,
       'remainingNormal': remainingNormalGames,
       'totalAvailable': totalAvailableGames,
     });
   }
 
-  // Admin üçün günlük sayğacları təmizlə (YENİ)
+  // GAME PLAY LOGIC
+  Future<void> playGame(GameCategory category) async {
+    if (!canPlayGame(category)) {
+      throw Exception('Bu kateqoriya üçün oyun limiti aşılıb');
+    }
+
+    final dailyRequests = getDailyRequestCount(category);
+    final categoryLimit = getCategoryDailyLimit(category);
+    final flexibleGames = getFlexibleGamesCount();
+    final coinGames = getCoinGamesCount(category);
+
+    if (dailyRequests < categoryLimit) {
+      // Normal limitdə oynamaq - counter artır
+      await incrementDailyRequestCount(category);
+    } else if (flexibleGames > 0) {
+      // Flexible game istifadə etmək - counter artırmır
+      await useFlexibleGame();
+    } else if (coinGames > 0) {
+      // Coin game istifadə etmək - counter artırmır
+      await useCoinGame(category);
+    }
+  }
+
+  // ADMIN & MAINTENANCE
   Future<bool> clearDailyCounters(String adminCode) async {
     const correctAdminCode = "MATH_GAME_ADMIN_2024_CLEAR";
     if (adminCode != correctAdminCode) {
@@ -291,6 +368,12 @@ class GameLimitService {
       final requestKey = '$_dailyRequestCountPrefix${category.name}_${today.year}_${today.month}_${today.day}';
       await _prefs.remove(requestKey);
 
+      // Coin games təmizlə
+      final coinGamesKey = '$_coinGamesCountPrefix${category.name}_${today.year}_${today.month}_${today.day}';
+      final coinUsedKey = '$_coinGamesUsedPrefix${category.name}_${today.year}_${today.month}_${today.day}';
+      await _prefs.remove(coinGamesKey);
+      await _prefs.remove(coinUsedKey);
+
       // Stream-ləri yenilə
       _updateCategoryStream(category);
     }
@@ -298,25 +381,7 @@ class GameLimitService {
     return true;
   }
 
-  // Oyun oynandıqda çağrılacaq metod (YENİ LOQIKA)
-  Future<void> playGame(GameCategory category) async {
-    if (!canPlayGame(category)) {
-      throw Exception('Bu kateqoriya üçün oyun limiti aşılıb');
-    }
-
-    final dailyRequests = getDailyRequestCount(category);
-    final categoryLimit = getCategoryDailyLimit(category);
-
-    if (dailyRequests < categoryLimit) {
-      // Normal limitdə oynamaq - counter artır
-      await incrementDailyRequestCount(category);
-    } else {
-      // Flexible game istifadə etmək - counter artırmır
-      await useFlexibleGame();
-    }
-  }
-
-  // Təhlükəsizlik statistikası (YENİ)
+  // STATISTICS
   Map<String, dynamic> getSecurityStats() {
     final installDate = _prefs.getInt(_installDatePrefix) ?? DateTime.now().millisecondsSinceEpoch;
     final daysSinceInstall = (DateTime.now().millisecondsSinceEpoch - installDate) / (24 * 60 * 60 * 1000);
@@ -340,13 +405,14 @@ class GameLimitService {
     };
   }
 
-  // Kateqoriya üçün statistika (YENİ)
   Map<String, dynamic> getCategoryStats(GameCategory category) {
     final subscriptionType = getSubscriptionType();
     final categoryLimit = getCategoryDailyLimit(category);
     final dailyRequests = getDailyRequestCount(category);
     final flexibleGames = getFlexibleGamesCount();
+    final coinGames = getCoinGamesCount(category);
     final remainingNormal = math.max(0, categoryLimit - dailyRequests);
+    final coinGamesInfo = getCoinGamesInfo(category);
 
     return {
       'subscriptionType': subscriptionType.name,
@@ -354,35 +420,41 @@ class GameLimitService {
       'dailyRequestCount': dailyRequests,
       'categoryLimit': categoryLimit,
       'flexibleGamesAvailable': flexibleGames,
+      'coinGamesAvailable': coinGames,
       'remainingNormalGames': remainingNormal,
       'canPlayGame': canPlayGame(category),
-      'totalAvailableGames': remainingNormal + flexibleGames,
+      'totalAvailableGames': remainingNormal + flexibleGames + coinGames,
+      'coinGamesInfo': coinGamesInfo,
     };
   }
 
-  // Bütün kateqoriyalar üçün statistika (YENİ)
   Map<String, dynamic> getAllCategoriesStats() {
     final subscriptionType = getSubscriptionType();
     final flexibleGames = getFlexibleGamesCount();
 
     int totalDailyRequests = 0;
     int totalDailyLimits = 0;
+    int totalCoinGames = 0;
     Map<String, Map<String, dynamic>> categoryStats = {};
 
     for (GameCategory category in GameCategory.values) {
       final dailyRequests = getDailyRequestCount(category);
       final categoryLimit = getCategoryDailyLimit(category);
+      final coinGames = getCoinGamesCount(category);
       final remainingNormal = math.max(0, categoryLimit - dailyRequests);
 
       totalDailyRequests += dailyRequests;
       totalDailyLimits += categoryLimit;
+      totalCoinGames += coinGames;
 
       categoryStats[category.name] = {
         'dailyRequestCount': dailyRequests,
         'categoryLimit': categoryLimit,
+        'coinGamesAvailable': coinGames,
         'remainingNormalGames': remainingNormal,
         'canPlayGame': canPlayGame(category),
-        'totalAvailableGames': remainingNormal + flexibleGames,
+        'totalAvailableGames': remainingNormal + flexibleGames + coinGames,
+        'coinGamesInfo': getCoinGamesInfo(category),
       };
     }
 
@@ -391,12 +463,12 @@ class GameLimitService {
       'totalDailyRequests': totalDailyRequests,
       'totalDailyLimits': totalDailyLimits,
       'flexibleGamesAvailable': flexibleGames,
+      'totalCoinGames': totalCoinGames,
       'totalRemainingNormalGames': math.max(0, totalDailyLimits - totalDailyRequests),
       'categories': categoryStats,
     };
   }
 
-  // Bütün kateqoriya limitlərini al
   Map<GameCategory, int> getAllCategoryLimits() {
     final subscriptionType = getSubscriptionType();
     return Map<GameCategory, int>.from(_categoryLimits[subscriptionType]!);
