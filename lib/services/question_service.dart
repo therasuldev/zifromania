@@ -16,18 +16,21 @@ class QuestionService {
     GameCategory gameCategory, {
     int questionCount = 15,
     CancelToken? cancelToken,
+    bool paidWithCoin = false,
   }) async {
     // Cancel token yoxla
     if (cancelToken?.isCancelled == true) {
       throw Exception('Operation cancelled');
     }
 
-    // Günlük limit yoxlaması
-    if (!_gameLimitService.canPlayGame(gameCategory)) {
+    // Günlük limit yoxlaması - coin ödəməsi məlumatı da ötürülür
+    if (!_gameLimitService.canPlayGame(gameCategory, willPayWithCoin: paidWithCoin)) {
       final stats = _gameLimitService.getCategoryStats(gameCategory);
+
       throw AppException(
         AppErrorType.dailyLimitReached,
-        'Daily limit reached for ${gameCategory.name} (${stats['dailyRequestCount']}/${stats['categoryLimit']} requests used). Flexible games: ${stats['flexibleGamesAvailable']}, Coin games: ${stats['coinGamesAvailable']}',
+        'Daily limit reached for ${gameCategory.name} (${stats['dailyRequestCount']}/${stats['categoryLimit']} requests used). '
+        'Flexible games: ${stats['flexibleGamesAvailable']}.',
       );
     }
 
@@ -50,9 +53,9 @@ class QuestionService {
       throw Exception('Operation cancelled');
     }
 
-    // *** YENİ LOQIKA: playGame metodu istifadə et ***
-    // Bu metod həm normal limit artırır, həm də lazım olduqda flexible game və ya coin game istifadə edir
-    await _gameLimitService.playGame(gameCategory);
+    // PlayGame metodu istifadə et - coin ödəməsi məlumatı ötürülür
+    // Bu metod həm normal limit artırır, həm də lazım olduqda flexible game istifadə edir
+    await _gameLimitService.playGame(gameCategory, paidWithCoin: paidWithCoin);
 
     // Sualları qarışdır və tələb olunan sayda qaytır
     allQuestions.shuffle();
@@ -64,7 +67,7 @@ class QuestionService {
 
   Future<List<MathQuestion>> _loadQuestionsFromFile(GameCategory gameCategory) async {
     try {
-      final categoryString = _getCategoryString(gameCategory);
+      final categoryString = gameCategory.toTextWithUnderscores();
       final jsonString = await rootBundle.loadString('assets/questions/$categoryString.json');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
 
@@ -148,20 +151,10 @@ class QuestionService {
     return mathQuestions;
   }
 
-  String _getCategoryString(GameCategory gameCategory) {
-    return switch (gameCategory) {
-      GameCategory.quickThinking => 'quick_thinking',
-      GameCategory.training => 'training',
-      GameCategory.expert => 'expert',
-      GameCategory.multiplyDivide => 'multiply_divide',
-      GameCategory.trueOrFalse => 'true_or_false',
-    };
-  }
-
   // Kateqoriya üçün mövcud sualların sayını yoxla
   Future<int> getAvailableQuestionsCount(GameCategory gameCategory) async {
     try {
-      final categoryString = _getCategoryString(gameCategory);
+      final categoryString = gameCategory.toTextWithUnderscores();
       final jsonString = await rootBundle.loadString('assets/questions/$categoryString.json');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
 
@@ -173,114 +166,5 @@ class QuestionService {
       log.e('Error getting available questions count: $e');
       return 0;
     }
-  }
-
-  // Limit statistikasını göstər
-  Map<String, dynamic> getLimitStatistics() {
-    return _gameLimitService.getAllCategoriesStats();
-  }
-
-  // Kateqoriya üçün limit statistikası
-  Map<String, dynamic> getCategoryLimitStats(GameCategory category) {
-    return _gameLimitService.getCategoryStats(category);
-  }
-
-  // Admin paneli üçün günlük sayacları təmizlə
-  Future<bool> adminClearDailyCounters(String adminCode) async {
-    return await _gameLimitService.clearDailyCounters(adminCode);
-  }
-
-  // Bütün kateqoriyalar üçün məlumat (YENİ LOQIKA ilə)
-  Future<Map<String, dynamic>> getAllCategoriesInfo() async {
-    Map<String, dynamic> info = {};
-
-    for (GameCategory category in GameCategory.values) {
-      final availableQuestions = await getAvailableQuestionsCount(category);
-      final categoryStats = _gameLimitService.getCategoryStats(category);
-
-      info[category.name] = {
-        'availableInFile': availableQuestions,
-        'dailyRequests': categoryStats['dailyRequestCount'],
-        'categoryLimit': categoryStats['categoryLimit'],
-        'remainingNormalGames': categoryStats['remainingNormalGames'],
-        'flexibleGamesAvailable': categoryStats['flexibleGamesAvailable'],
-        'coinGamesAvailable': categoryStats['coinGamesAvailable'], // YENİ
-        'totalAvailableGames': categoryStats['totalAvailableGames'],
-        'canPlay': categoryStats['canPlayGame'],
-        'coinGamesInfo': categoryStats['coinGamesInfo'], // YENİ
-      };
-    }
-
-    return info;
-  }
-
-  // Təhlükəsizlik statistikası
-  Map<String, dynamic> getSecurityStats() {
-    return _gameLimitService.getSecurityStats();
-  }
-
-  // Abunəlik tipini dəyişdir
-  Future<void> setSubscriptionType(SubscriptionType subscriptionType) async {
-    await _gameLimitService.setSubscriptionType(subscriptionType);
-  }
-
-  // Abunəlik tipini al
-  SubscriptionType getSubscriptionType() {
-    return _gameLimitService.getSubscriptionType();
-  }
-
-  // *** REKLAM və FLEXIBLE GAMES idarəetməsi ***
-
-  // Reklam izləyə bilər-yoxdur yoxla
-  bool canWatchAdForReward() {
-    return _gameLimitService.canWatchAdForReward();
-  }
-
-  // Reklam izlədikdən sonra çağır
-  Future<void> watchedAdForReward() async {
-    await _gameLimitService.incrementGlobalAdWatchedCount();
-  }
-
-  // Ümumi reklam vəziyyətini al
-  Map<String, dynamic> getGlobalAdStatus() {
-    return _gameLimitService.getGlobalAdStatus();
-  }
-
-  // Flexible games sayını al
-  int getFlexibleGamesCount() {
-    return _gameLimitService.getFlexibleGamesCount();
-  }
-
-  // *** YENİ: COIN GAMES idarəetməsi ***
-
-  // Kateqoriya üçün coin games məlumatını al
-  Map<String, dynamic> getCoinGamesInfo(GameCategory category) {
-    return _gameLimitService.getCoinGamesInfo(category);
-  }
-
-  // Coin games sayını al
-  int getCoinGamesCount(GameCategory category) {
-    return _gameLimitService.getCoinGamesCount(category);
-  }
-
-  // Bu kateqoriya üçün bugün coin games alınıbmı yoxla
-  bool hasPurchasedCoinGamesToday(GameCategory category) {
-    return _gameLimitService.hasPurchasedCoinGamesToday(category);
-  }
-
-  // Coin games əlavə et (UserService coin çıxdıqdan sonra çağırmalıdır)
-  Future<void> addCoinGames(GameCategory category) async {
-    await _gameLimitService.addCoinGames(category);
-  }
-
-  // Coin games constants-ləri əldə et
-  static const int coinCostPerCategory = GameLimitService.coinCostPerCategory;
-  static const int coinExtraGamesPerPurchase = GameLimitService.coinExtraGamesPerPurchase;
-
-  // *** STREAM metodları ***
-
-  // Kateqoriya üçün stream al (UI üçün real-time yenilənmə)
-  Stream<Map<String, int>> getCategoryLimitStream(GameCategory category) {
-    return _gameLimitService.getCategoryLimitStream(category);
   }
 }
