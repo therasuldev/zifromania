@@ -69,15 +69,23 @@ class UserService {
     }
   }
 
-  // Update user coins
-  Future<void> updateCoins(String uid, int coins) async {
+  Future<void> spendCoins(String uid, int amountToSpend) async {
     try {
+      final userDoc = await _firestore.collection(_usersCollection).doc(uid).get();
+      final currentCoins = userDoc.data()?['coins'] ?? 0;
+
+      if (currentCoins < amountToSpend) {
+        throw Exception('Not enough coins');
+      }
+
       await _firestore.collection(_usersCollection).doc(uid).update({
-        'coins': coins,
+        'coins': currentCoins - amountToSpend,
       });
+
+      
     } catch (e) {
-      print('Error updating coins: $e');
-      throw Exception('Failed to update coins: $e');
+      print('Error spending coins: $e');
+      throw Exception('Failed to spend coins: $e');
     }
   }
 
