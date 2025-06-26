@@ -15,9 +15,8 @@ class GameEvent {
   GameEvents? type;
   dynamic payload;
 
-  GameEvent.startGame({required GameCategory gameCategory}) {
+  GameEvent.startGame({required Map<String, dynamic> this.payload}) {
     type = GameEvents.startGame;
-    payload = gameCategory;
   }
 
   GameEvent.endGame() {
@@ -51,9 +50,8 @@ class GameEvent {
     payload = null;
   }
 
-  GameEvent.playAgain({required GameCategory gameCategory}) {
+  GameEvent.playAgain({required Map<String, dynamic> this.payload}) {
     type = GameEvents.playAgain;
-    payload = gameCategory;
   }
 
   GameEvent.autoAdvanceQuestion() {
