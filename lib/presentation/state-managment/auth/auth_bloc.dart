@@ -1,11 +1,6 @@
-// ==========================
-// auth_bloc.dart
-// ==========================
 import 'dart:async';
-import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:zifromania/models/user_model.dart';
 import 'package:zifromania/services/auth_service.dart';
 import 'package:zifromania/services/cache_service.dart';
@@ -13,105 +8,156 @@ import 'package:zifromania/services/user_service.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
-/// AuthBloc now exposes [checkAuthentication] so you can yeet the auth‑check
-/// straight from your splash screen, instead of doing it in the constructor.
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthService _authService;
-  final UserService _userService;
+
   final SecureCacheService _cacheService;
-  late final StreamSubscription<firebase.User?> _authStateSubscription;
-  StreamSubscription<UserModel>? _profileSub;
+  late final StreamSubscription<UserModel?> _userStreamSubscription;
 
   AuthBloc({
     required AuthService authService,
     required UserService userService,
     required SecureCacheService cacheService,
   })  : _authService = authService,
-        _userService = userService,
         _cacheService = cacheService,
         super(AuthState.initial()) {
-    // 1️⃣ Universal event handler (single entry point, because simplicity rules)
     on<AuthEvent>((event, emit) async {
       debugPrint('🔥 AuthBloc → event: ${event.type}, payload: ${event.payload}');
       await _onAuthEvent(event, emit);
     });
 
-    // 2️⃣ Firebase auth state subscription
-    _authStateSubscription = _authService.authStateChanges.listen(_onFirebaseAuthChanged);
+    // AuthService-dən user stream dinləməsi
+    _userStreamSubscription = _authService.userStream.listen((user) {
+      if (user != null) {
+        add(AuthEvent.authenticated(user));
+      } else {
+        add(AuthEvent.unauthenticated());
+      }
+    });
   }
 
-  /// 🌊 Public API — call this from the SplashScreen to kick‑start the cached
-  /// user check.  Returns a [Future] so you can await it if you feel like it.
-  Future<void> checkAuthentication() async => _checkCachedUser();
-
-  // ---------- PRIVATE HELPERS ----------
-  Future<void> _checkCachedUser() async {
+  /// Public API - SplashScreen-dən çağırılır
+  Future<void> checkAuthentication() async {
     try {
       final UserModel? cachedUser = await _cacheService.read<UserModel>('user');
+      final bool isSignedIn = await _authService.isSignedIn();
 
-      if (cachedUser != null && cachedUser.uid.isNotEmpty) {
+      if (cachedUser != null && isSignedIn) {
+        debugPrint('✅ Cache-dən user tapıldı: ${cachedUser.uid}');
+
+        // Cache-ddən user-i göstər
         emit(state.copyWith(
           user: cachedUser,
           event: AuthEvents.authenticated,
           error: null,
         ));
 
-        // Silent Firestore refresh ✨
-        _refreshUserData(cachedUser.uid);
+        // Arxa planda yenilə
+        _refreshUserDataSilently();
+      } else {
+        // Cache köhnədir və ya user sign-in olmayıb
+        await _cacheService.delete('user');
+
+        if (isSignedIn) {
+          // Firebase-də user var, tam məlumatları yüklə
+          final currentUser = await _authService.getCurrentUser();
+          if (currentUser != null) {
+            await _cacheService.write<UserModel>('user', currentUser);
+            emit(state.copyWith(
+              user: currentUser,
+              event: AuthEvents.authenticated,
+              error: null,
+            ));
+          } else {
+            emit(state.copyWith(
+              event: AuthEvents.unauthenticated,
+              user: null,
+              error: null,
+            ));
+          }
+        } else {
+          debugPrint('❌ Heç bir authenticated user tapılmadı');
+          emit(state.copyWith(
+            event: AuthEvents.unauthenticated,
+            user: null,
+            error: null,
+          ));
+        }
       }
     } catch (e) {
-      debugPrint('💥 Cache read error: $e');
+      debugPrint('💥 Cache yoxlama xətası: $e');
       await _cacheService.delete('user');
+      emit(state.copyWith(
+        event: AuthEvents.unauthenticated,
+        user: null,
+        error: 'Authentication check failed: ${e.toString()}',
+      ));
     }
   }
 
-  Future<void> _refreshUserData(String uid) async {
+  /// Arxa planda user məlumatlarını yenilə
+  Future<void> _refreshUserDataSilently() async {
     try {
-      final UserModel refreshedUser = await _userService.fetchFullUser(uid);
-      await _cacheService.write<UserModel>('user', refreshedUser);
-      emit(state.copyWith(
-        user: refreshedUser,
-        event: AuthEvents.loadProfileSuccess,
-      ));
+      final refreshedUser = await _authService.getCurrentUser();
+      if (refreshedUser != null) {
+        await _cacheService.write<UserModel>('user', refreshedUser);
+
+        // Yalnız məlumatlar dəyişibsə state-i yenilə
+        if (state.user != null && !_areUsersEqual(state.user!, refreshedUser)) {
+          emit(state.copyWith(
+            user: refreshedUser,
+            event: AuthEvents.profileSynced,
+          ));
+        }
+      }
     } catch (e) {
-      emit(state.copyWith(
-        event: AuthEvents.loadProfileError,
-        error: e.toString(),
-      ));
+      debugPrint('⚠️ Səssiz user yeniləmə xətası: $e');
     }
   }
+
+  /// İki user eyni olub-olmadığını yoxla
+  bool _areUsersEqual(UserModel user1, UserModel user2) {
+    return user1.uid == user2.uid &&
+        user1.displayName == user2.displayName &&
+        user1.email == user2.email &&
+        user1.coins == user2.coins &&
+        user1.level == user2.level &&
+        user1.xp == user2.xp;
+  }
+
+  // ---------- EVENT HANDLERS ----------
 
   Future<void> _onAuthEvent(AuthEvent event, Emitter<AuthState> emit) async {
     try {
       switch (event.type) {
         case AuthEvents.authenticated:
-          if (event.payload is UserModel) {
-            await _handleAuthenticated(event.payload as UserModel, emit);
-          } else {
-            _handleError('Invalid payload for authenticated event', emit);
-          }
+          await _handleAuthenticated(event.payload as UserModel, emit);
           break;
+
         case AuthEvents.unauthenticated:
           await _handleUnauthenticated(emit);
           break;
+
         case AuthEvents.googleSignInRequested:
           await _handleGoogleSignInRequested(emit);
           break;
+
         case AuthEvents.loggedOutStart:
           await _handleLoggedOutStart(emit);
           break;
+
         case AuthEvents.profileSynced:
           await _handleProfileSynced(event.payload as UserModel, emit);
           break;
+
         case AuthEvents.loadProfileStart:
           if (event.payload is String) {
-            await _refreshUserData(event.payload as String);
-          } else {
-            _handleError('Invalid payload for loadProfileStart event', emit);
+            await _refreshUserDataSilently();
           }
           break;
+
         default:
-          debugPrint('✨ Unhandled event: ${event.type}');
+          debugPrint('✨ İşlənməyən event: ${event.type}');
           break;
       }
     } catch (e) {
@@ -119,54 +165,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  void _onFirebaseAuthChanged(firebase.User? fbUser) {
-    // Смена стейта в Firebase
-    if (fbUser != null) {
-      final basicUser = UserModel.fromFirebaseUser(fbUser);
-      add(AuthEvent.authenticated(basicUser));
+  Future<void> _handleAuthenticated(UserModel user, Emitter<AuthState> emit) async {
+    debugPrint('✅ User authenticated: ${user.uid}');
 
-      // 👉 Подписываемся ТОЛЬКО теперь
-      _profileSub?.cancel(); // вдруг была старая
-      _profileSub = _userService.streamUserData(fbUser.uid).listen((user) => add(AuthEvent.profileSynced(user)));
-    } else {
-      add(AuthEvent.unauthenticated());
-      _profileSub?.cancel(); // отписка, когда юзер вышел
-      _profileSub = null;
-    }
-  }
+    // Cache-ə yaz
+    await _cacheService.write<UserModel>('user', user);
 
-  Future<void> _handleProfileSynced(UserModel user, Emitter<AuthState> emit) async {
-    //await _cacheService.write<UserModel>('user', user);
-    log('Profile synced: ${user.toString()}');
-    emit(state.copyWith(user: user, event: AuthEvents.profileSynced));
-  }
-
-  Future<void> _handleAuthenticated(UserModel basicUser, Emitter<AuthState> emit) async {
-    if (basicUser.uid.isEmpty) {
-      emit(state.copyWith(event: AuthEvents.loadProfileError, error: 'Invalid user data received'));
-      return;
-    }
-    try {
-      emit(state.copyWith(user: basicUser, event: AuthEvents.authenticated));
-      await _userService.createUserProfile(basicUser);
-      final fullUser = await _userService.fetchFullUser(basicUser.uid);
-      await _cacheService.write<UserModel>('user', fullUser);
-      emit(state.copyWith(
-        user: fullUser,
-        event: AuthEvents.authenticated,
-        error: null,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        user: basicUser,
-        event: AuthEvents.loadProfileError,
-        error: 'Failed to load complete profile: ${e.toString()}',
-      ));
-    }
+    // State-i yenilə
+    emit(state.copyWith(
+      user: user,
+      event: AuthEvents.authenticated,
+      error: null,
+    ));
   }
 
   Future<void> _handleUnauthenticated(Emitter<AuthState> emit) async {
+    debugPrint('❌ User unauthenticated');
+
     await _cacheService.delete('user');
+
     emit(state.copyWith(
       event: AuthEvents.unauthenticated,
       user: null,
@@ -176,38 +193,65 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _handleGoogleSignInRequested(Emitter<AuthState> emit) async {
     emit(state.copyWith(event: AuthEvents.googleSignInRequested));
+
     try {
-      final result = await _authService.signInWithGoogle();
-      if (result == null) {
-        emit(state.copyWith(
-          event: AuthEvents.googleSignInRequestedError,
-          error: 'Google sign‑in was cancelled',
-        ));
-      } else {
-        emit(state.copyWith(event: AuthEvents.googleSignInRequestedSuccess));
-      }
+      final user = await _authService.signInWithGoogle();
+      debugPrint('✅ Google sign-in successful: ${user.uid}');
+
+      // Cache-ə yaz
+      await _cacheService.write<UserModel>('user', user);
+
+      // Authenticated event göndər (daha məntiqi)
+      emit(state.copyWith(
+        user: user,
+        event: AuthEvents.authenticated,
+        error: null,
+      ));
     } catch (e) {
+      debugPrint('💥 Google sign-in error: $e');
       emit(state.copyWith(
         event: AuthEvents.googleSignInRequestedError,
-        error: 'Google sign‑in failed: ${e.toString()}',
+        error: e.toString(),
       ));
     }
   }
 
   Future<void> _handleLoggedOutStart(Emitter<AuthState> emit) async {
     emit(state.copyWith(event: AuthEvents.loggedOutStart));
+
     try {
       await _cacheService.delete('user');
       await _authService.signOut();
+
+      emit(state.copyWith(
+        event: AuthEvents.loggedOutSuccess,
+        user: null,
+        error: null,
+      ));
     } catch (e) {
+      debugPrint('💥 Sign-out error: $e');
       emit(state.copyWith(
         event: AuthEvents.loggedOutError,
-        error: 'Error during sign‑out: ${e.toString()}',
+        error: e.toString(),
       ));
     }
   }
 
+  Future<void> _handleProfileSynced(UserModel user, Emitter<AuthState> emit) async {
+    debugPrint('📡 Profile synced: ${user.uid}');
+
+    // Cache-i yenilə
+    await _cacheService.write<UserModel>('user', user);
+
+    // State-i yenilə
+    emit(state.copyWith(
+      user: user,
+      event: AuthEvents.profileSynced,
+    ));
+  }
+
   void _handleError(Object error, Emitter<AuthState> emit) {
+    debugPrint('💥 AuthBloc error: $error');
     emit(state.copyWith(
       event: AuthEvents.googleSignInRequestedError,
       error: error.toString(),
@@ -216,8 +260,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   @override
   Future<void> close() {
-    _authStateSubscription.cancel();
-    _profileSub?.cancel();
+    _userStreamSubscription.cancel();
     return super.close();
   }
 }
