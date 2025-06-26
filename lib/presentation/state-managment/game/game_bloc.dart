@@ -5,6 +5,7 @@ import 'package:zifromania/app_exception.dart';
 import 'package:zifromania/models/title_model.dart';
 import 'package:zifromania/models/user_model.dart';
 import 'package:zifromania/services/auth_service.dart';
+import 'package:zifromania/services/cache_service.dart';
 import 'package:zifromania/services/in_app_purchase_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zifromania/domain/entities/enums.dart';
@@ -37,6 +38,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   static const int TRAINING_MODE_QUESTIONS = 100;
 
   final AuthService _authService;
+  final SecureCacheService _cacheService;
   final UserService _userService;
   final AudioService _audioService;
   final QuestionService _questionService;
@@ -49,12 +51,14 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
   GameBloc({
     required AuthService authService,
+    required SecureCacheService cacheService,
     required UserService userService,
     required AudioService audioService,
     required QuestionService questionService,
     required TitleService titleService,
     required InAppPurchaseService inAppPurchaseService,
   })  : _authService = authService,
+        _cacheService = cacheService,
         _userService = userService,
         _audioService = audioService,
         _questionService = questionService,
@@ -64,7 +68,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     on<GameEvent>((event, emit) async {
       switch (event.type) {
         case GameEvents.startGame:
-          await _onStartGame(event.payload as GameCategory, emit);
+          await _onStartGame(event, emit);
           break;
         case GameEvents.endGame:
           await _onEndGame(emit);
@@ -87,7 +91,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           _onShowNextQuestion(emit);
           break;
         case GameEvents.playAgain:
-          await _onPlayAgain(event.payload as GameCategory, emit);
+          await _onPlayAgain(event, emit);
           break;
         default:
           break;
@@ -95,7 +99,25 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     });
   }
 
-  Future<void> _onStartGame(GameCategory gameCategory, Emitter<GameState> emit) async {
+  Future<void> _onStartGame(GameEvent event, Emitter<GameState> emit) async {
+    final gameCategory = event.payload['category'] as GameCategory;
+    final paidWithCoin = event.payload['paidWithCoin'] as bool? ?? false;
+    final haveEnoughCoins = event.payload['haveEnoughCoins'] as bool? ?? false;
+
+    if (!haveEnoughCoins && paidWithCoin) {
+      // Əgər kifayət qədər coin yoxdursa, istifadəçiyə xəbərdarlıq et və oyunu başlatma
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: 'Kifayət qədər coin yoxdur.',
+        appException: AppException(
+          AppErrorType.notEnoughCoins,
+          'Kifayət qədər coin yoxdur.',
+        ),
+        isGameActive: false,
+      ));
+      return;
+    }
+
     // Əvvəlki prosesi cancel et
     _currentCancelToken?.cancel();
 
@@ -105,6 +127,22 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
     _gameTimer?.cancel();
     _questionTimer?.cancel();
+
+    // 🆕 Əgər coin ilə oyun başladılıbsa, coin-dən çıx
+    if (paidWithCoin) {
+      try {
+        final (success, uid) = await _cacheService.decreaseUserCoins(10);
+        await _userService.spendCoins(uid, 10);
+      } catch (e) {
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: 'Coin balansı yenilənərkən xəta baş verdi.',
+          appException: AppException(AppErrorType.unknown, e.toString()),
+          isGameActive: false,
+        ));
+        return;
+      }
+    }
 
     // Set initial game state based on gameCategory
     int startingTime;
@@ -140,11 +178,16 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       // Generate questions based on selected gameCategory
       List<MathQuestion> questions = await _questionService.generateQuestions(
         gameCategory,
+        paidWithCoin: paidWithCoin,
         cancelToken: currentToken,
       );
 
       // Əgər cancel olunubsa, davam etmə
       if (currentToken.isCancelled) {
+        if (paidWithCoin) {
+          final (success, uid) = await _cacheService.increaseUserCoins(10);
+          await _userService.addCoins(uid, 10);
+        }
         return;
       }
 
@@ -159,6 +202,10 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
       // Yenə cancel yoxla
       if (currentToken.isCancelled) {
+        if (paidWithCoin) {
+          final (success, uid) = await _cacheService.increaseUserCoins(10);
+          await _userService.addCoins(uid, 10);
+        }
         return;
       }
 
@@ -166,10 +213,14 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         isLoading: false,
         questions: questions,
         isGameActive: true,
-        gameStartTime: DateTime.now(), // 🆕 Track game start time
+        gameStartTime: DateTime.now(),
       ));
     } on AppException catch (exp) {
       if (!currentToken.isCancelled) {
+        if (paidWithCoin) {
+          final (success, uid) = await _cacheService.increaseUserCoins(10);
+          await _userService.addCoins(uid, 10);
+        }
         emit(state.copyWith(
           isLoading: false,
           appException: exp,
@@ -179,6 +230,10 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       }
     } catch (exp) {
       if (!currentToken.isCancelled) {
+        if (paidWithCoin) {
+          final (success, uid) = await _cacheService.increaseUserCoins(10);
+          await _userService.addCoins(uid, 10);
+        }
         emit(state.copyWith(
           isLoading: false,
           appException: AppException(AppErrorType.unknown, exp.toString()),
@@ -374,8 +429,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     }
   }
 
-  Future<void> _onPlayAgain(GameCategory gameCategory, Emitter<GameState> emit) async {
-    await _onStartGame(gameCategory, emit);
+  Future<void> _onPlayAgain(GameEvent event, Emitter<GameState> emit) async {
+    await _onStartGame(event, emit);
   }
 
   Future<void> _onResetGame(Emitter<GameState> emit, {GameCategory? gameCategory, bool? isLoading}) async {
