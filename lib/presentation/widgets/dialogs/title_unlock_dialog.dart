@@ -1,6 +1,7 @@
 // Create this as a separate widget file: title_reward_dialog.dart
 
 import 'dart:math' as math;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:zifromania/models/title_model.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
@@ -11,7 +12,11 @@ class TitleRewardDialog extends StatefulWidget {
   final List<TitleModel> titles;
   final VoidCallback? onComplete;
 
-  const TitleRewardDialog({super.key, required this.titles, this.onComplete,});
+  const TitleRewardDialog({
+    super.key,
+    required this.titles,
+    this.onComplete,
+  });
 
   @override
   State<TitleRewardDialog> createState() => _TitleRewardDialogState();
@@ -128,7 +133,7 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
     await _textController.forward();
   }
 
-   void _nextTitle() async {
+  void _nextTitle() async {
     if (_currentTitleIndex < widget.titles.length - 1) {
       // Start transition animation
       await _transitionController.forward();
@@ -261,7 +266,7 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
                     child: Column(
                       children: [
                         Text(
-                          'New Title Unlocked!',
+                          context.tr('new_title_unlocked'),
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -287,6 +292,7 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
                             widget.titles[_currentTitleIndex].name,
                             style: const TextStyle(
                               fontSize: 18,
+                              fontFamily: 'Scabber',
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
@@ -299,6 +305,7 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
                             '${_currentTitleIndex + 1} / ${widget.titles.length}',
                             style: TextStyle(
                               fontSize: 14,
+                              fontFamily: 'Scabber',
                               color: Colors.white.withValues(alpha: 0.7),
                             ),
                           ),
@@ -326,7 +333,7 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
                   ),
                   onPressed: _nextTitle,
                   child: Text(
-                    _currentTitleIndex < widget.titles.length - 1 ? 'Devam Et' : 'Bağla',
+                    _currentTitleIndex < widget.titles.length - 1 ? context.tr('continue') : context.tr('close'),
                     style: const TextStyle(
                       fontSize: 16,
                       fontFamily: 'Scabber',

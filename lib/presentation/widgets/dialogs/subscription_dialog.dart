@@ -1,86 +1,218 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:zifromania/domain/entities/enums.dart';
+import 'package:zifromania/models/user_model.dart';
+import 'package:zifromania/presentation/screens/game_intro_screen.dart';
+import 'package:zifromania/presentation/screens/subscription_screen.dart';
+import 'package:zifromania/presentation/widgets/animated_button.dart';
+import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
 
 class SubscriptionDialog extends StatelessWidget {
-  const SubscriptionDialog({super.key});
+  const SubscriptionDialog({
+    super.key,
+    required this.message,
+    required this.user,
+    required this.category,
+  });
+
+  final String message;
+  final UserModel user;
+  final GameCategory category;
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: Colors.transparent,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        width: MediaQuery.of(context).size.width * 0.85,
+        decoration: BoxDecoration(
+          image: const DecorationImage(
+            image: AssetImage('assets/images/scaffold.jpg'),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.black45,
+              BlendMode.darken,
+            ),
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 15,
+              spreadRadius: 5,
+            ),
+          ],
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Premium Features',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 20),
-            _buildFeatureItem(Icons.star, 'Ad-free Experience'),
-            _buildFeatureItem(Icons.extension, 'Unlimited Puzzles'),
-            _buildFeatureItem(Icons.lightbulb, 'Hints Available'),
-            const SizedBox(height: 24),
-            _buildPriceSection(),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // TODO: Implement subscription logic
-                Navigator.of(context).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 45),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+            // Header with close button
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
                 ),
               ),
-              child: const Text('Subscribe Now'),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  AnimatedIconButton(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      final newRoute = MaterialPageRoute(builder: (_) => const GameIntroScreen());
+                      Navigator.pushReplacement(context, newRoute);
+                    },
+                    icon: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/delete.png')),
+                  ),
+                ],
+              ),
             ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Maybe Later'),
+
+            // Message and Button Section
+
+            Padding(
+              padding: const EdgeInsets.all(30),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Message
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontFamily: 'Scabber',
+                      height: 1.4,
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Subscription Button
+                  AnimatedButton(
+                    title: context.tr('subscription.upgrade_premium'),
+                    color: Colors.orange,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      const page = SubscriptionScreen(tabType: TabType.subscription);
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => page));
+                    },
+                    fontSize: 18,
+                    fontFamily: 'Scabber',
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    borderRadius: const BorderRadius.all(Radius.circular(25)),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  // Watch Ad Button
+                  AnimatedButton(
+                    title: context.tr('subscription.watch_ad'), // "Watch Ad" və ya "Reklam İzlə"
+                    color: Colors.green,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      const page = SubscriptionScreen(tabType: TabType.coins);
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => page));
+                    },
+                    fontSize: 18,
+                    fontFamily: 'Scabber',
+                    padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+                    borderRadius: const BorderRadius.all(Radius.circular(25)),
+                  ),
+
+                  const SizedBox(height: 10),
+                ],
+              ),
             ),
+
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildFeatureItem(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.blue),
-          const SizedBox(width: 12),
-          Text(text),
-        ],
-      ),
-    );
-  }
+class AppDialog extends StatelessWidget {
+  const AppDialog({super.key, required this.message});
 
-  Widget _buildPriceSection() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.blue.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '\$4.99',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.85,
+        decoration: BoxDecoration(
+          image: const DecorationImage(
+            image: AssetImage('assets/images/scaffold.jpg'),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.black45,
+              BlendMode.darken,
             ),
           ),
-          Text(' / month'),
-        ],
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 15,
+              spreadRadius: 5,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header with close button
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  AnimatedIconButton(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      final newRoute = MaterialPageRoute(builder: (_) => const GameIntroScreen());
+                      Navigator.pushReplacement(context, newRoute);
+                    },
+                    icon: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/delete.png')),
+                  ),
+                ],
+              ),
+            ),
+
+            // Message and Button Section
+
+            Padding(
+              padding: const EdgeInsets.all(30),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                  fontFamily: 'Scabber',
+                  height: 1.4,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }

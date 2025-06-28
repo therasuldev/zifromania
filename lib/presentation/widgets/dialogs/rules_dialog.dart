@@ -1,18 +1,34 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:zifromania/domain/entities/enums.dart';
+import 'package:zifromania/locator.dart';
 import 'package:zifromania/presentation/widgets/animated_button.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
 import 'package:flutter/material.dart';
+import 'package:zifromania/services/game_limit_service.dart';
 
 class RulesDialog extends StatelessWidget {
   const RulesDialog({super.key, required this.gameCategory});
 
   final GameCategory gameCategory;
 
+  /// The limit displays the maximum allowed count for the category and how many items are currently played.
+
   @override
   Widget build(BuildContext context) {
     // Get the appropriate rules based on category
     final List<Map<String, String>> rules = _getRulesForCategory(gameCategory, context: context);
+    final stats = locator.get<GameLimitService>().getCategoryStats(gameCategory);
+    final current = stats['dailyRequestCount'] as int;
+    final baseLimit = stats['categoryLimit'] as int;
+    final flexibleGames = stats['flexibleGamesAvailable'] as int;
+
+    // Limit text-ini düzgün format et
+    String limitText;
+    if (flexibleGames > 0) {
+      limitText = '($current/$baseLimit + $flexibleGames)';
+    } else {
+      limitText = '($current/$baseLimit)';
+    }
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -57,7 +73,7 @@ class RulesDialog extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: Text(
-                            _getTitleForCategory(gameCategory, context: context),
+                            context.tr('game_categories.${gameCategory.toTextWithUnderscores()}'),
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             style: TextStyle(
@@ -119,30 +135,33 @@ class RulesDialog extends StatelessWidget {
             ),
             AnimatedButton(
               width: 200,
-              title: context.tr('button.start_game'),
+              title: '${context.tr('button.start_game')}\n$limitText',
               color: Colors.transparent,
-              onTap: () => Navigator.of(context).pop(true),
-              fontSize: 25,
+              onTap: () => Navigator.of(context).pop({'isTrue': true, 'paidWithCoin': false}),
+              fontSize: 22,
               fontFamily: 'Scabber',
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               borderRadius: const BorderRadius.all(Radius.circular(30)),
             ),
+            if (current == baseLimit) ...[
+              const SizedBox(height: 20),
+              AnimatedButton(
+                title: context.tr('subscription.spend_coins_for_games'), // "Spend Coins" və ya "Coin Xərcləyərək 2 Oyun Al"
+                color: Colors.blue,
+                onTap: () async {
+                  Navigator.of(context).pop({'isTrue': true, 'paidWithCoin': true});
+                },
+                fontSize: 18,
+                fontFamily: 'Scabber',
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                borderRadius: const BorderRadius.all(Radius.circular(25)),
+              ),
+            ],
             const SizedBox(height: 20),
           ],
         ),
       ),
     );
-  }
-
-  // Helper function to get the title based on category
-  String _getTitleForCategory(GameCategory gameCategory, {required BuildContext context}) {
-    return switch (gameCategory) {
-      GameCategory.quickThinking => context.tr('title.quick_thinking'),
-      GameCategory.multiplyDivide => context.tr('title.multiply_divide'),
-      GameCategory.trueOrFalse => context.tr('title.true_or_false'),
-      GameCategory.expert => context.tr('title.expert'),
-      GameCategory.training => context.tr('title.training'),
-    };
   }
 
   List<Map<String, String>> _getRulesForCategory(GameCategory gameCategory, {required BuildContext context}) {
@@ -152,23 +171,7 @@ class RulesDialog extends StatelessWidget {
       'assets/icons/right-arrow.png',
     ];
 
-    final keys = List.generate(3, (i) => 'rules.${_categoryKey(gameCategory)}.$i');
+    final keys = List.generate(3, (i) => 'rules.${gameCategory.toTextWithUnderscores()}.$i');
     return List.generate(3, (i) => {'icon': icons[i], 'text': context.tr(keys[i])});
-  }
-
-// Helper to convert enum to key string
-  String _categoryKey(GameCategory category) {
-    switch (category) {
-      case GameCategory.quickThinking:
-        return 'quick_thinking';
-      case GameCategory.multiplyDivide:
-        return 'multiply_divide';
-      case GameCategory.trueOrFalse:
-        return 'true_or_false';
-      case GameCategory.expert:
-        return 'expert';
-      case GameCategory.training:
-        return 'training';
-    }
   }
 }
