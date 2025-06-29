@@ -1,14 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:zifromania/models/user_model.dart';
 
 import 'package:zifromania/presentation/common/partial_modal_route.dart';
 import 'package:zifromania/presentation/screens/achievements.dart';
 import 'package:zifromania/presentation/screens/settings_screen.dart';
 import 'package:zifromania/presentation/screens/subscription_screen.dart';
-import 'package:zifromania/presentation/state-managment/user/user_bloc.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
+import 'package:zifromania/services/cache_service.dart';
+import 'package:zifromania/services/services_init.dart';
 
 import '../../domain/entities/enums.dart';
 import '../widgets/coin_display.dart';
@@ -33,26 +33,21 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leadingWidth: 130,
-        leading: BlocBuilder<UserBloc, UserState>(builder: (context, state) {
-          if (state.event == UserEvents.loadCachedUserStart) {
-            return Shimmer.fromColors(
-              baseColor: Colors.grey.shade700,
-              highlightColor: Colors.white70,
-              child: const CoinDisplay(coins: 0, onTap: null),
+        leading: ValueListenableBuilder<UserModel?>(
+          valueListenable: locator.get<SecureCacheService>().userNotifier,
+          builder: (context, user, _) {
+            return CoinDisplay(
+              coins: user?.coins ?? 0,
+              onTap: () async {
+                await Future.delayed(const Duration(milliseconds: 300));
+                if (context.mounted) {
+                  final route = PartialModalRoute(child: const SubscriptionScreen(tabType: TabType.coins));
+                  Navigator.push(context, route);
+                }
+              },
             );
-          }
-          final user = state.user;
-          return CoinDisplay(
-            coins: user?.coins ?? 0,
-            onTap: () async {
-              await Future.delayed(const Duration(milliseconds: 300));
-              if (context.mounted) {
-                final route = PartialModalRoute(child: const SubscriptionScreen(tabType: TabType.coins));
-                Navigator.push(context, route);
-              }
-            },
-          );
-        }),
+          },
+        ),
         actions: [
           IconButton(
             icon: Image.asset(
