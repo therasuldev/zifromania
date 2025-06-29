@@ -7,12 +7,15 @@ import 'package:zifromania/app_exception.dart';
 
 import 'package:zifromania/domain/entities/constant.dart';
 import 'package:zifromania/models/title_model.dart';
-import 'package:zifromania/presentation/screens/subscription_screen.dart';
+import 'package:zifromania/models/user_model.dart';
 import 'package:zifromania/presentation/state-managment/ad_manager.dart';
 import 'package:zifromania/presentation/state-managment/game/game_bloc.dart';
 import 'package:zifromania/presentation/widgets/dialogs/result_dialog.dart';
 import 'package:zifromania/presentation/widgets/dialogs/subscription_dialog.dart';
 import 'package:zifromania/presentation/widgets/dialogs/title_unlock_dialog.dart';
+import 'package:zifromania/services/auth_service.dart';
+import 'package:zifromania/services/cache_service.dart';
+import 'package:zifromania/services/services_init.dart';
 
 import '../../domain/entities/enums.dart';
 import '../../domain/entities/math_question.dart';
@@ -22,9 +25,10 @@ import '../widgets/game/score_indicator.dart';
 import '../widgets/game/timer_indicator.dart';
 
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key, required this.gameCategory});
+  const GameScreen({super.key, required this.gameCategory, this.paidWithCoin = false});
 
   final GameCategory gameCategory;
+  final bool paidWithCoin;
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -45,8 +49,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
 
     // Start the game with the selected category once the widget is fully built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<GameBloc>().add(GameEvent.startGame(gameCategory: widget.gameCategory));
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final user = await locator.get<AuthService>().currentUserModel;
+      if (user == null) return;
+
+      final payload = {
+        'category': widget.gameCategory,
+        'paidWithCoin': widget.paidWithCoin,
+        'haveEnoughCoins': user.coins >= 10,
+      };
+      if (!mounted) return;
+      context.read<GameBloc>().add(GameEvent.startGame(payload: payload));
     });
   }
 
@@ -66,7 +79,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void showSubscriptionDialog(BuildContext context, String message) async {
-    final buildDialog = SubscriptionDialog(message: message);
+    final user = await locator.get<SecureCacheService>().read<UserModel>('user');
+    if (user == null) return;
+
+    final buildDialog = SubscriptionDialog(
+      message: message,
+      user: user,
+      category: widget.gameCategory,
+    );
+
+    if (!context.mounted) return;
     await showDialog(
       context: context,
       barrierDismissible: false,
@@ -74,10 +96,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  void onPlayAgain() {
+  void onPlayAgain() async {
     Navigator.pop(context);
 
-    final event = GameEvent.playAgain(gameCategory: widget.gameCategory);
+    final user = await locator.get<SecureCacheService>().read<UserModel>('user');
+    if (user == null) return;
+    final payload = {
+      'category': widget.gameCategory,
+      'paidWithCoin': widget.paidWithCoin,
+      'haveEnoughCoins': user.coins >= 10,
+    };
+    if (!mounted) return;
+    final event = GameEvent.playAgain(payload: payload);
     context.read<GameBloc>().add(event);
   }
 
@@ -113,6 +143,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
                 // Show subscription dialog
                 if (state.showSubscribeDialog) {
+                  print('Showing subscription dialog');
                   showSubscriptionDialog(context, context.tr('error.daily_limit_reached'));
                 }
 
@@ -121,16 +152,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
                   switch (error.type) {
                     case AppErrorType.dailyLimitReached:
-                      showSubscriptionDialog(context, context.tr('error.daily_limit_reached')); // Premium offer dialog
+                    case AppErrorType.notEnoughCoins:
+                      showSubscriptionDialog(context, error.message);
                       break;
-                    case AppErrorType.fileLoadError:
-                      _showAlertDialog(context, 'File Error', error.message);
-                      break;
+
                     case AppErrorType.invalidJson:
-                      _showAlertDialog(context, 'Data Error', 'Question data format is invalid.');
+                    case AppErrorType.fileLoadError:
+                      _showAlertDialog(context, error);
                       break;
                     default:
-                      _showSnackBar(context, error.message);
+                      _showSnackBar(context, error);
                   }
                 }
               },
@@ -160,7 +191,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showSnackBar(BuildContext context, String message) {
+  void _showSnackBar(BuildContext context, AppException exp) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Container(
@@ -196,7 +227,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     ),
                     const SizedBox(height: 2.0),
                     Text(
-                      message,
+                      exp.message,
                       style: const TextStyle(
                         fontFamily: 'Scabber',
                         color: Colors.white,
@@ -242,17 +273,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showAlertDialog(BuildContext context, String title, String content) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
-        ],
-      ),
-    );
+  void _showAlertDialog(BuildContext context, AppException exp) {
+    showDialog(context: context, builder: (_) => AppDialog(message: exp.message));
   }
 
   // Add this method to your widget class
@@ -375,32 +397,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(height: 16),
-            if (appErrorType == AppErrorType.dailyLimitReached) ...[
-              const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: () {
-                  // Subscription sayfasına git
-                  const page = SubscriptionScreen(tabType: TabType.subscription);
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => page));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-                child: Text(
-                  context.tr('subscription.upgrade_premium'),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Scabber',
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
           ],
         ),
       ),
