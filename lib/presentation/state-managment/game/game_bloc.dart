@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as logger;
 import 'dart:math';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:zifromania/app_exception.dart';
 import 'package:zifromania/models/title_model.dart';
 import 'package:zifromania/models/user_model.dart';
@@ -108,10 +109,10 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       // Əgər kifayət qədər coin yoxdursa, istifadəçiyə xəbərdarlıq et və oyunu başlatma
       emit(state.copyWith(
         isLoading: false,
-        errorMessage: 'Kifayət qədər coin yoxdur.',
+        errorMessage: 'coin.notEnoughCoins'.tr(),
         appException: AppException(
           AppErrorType.notEnoughCoins,
-          'Kifayət qədər coin yoxdur.',
+          'coin.notEnoughCoins'.tr(),
         ),
         isGameActive: false,
       ));
@@ -136,7 +137,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       } catch (e) {
         emit(state.copyWith(
           isLoading: false,
-          errorMessage: 'Coin balansı yenilənərkən xəta baş verdi.',
+          errorMessage: 'coin.coin_balance_update_error'.tr(),
           appException: AppException(AppErrorType.unknown, e.toString()),
           isGameActive: false,
         ));
