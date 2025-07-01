@@ -2,6 +2,7 @@
     "settings": "Settings",
     "level_progress": "Level Progress",
     "xp": "XP : {} / {}",
+    "earned_xp": "XP: {}",
     "sound_and_feedback": "Sound & Feedback",
     "sound_effects": "Sound Effects",
     "background_music": "Background Music",
@@ -48,11 +49,16 @@
         "subscribe": "Subscribe Now",
         "cancel": "Cancel Subscription",
         "select_plan": "Select Plan",
+        "extra_games": "Watch 3 ads to unlock 2 extra games in all categories!",
+        "ad_status": "{watched}/{max} ads watched",
+        "watch_ad": "Watch Ad",
+        "ad_info": "You can earn 2 extra games once per day by watching 3 ads",
+        "spend_coins_for_games": "10 coins/game",
         "1_month": {
             "title": "1 Month",
             "features": {
                 "0": "Ad-free experience",
-                "1": "Play up to 10 games per category daily",
+                "1": "Daily game limits per category: Quick Thinking - 5, Multiply/Divide - 5, True or False - 5, Expert - 3, Training - 2",
                 "2": "Daily bonus reward: 15 coins"
             }
         },
@@ -60,7 +66,7 @@
             "title": "3 Months",
             "features": {
                 "0": "Ad-free experience",
-                "1": "Play up to 20 games per category daily",
+                "1": "Daily game limits per category: Quick Thinking - 10, Multiply/Divide - 10, True or False - 10, Expert - 5, Training - 4",
                 "2": "Daily bonus reward: 30 coins",
                 "3": "Premium avatars"
             }
@@ -69,7 +75,7 @@
             "title": "6 Months",
             "features": {
                 "0": "Ad-free experience",
-                "1": "Play up to 30 games per category daily",
+                "1": "Daily game limits per category: Quick Thinking - 20, Multiply/Divide - 20, True or False - 20, Expert - 15, Training - 10",
                 "2": "Daily bonus reward: 50 coins",
                 "3": "Premium avatars",
                 "4": "Premium badge on leaderboard"
@@ -85,7 +91,10 @@
             "tap_to_collect": "Tap to collect your free coins!",
             "come_back_later": "Come back in {}",
             "collect_button": "Collect"
-        }
+        },
+        "notEnoughCoins": "Not enough coins!",
+        "coin_balance_update_error": "An error occurred while updating the coin balance.",
+        "purchase": "Purchase Coins"
     },
     "achievements": {
         "title": "Achievements",
@@ -94,7 +103,7 @@
         "locked": "LOCKED",
         "unlocked": "UNLOCKED",
         "earned": "EARNED",
-        "no_titles": "No titles earned yet. Keep playing to unlock achievements!",
+        "no_titles": "No titles earned yet. Keep playing to earn titles!",
         "no_tasks": "No tasks completed yet. Complete more tasks to boost your achievements!",
         "earned_date": "Earned date: {}",
         "share": {
@@ -113,7 +122,8 @@
         "no_questions": "No questions available for this category. Please try again later.",
         "score": "Score: {}",
         "time": "Time: {}s",
-        "over": "Game Over!"
+        "over": "Game Over!",
+        "limit_reached": "Daily Limit Reached!"
     },
     "title": {
         "quick_thinking": "QUICK THINKING",
@@ -340,7 +350,7 @@
         "email_html_footer": "This message was sent via ZifroMania app on {date}."
     },
     "error": {
-        "daily_limit_reached": "You've reached your daily question limit. Upgrade to Premium to access more questions.",
+        "daily_limit_reached": "You've reached your daily question limit.",
         "network_error": "Please check your internet connection and try again.",
         "file_load_error": "An error occurred while loading the file. Please try again.",
         "invalid_json": "Invalid data format. Please try again.",
@@ -358,5 +368,24 @@
         "legendary": "Reach the highest level: 50!",
         "multiplier-player": "Give 20 correct answers in the Multiplication Table category.",
         "zifro-premium": "You are a Premium user!"
-    }
+    },
+    "ad": {
+        "service_unavailable": "Game limit service is unavailable",
+        "daily_ads_limit_reached": "You have already watched all ads for today",
+        "ad_not_ready": "Ad is not ready. Please wait a moment.",
+        "ad_failed": "An error occurred while showing the ad: {}"
+    },
+    "auth": {
+        "google_sign_in_cancelled": "Google sign‑in was cancelled.",
+        "sign_in_prompt": "Sign in to continue your math adventure",
+        "continue_with_google": "Continue with Google",
+        "termsCombined": "I agree to the {terms} and {privacy}.",
+        "termsOfService": "Terms of Service",
+        "privacyPolicy": "Privacy Policy"
+    },
+    "continue": "Continue",
+    "close": "Close",
+    "congratulations": "Congratulations!",
+    "new_title_unlocked": "New Title Unlocked!",
+    "extra_games_unlocked": "You've earned 2 extra game chances in all categories by watching 3 ads. Enjoy your games!"
 }

@@ -2,6 +2,7 @@
     "settings": "Ayarlar",
     "level_progress": "Seviye İlerlemesi",
     "xp": "XP : {} / {}",
+    "earned_xp": "XP: {}",
     "sound_and_feedback": "Ses ve Geri Bildirim",
     "sound_effects": "Ses Efektleri",
     "background_music": "Arka Plan Müziği",
@@ -48,6 +49,11 @@
         "subscribe": "Hemen Abone Ol",
         "cancel": "Aboneliği İptal Et",
         "select_plan": "Plan Seç",
+        "extra_games": "3 reklam izleyerek tüm kategorilerde 2 ekstra oyun hakkı kazan!",
+        "ad_status": "{watched}/{max} reklam izlendi",
+        "watch_ad": "Reklam İzle",
+        "ad_info": "Günde yalnızca 1 kez, 3 reklam izleyerek 2 ekstra oyun hakkı kazanabilirsin",
+        "spend_coins_for_games": "10 jeton/oyun",
         "1_month": {
             "title": "1 Ay",
             "features": {
@@ -85,7 +91,10 @@
             "tap_to_collect": "Ücretsiz jetonlarını toplamak için dokun!",
             "come_back_later": "{} sonra tekrar gel",
             "collect_button": "Topla"
-        }
+        },
+        "notEnoughCoins": "Yeterli miktarda coin yok.",
+        "coin_balance_update_error": "Coin bakiyesi güncellenirken bir hata oluştu.",
+        "purchase": "Coin Satın Al"
     },
     "achievements": {
         "title": "Başarılar",
@@ -94,7 +103,7 @@
         "locked": "KİLİTLİ",
         "unlocked": "KİLİT AÇILDI",
         "earned": "KAZANILDI",
-        "no_titles": "Henüz unvan kazanılmadı. Başarıların kilidini açmak için oynamaya devam et!",
+        "no_titles": "Henüz unvan kazanılmadı. Unvan kazanmak için oynamaya devam et!",
         "no_tasks": "Henüz görev tamamlanmadı. Daha fazla görev tamamlayarak başarılarını artır!",
         "earned_date": "Kazanılma tarihi: {}",
         "share": {
@@ -113,7 +122,8 @@
         "no_questions": "Bu kategori için soru bulunmamaktadır. Lütfen daha sonra tekrar deneyin.",
         "score": "Puan: {}",
         "time": "Süre: {}s",
-        "over": "Oyun Bitti!"
+        "over": "Oyun Bitti!",
+        "limit_reached": "Günlük Limit Aşıldı!"
     },
     "title": {
         "quick_thinking": "HIZLI DÜŞÜNME",
@@ -340,7 +350,7 @@
         "email_html_footer": "Bu mesaj ZifroMania uygulaması üzerinden {date} tarihinde gönderilmiştir."
     },
     "error": {
-        "daily_limit_reached": "Günlük soru limitiniz doldu. Premium'a geçerek daha fazla soruya erişebilirsiniz.",
+        "daily_limit_reached": "Günlük soru limitiniz doldu.",
         "network_error": "İnternet bağlantınızı kontrol edin ve tekrar deneyin.",
         "file_load_error": "Dosya yüklenirken bir hata oluştu. Lütfen tekrar deneyin.",
         "invalid_json": "Geçersiz veri formatı. Lütfen tekrar deneyin.",
@@ -358,5 +368,24 @@
         "legendary": "En yüksek seviye olan 50'ye ulaş!",
         "multiplier-player": "Çarpım Tablosu kategorisinde 20 doğru cevap ver.",
         "zifro-premium": "Premium bir kullanıcı oldun!"
-    }
+    },
+    "ad": {
+        "service_unavailable": "Oyun limit servisi kullanılamıyor",
+        "daily_ads_limit_reached": "Bugün tüm reklamları zaten izlediniz",
+        "ad_not_ready": "Reklam hazır değil. Lütfen biraz bekleyin.",
+        "ad_failed": "Reklam gösterilirken bir hata oluştu: {}"
+    },
+    "auth": {
+        "google_sign_in_cancelled": "Google ile oturum açma iptal edildi.",
+        "sign_in_prompt": "Matematik macerana devam etmek için oturum aç",
+        "continue_with_google": "Google ile devam et",
+        "termsCombined": "{terms} ve {privacy}’yi kabul ediyorum.",
+        "termsOfService": "Hizmet Şartları",
+        "privacyPolicy": "Gizlilik Politikası"
+    },
+    "continue": "Devam Et",
+    "close": "Kapat",
+    "congratulations": "Tebrikler!",
+    "new_title_unlocked": "Yeni Unvan Kilidi Açıldı!",
+    "extra_games_unlocked": "3 reklam izleyerek tüm kategorilerde 2 ekstra oyun hakkı kazandınız. İyi oyunlar!"
 }
