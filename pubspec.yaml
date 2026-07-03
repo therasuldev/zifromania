@@ -12,59 +12,61 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  audioplayers: ^5.1.0
-  firebase_core: ^3.13.0
-  firebase_auth: ^5.5.2
-  cloud_firestore: ^5.6.6
+  audioplayers: ^6.8.1
+  firebase_core: ^4.11.0
+  firebase_auth: ^6.5.4
+  cloud_firestore: ^6.6.0
   dio: ^5.8.0+1
   flutter_bloc: ^9.1.0
   lottie: ^3.3.1
   animated_text_kit: ^4.2.3
   equatable: ^2.0.7
-  package_info_plus: ^8.3.0
+  package_info_plus: ^10.2.0
   http: ^1.1.0
   url_launcher: ^6.3.1
   shared_preferences: ^2.2.2
-  firebase_remote_config: ^5.0.0
+  firebase_remote_config: ^6.5.3
   versionarte: ^2.0.0
   easy_localization: ^3.0.7+1
   google_sign_in: ^6.3.0
-  sign_in_with_apple: ^7.0.1
-  google_mobile_ads: ^6.0.0
+  sign_in_with_apple: ^8.1.0
+  google_mobile_ads: ^9.0.0
   in_app_purchase: ^3.2.1
-  in_app_purchase_storekit: ^0.3.22+1
-  in_app_purchase_android: ^0.4.0+1
-  flutter_secure_storage: ^9.2.4
+  in_app_purchase_storekit: ^0.4.10+1
+  in_app_purchase_android: ^0.5.1
+  flutter_secure_storage: ^10.3.1
   webview_flutter: ^4.11.0
   vibration: ^3.1.3
   bloc: ^9.0.0
-  get_it: ^8.0.3
-  flutter_local_notifications: ^19.1.0
-  timezone: ^0.10.1
+  get_it: ^9.2.1
+  flutter_local_notifications: ^22.0.1
+  timezone: ^0.11.1
   crypto: ^3.0.6
   workmanager:
     git:
       url: https://github.com/fluttercommunity/flutter_workmanager.git
       path: workmanager
       ref: main
-  share_plus: ^11.0.0
+  share_plus: ^13.2.0
+  path_provider: ^2.1.5
   flutter_svg: ^2.1.0
   cached_network_image: ^3.4.1
   image_picker: ^1.1.2
   shimmer: ^3.0.0
-  mailer: ^6.4.1
-  flutter_dotenv: ^5.2.1
-  firebase_messaging: ^15.2.6
+  mailer: ^7.1.0
+  flutter_dotenv: ^6.0.1
+  firebase_messaging: ^16.4.1
   googleapis_auth: ^2.0.0
   logger: ^2.5.0
   confetti: ^0.8.0
   path: ^1.9.1
+  async: ^2.13.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
 
@@ -79,7 +81,7 @@ flutter:
     -  assets/translations/
     -  assets/html/
     -  assets/zifromania-service-account.json
-    -  assets/questions/quick_thinking.json
+    -  assets/questions/
     -  .env
 
 
