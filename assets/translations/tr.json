@@ -130,7 +130,9 @@
         "multiply_divide": "ÇARPMA | BÖLME",
         "true_or_false": "DOĞRU | YANLIŞ",
         "expert": "UZMAN",
-        "training": "ANTRENMAN"
+        "training": "ANTRENMAN",
+        "true": "Doğru",
+        "false": "Yanlış"
     },
     "rules": {
         "quick_thinking": {
@@ -144,7 +146,7 @@
             "2": "Her 4 yanlış cevap sonrası 1 puan ceza uygulanır. Düzenli pratikle çarpım becerilerini geliştir!"
         },
         "true_or_false": {
-            "0": "Ekranda matematiksel ifadeler göreceksin. 60 saniye içinde DOĞRU mu YANLIŞ mı olduğunu seçmelisin.",
+            "0": "Size 15 matematiksel denklem gösterilecek ve her biri için 3 saniyeniz olacak..",
             "1": "DOĞRU ifadeler için SAĞA, YANLIŞ olanlar için SOLA kaydır. Her doğru karar 1 puan kazandırır.",
             "2": "Dikkat et! Her 4 hatalı karar sonrası 1 puan kaybedersin. Sezgine güven ama işlemleri de kontrol et!"
         },
@@ -172,13 +174,13 @@
         "about_title": "ZifroMania Hakkında",
         "about_description": "zihinsel matematiği ilgi çekici bir oyuna dönüştürür ve hızınızı, odaklanmanızı ve mantığınızı aynı anda geliştirmenize yardımcı olur. Özenle hazırlanmış beş kategori, her yaş ve beceri seviyesindeki oyuncuların kendi hızlarında ilerlemelerine olanak tanır:",
         "speed_calculation": "Hız Hesaplama",
-        "speed_calculation_desc": "60 saniyede mümkün olduğunca çok soruyu yanıtlayın ve puan toplayın.",
+        "speed_calculation_desc": "30 saniyede mümkün olduğunca çok soruyu yanıtlayın ve puan toplayın.",
         "multiplication_table": "Çarpım Tablosu",
-        "multiplication_table_desc": "1-10 arası çarpma ve bölmeyi öğrenin; 50+ doğru yanıt \"Usta\" rozetini kazandırır.",
+        "multiplication_table_desc": "1-10 arası çarpma ve bölmeyi öğrenin; 15 doğru yanıt \"Usta\" rozetini kazandırır.",
         "true_or_false": "Doğru ya da Yanlış",
         "true_or_false_desc": "Her soru için sadece 3 saniyeniz var; refleks eğitimi için mükemmel.",
         "expert_mode": "Uzman Modu",
-        "expert_mode_desc": "İleri seviye operatörlerle 120 saniyelik zorlayıcı bir meydan okuma; 60+ doğru yanıt \"Usta\" statüsü kazandırır.",
+        "expert_mode_desc": "İleri seviye operatörlerle 60 saniyelik zorlayıcı bir meydan okuma; 15 doğru yanıt \"Usta\" statüsü kazandırır.",
         "training_mode": "Antrenman Modu",
         "training_mode_desc": "Sınırsız zaman, oturum başına 50 soru—baskı olmadan pratik yapın.",
         "coins_achievements": "Jeton ve Başarılar",

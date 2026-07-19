@@ -130,21 +130,23 @@
         "multiply_divide": "MULTIPLY | DIVIDE",
         "true_or_false": "TRUE | FALSE",
         "expert": "EXPERT",
-        "training": "TRAINING"
+        "training": "TRAINING", 
+        "true": "True",
+        "false": "False"
     },
     "rules": {
         "quick_thinking": {
-            "0": "Solve as many basic arithmetic problems as possible in 60 seconds. Speed is the key!",
+            "0": "Solve as many basic arithmetic problems as possible in 30 seconds. Speed is the key!",
             "1": "Questions involve quick addition, subtraction, and simple multiplications. Each correct answer earns 1 point.",
             "2": "For every 4 incorrect answers, 1 point will be deducted from your score. Answer quickly but accurately!"
         },
         "multiply_divide": {
-            "0": "Master multiplication tables in 60 seconds. Focus on multiplication and division problems.",
+            "0": "Master multiplication tables in 30 seconds. Focus on multiplication and division problems.",
             "1": "Questions will test your knowledge of multiplication and division facts from 1×1 to 10×10. Each correct answer is worth 1 point.",
             "2": "A penalty of 1 point will be applied after every 4 wrong answers. Practice daily to improve your multiplication skills!"
         },
         "true_or_false": {
-            "0": "You'll see mathematical equations and must decide if they are TRUE or FALSE within 60 seconds.",
+            "0": "You'll be shown 15 mathematical equations, each with a 3-second time limit.",
             "1": "Swipe RIGHT for TRUE equations and LEFT for FALSE ones. Each correct judgment earns you 1 point.",
             "2": "Be careful! For every 4 incorrect judgments, 1 point will be deducted. Trust your instincts but verify the math!"
         },
@@ -172,13 +174,13 @@
         "about_title": "About ZifroMania",
         "about_description": "turns mental math into an engaging game, helping you sharpen speed, focus, and logic all at once. Five carefully crafted categories let players of every age and skill level progress at their own pace:",
         "speed_calculation": "Speed Calculation",
-        "speed_calculation_desc": "Answer as many questions as possible in 60 seconds and rack up points.",
-        "multiplication_table": "Multiplication Table",
-        "multiplication_table_desc": "Master 1-to-10 multiplication and division; 50+ correct answers grant the \"Master\" badge.",
+        "speed_calculation_desc": "Answer as many questions as possible in 30 seconds and rack up points.",
+        "multiplication_table": "Multiply | Divide",
+        "multiplication_table_desc": "Master 1-to-10 multiplication and division; 15 correct answers grant the \"Master\" badge.",
         "true_or_false": "True or False",
         "true_or_false_desc": "Decide in just 3 seconds per prompt; perfect for reflex training.",
         "expert_mode": "Expert Mode",
-        "expert_mode_desc": "A 120-second challenge featuring advanced operators; 60+ correct answers earn \"Master\" status.",
+        "expert_mode_desc": "A 60-second challenge featuring advanced operators; 15 correct answers earn \"Master\" status.",
         "training_mode": "Training Mode",
         "training_mode_desc": "Unlimited time, 50 questions per session—practice with zero pressure.",
         "coins_achievements": "Coins & Achievements",
@@ -388,4 +390,5 @@
     "congratulations": "Congratulations!",
     "new_title_unlocked": "New Title Unlocked!",
     "extra_games_unlocked": "You've earned 2 extra game chances in all categories by watching 3 ads. Enjoy your games!"
+    
 }
