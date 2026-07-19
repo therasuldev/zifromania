@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "881331047232-iu8t36dspu29j4vt0vbk3nob8fn1ohs2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zifro.mania",
+            "certificate_hash": "ebbffd64f62ebeae7468fcdc9fd135fbcd03b9a6"
+          }
+        },
+        {
           "client_id": "881331047232-7p09bg989bll7pvlpufmbap4f35efaa7.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -37,6 +45,13 @@
             {
               "client_id": "881331047232-7p09bg989bll7pvlpufmbap4f35efaa7.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "881331047232-1bf79rcd105vknft30h4kd4dc7m37kg5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.zifro.mania"
+              }
             }
           ]
         }
