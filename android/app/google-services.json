@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "881331047232-ebqfp4bjtkqkapq2uhbainpg5p6a7o7e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zifro.mania",
+            "certificate_hash": "33cd0bb6c2601f0335d033ed3dbd29a91711b324"
+          }
+        },
+        {
           "client_id": "881331047232-iu8t36dspu29j4vt0vbk3nob8fn1ohs2.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
