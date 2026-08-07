@@ -38,13 +38,20 @@
         "title": "Abonelik ve Ödemeler",
         "section_title": "Abonelik Planını Seçin",
         "section_subtitle": "Premium özelliklere erişmek için hesabınızı yükseltin!",
+        "not_available": "Bu ürün şu anda mevcut değil",
+        "purchase_success": "Satın alma işlemi başarıyla tamamlandı!",
+        "purchase_error": "Satın alma sırasında bir sorun oluştu",
+        "dialog_success_title": "Başarılı!",
+        "dialog_error_title": "Satın Alma Başarısız",
+        "ok": "Tamam",
+        "restore_purchases": "Satın Alımları Geri Yükle",
         "premium_benefits": {
-            "title": "Premium Avantajlar",
             "0": "Uygulama genelinde reklamsız deneyim yaşayın",
             "1": "Günlük jeton ödülleri kazanın (plana göre 15–50 jeton)",
             "2": "Her kategori için günde 30 oyuna kadar oynayın",
             "3": "Özel premium avatarların kilidini açın",
-            "4": "Lider tablosunda premium rozet ile öne çıkın"
+            "4": "Lider tablosunda premium rozet ile öne çıkın",
+            "title": "Premium Avantajlar"
         },
         "subscribe": "Hemen Abone Ol",
         "cancel": "Aboneliği İptal Et",
@@ -86,6 +93,9 @@
         "section_title": "Jeton Paketini Seç",
         "section_subtitle": "İpuçlarının kilidini açmak, özel güçlendirmeler ve benzersiz avatarlar için jetonları kullan!",
         "pack": "Jeton Paketi",
+        "confirm_title": "Satın Almayı Onayla",
+        "confirm_message": "{} coin kazanacaksınız, fiyat: {}",
+        "buy_now": "Şimdi Satın Al",
         "daily_reward": {
             "title": "Günlük Ödül",
             "tap_to_collect": "Ücretsiz jetonlarını toplamak için dokun!",

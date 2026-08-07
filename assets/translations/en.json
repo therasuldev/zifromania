@@ -38,13 +38,20 @@
         "title": "Subscription & Payments",
         "section_title": "Choose Your Subscription Plan",
         "section_subtitle": "Upgrade your account to access premium features!",
+        "not_available": "This item is currently unavailable",
+        "purchase_success": "Your purchase was completed successfully!",
+        "purchase_error": "Something went wrong with your purchase",
+        "dialog_success_title": "Success!",
+        "dialog_error_title": "Purchase Failed",
+        "ok": "OK",
+        "restore_purchases": "Restore Purchases",
         "premium_benefits": {
-            "title": "Premium Benefits",
             "0": "Enjoy an ad-free experience across the app",
             "1": "Get daily coin rewards (15–50 coins based on plan)",
             "2": "Play more: up to 30 games per category every day",
             "3": "Unlock exclusive premium avatars",
-            "4": "Stand out with a premium badge on the leaderboard"
+            "4": "Stand out with a premium badge on the leaderboard",
+            "title": "Premium Benefits"
         },
         "subscribe": "Subscribe Now",
         "cancel": "Cancel Subscription",
@@ -86,6 +93,9 @@
         "section_title": "Choose Your Coin Pack",
         "section_subtitle": "Use coins to unlock hints, special power-ups, and unique avatars!",
         "pack": "Coins Pack",
+        "confirm_title": "Confirm Purchase",
+        "confirm_message": "You'll receive {} coins for {}",
+        "buy_now": "Buy Now",
         "daily_reward": {
             "title": "Daily Reward",
             "tap_to_collect": "Tap to collect your free coins!",
@@ -130,7 +140,7 @@
         "multiply_divide": "MULTIPLY | DIVIDE",
         "true_or_false": "TRUE | FALSE",
         "expert": "EXPERT",
-        "training": "TRAINING", 
+        "training": "TRAINING",
         "true": "True",
         "false": "False"
     },
@@ -390,5 +400,4 @@
     "congratulations": "Congratulations!",
     "new_title_unlocked": "New Title Unlocked!",
     "extra_games_unlocked": "You've earned 2 extra game chances in all categories by watching 3 ads. Enjoy your games!"
-    
 }
