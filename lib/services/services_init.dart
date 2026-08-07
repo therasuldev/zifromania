@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zifromania/presentation/state-managment/ad_manager.dart';
+import 'package:zifromania/services/shared_preferences_service.dart';
 
 import 'firebase_auth_service.dart';
 import 'api_client.dart';
@@ -29,6 +30,7 @@ Future<void> initializeServices() async {
   locator
     ..registerLazySingleton(() => LogService())
     ..registerLazySingleton(() => Dio())
+    ..registerLazySingleton(() => PrefsService())
     ..registerLazySingleton(() => FirebaseAuthService())
     ..registerLazySingleton(
       () => ApiClient(
@@ -40,14 +42,16 @@ Future<void> initializeServices() async {
   /// Domain singletons
   locator
     ..registerLazySingleton(() => AuthService())
-    ..registerLazySingleton(() => InAppPurchaseService())
     ..registerLazySingleton(() => UserService())
+    ..registerLazySingleton(
+      () => InAppPurchaseService(userService: locator<UserService>()),
+    )
     ..registerLazySingleton(() => SecureCacheService())
     ..registerSingleton<SharedPreferences>(await SharedPreferences.getInstance())
-    ..registerLazySingleton(() => GameLimitService(locator<SharedPreferences>()))
+    ..registerLazySingleton(() => GameLimitService(prefs: locator<PrefsService>()))
     ..registerLazySingleton(() => SettingsService())
     ..registerLazySingleton(() => SoundService())
-    ..registerLazySingleton(() => AdManager())
+    ..registerLazySingleton(() => AdManager(gameLimitService: locator<GameLimitService>()))
     ..registerLazySingleton(() => XpService())
     ..registerLazySingleton(() => AudioService())
     ..registerLazySingleton(() => DailyRewardService())
@@ -69,9 +73,11 @@ Future<void> initializeServices() async {
   await Future.wait([
     locator<SettingsService>().init(),
     locator<SoundService>().init(),
+    locator<PrefsService>().init(),
     locator<AdManager>().initialize(),
     locator<DailyRewardService>().init(),
     LocalNotificationService.initialize(),
     locator<NotificationService>().init(),
+    locator<InAppPurchaseService>().init(), // ← əlavə edin
   ]);
 }
