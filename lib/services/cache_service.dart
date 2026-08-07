@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:zifromania/models/subscription_model.dart';
 import 'package:zifromania/models/user_model.dart';
@@ -6,6 +7,7 @@ import 'package:zifromania/models/game_stats.dart';
 
 class SecureCacheService {
   final _storage = const FlutterSecureStorage();
+  final ValueNotifier<UserModel?> userNotifier = ValueNotifier(null);
 
   /// Writes data securely with better error handling
   Future<bool> write<T>(String key, T value) async {
@@ -23,6 +25,7 @@ class SecureCacheService {
         toStore = value.toString();
       } else if (value is UserModel) {
         toStore = jsonEncode(value.toMap());
+        userNotifier.value = value;
       } else {
         toStore = jsonEncode(value);
       }
@@ -52,7 +55,9 @@ class SecureCacheService {
 
       // Special handling for UserModel
       if (T == UserModel) {
-        return _createUserModelFromMap(decoded) as T?;
+        final user = _createUserModelFromMap(decoded);
+        userNotifier.value = user;
+        return user as T?;
       }
 
       // Generic case
@@ -69,9 +74,7 @@ class SecureCacheService {
   UserModel? _createUserModelFromMap(Map<String, dynamic> map) {
     try {
       // Validate required fields
-      if (!map.containsKey('uid') || 
-          map['uid'] == null || 
-          map['uid'].toString().isEmpty) {
+      if (!map.containsKey('uid') || map['uid'] == null || map['uid'].toString().isEmpty) {
         print('Invalid UserModel data: missing or empty uid');
         return null;
       }
@@ -145,7 +148,7 @@ class SecureCacheService {
     }
   }
 
-  /// Clears all stored data  
+  /// Clears all stored data
   Future<bool> clearAll() async {
     try {
       await _storage.deleteAll();
@@ -175,5 +178,27 @@ class SecureCacheService {
       print('Error reading all data: $e');
       return {};
     }
+  }
+
+  /// Azaldılmış coin miqdarı ilə istifadəçini yenilə
+  Future<(bool, String)> decreaseUserCoins(int amount) async {
+    if (amount <= 0) return (false, '');
+    final user = await read<UserModel>('user');
+    if (user == null) return (false, '');
+
+    final newCoins = (user.coins - amount).clamp(0, double.infinity).toInt(); // mənfi olmasın
+    final updatedUser = user.copyWith(coins: newCoins);
+    return (await write<UserModel>('user', updatedUser), user.uid);
+  }
+
+  /// Artırılmış coin miqdarı ilə istifadəçini yenilə
+  Future<(bool, String)> increaseUserCoins(int amount) async {
+    if (amount <= 0) return (false, '');
+    final user = await read<UserModel>('user');
+    if (user == null) return (false, '');
+
+    final newCoins = user.coins + amount;
+    final updatedUser = user.copyWith(coins: newCoins);
+    return (await write<UserModel>('user', updatedUser), user.uid);
   }
 }
