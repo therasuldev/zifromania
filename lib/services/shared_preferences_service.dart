@@ -1,16 +1,11 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-/// Professional SharedPreferences service with singleton pattern
 class PrefsService {
-  static SharedPreferences? _prefs;
-  static final PrefsService _instance = PrefsService._();
-
-  PrefsService._();
-  factory PrefsService() => _instance;
+  SharedPreferences? _prefs;
 
   /// Initialize the preferences service
-  static Future<void> init() async {
+  Future<void> init() async {
     _prefs ??= await SharedPreferences.getInstance();
   }
 
