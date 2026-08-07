@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:zifromania/models/game_stats.dart';
+import 'package:zifromania/models/subscription_model.dart';
 import 'package:zifromania/models/user_model.dart';
 
 class RankService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _usersCollection = 'users';
 
-  /// Fetch top ranked users by level
+  /// Fetch top ranked users by level (Returns UserModel list)
+  /// Note: This requires UserModel.fromMap() constructor to exist
   Future<List<UserModel>> fetchTopRankedUsers({int limit = 50}) async {
     try {
       final querySnapshot = await _firestore
@@ -15,23 +18,74 @@ class RankService {
           .limit(limit)
           .get();
 
-      return querySnapshot.docs.map((doc) => UserModel.fromMap(doc.data())).toList();
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        // Ensure uid is included in the data
+        if (!data.containsKey('uid')) {
+          data['uid'] = doc.id;
+        }
+
+        // Create UserModel with minimal required fields
+        return UserModel(
+          uid: doc.id,
+          displayName: data['displayName'],
+          email: data['email'],
+          photoURL: data['photoURL'],
+          coins: data['coins'] ?? 0,
+          level: data['level'] ?? 1,
+          xp: data['xp'] ?? 0,
+          xpForNextLevel: data['xpForNextLevel'] ?? 1000,
+          hasActiveSubscription: data['hasActiveSubscription'] ?? false,
+          achievements: (data['achievements'] as List<dynamic>?)?.cast<String>() ?? const [],
+          completedTasks: (data['completedTasks'] as List<dynamic>?)?.cast<String>() ?? const [],
+          subscription: SubscriptionModel.fromMap(data['subscription'] ?? {}),
+          playedDates: (data['playedDates'] as List<dynamic>?)?.cast<String>() ?? const [],
+          currentStreak: data['currentStreak'] ?? 0,
+          longestStreak: data['longestStreak'] ?? 0,
+          gameStats: GameStats.fromMap(data['gameStats'] ?? {}),
+        );
+      }).toList();
     } catch (e) {
       print('Error fetching top ranked users: $e');
       throw Exception('Failed to fetch top ranked users: $e');
     }
   }
 
-  /// Stream top ranked users for real-time updates
-  Stream<List<UserModel>> streamTopRankedUsers({int limit = 50}) {
+  /// Stream top ranked users as UserModel objects (if needed)
+  Stream<List<UserModel>> streamTopRankedUsersAsUserModel({int limit = 50}) {
     return _firestore
         .collection(_usersCollection)
         .orderBy('level', descending: true)
-        .orderBy('xp', descending: true) // Secondary sort by XP
+        .orderBy('xp', descending: true)
         .limit(limit)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => UserModel.fromMap(doc.data())).toList();
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        final uid = doc.id;
+
+        return UserModel(
+          uid: uid,
+          displayName: data['displayName'],
+          email: data['email'],
+          photoURL: data['photoURL'],
+          coins: data['coins'] ?? 0,
+          level: data['level'] ?? 1,
+          xp: data['xp'] ?? 0,
+          xpForNextLevel: data['xpForNextLevel'] ?? 1000,
+          hasActiveSubscription: data['hasActiveSubscription'] ?? false,
+          achievements: (data['achievements'] as List<dynamic>?)?.cast<String>() ?? const [],
+          completedTasks: (data['completedTasks'] as List<dynamic>?)?.cast<String>() ?? const [],
+          subscription: SubscriptionModel.fromMap(data['subscription'] ?? {}),
+          playedDates: (data['playedDates'] as List<dynamic>?)?.cast<String>() ?? const [],
+          currentStreak: data['currentStreak'] ?? 0,
+          longestStreak: data['longestStreak'] ?? 0,
+          gameStats: GameStats.fromMap(data['gameStats'] ?? {}),
+        );
+      }).toList();
+    }).handleError((error) {
+      print('Error in stream: $error');
+      return <UserModel>[];
     });
   }
 
