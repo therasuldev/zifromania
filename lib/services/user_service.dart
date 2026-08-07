@@ -81,8 +81,6 @@ class UserService {
       await _firestore.collection(_usersCollection).doc(uid).update({
         'coins': currentCoins - amountToSpend,
       });
-
-      
     } catch (e) {
       print('Error spending coins: $e');
       throw Exception('Failed to spend coins: $e');
@@ -106,6 +104,40 @@ class UserService {
     } catch (e) {
       print('Error adding coins: $e');
       throw Exception('Failed to add coins: $e');
+    }
+  }
+
+  // UserService class-ınıza bu metodu əlavə edin
+// (updateSubscriptionStatus metodunun yanına qoya bilərsiniz)
+
+// Update full subscription details (type + start/end dates) and the
+// hasActiveSubscription flag together, in a single write.
+  Future<void> updateSubscriptionDetails(
+    String uid,
+    SubscriptionModel subscription,
+  ) async {
+    try {
+      await _firestore.collection(_usersCollection).doc(uid).update({
+        'subscription': subscription.toMap(),
+        'hasActiveSubscription': true,
+      });
+    } catch (e) {
+      print('Error updating subscription details: $e');
+      throw Exception('Failed to update subscription details: $e');
+    }
+  }
+
+// Abunəlik bitdikdə (məs. gündəlik cron/Cloud Function və ya app açılışında
+// endDate keçmişdirsə) çağırmaq üçün:
+  Future<void> expireSubscription(String uid) async {
+    try {
+      await _firestore.collection(_usersCollection).doc(uid).update({
+        'hasActiveSubscription': false,
+        'subscription': const SubscriptionModel(type: SubscriptionType.free).toMap(),
+      });
+    } catch (e) {
+      print('Error expiring subscription: $e');
+      throw Exception('Failed to expire subscription: $e');
     }
   }
 
