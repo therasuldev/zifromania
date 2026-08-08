@@ -3,11 +3,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zifromania/presentation/state-managment/tasks-bloc/task_bloc.dart';
 import 'package:zifromania/presentation/state-managment/titles-bloc/title_bloc.dart';
+import 'package:zifromania/presentation/state-managment/user/user_bloc.dart';
 import 'package:zifromania/services/audio_service.dart';
 import 'package:zifromania/services/auth_service.dart';
 import 'package:zifromania/services/cache_service.dart';
 import 'package:zifromania/services/in_app_purchase_service.dart';
-import 'package:zifromania/services/open_ai_service.dart';
+import 'package:zifromania/services/question_service.dart';
 import 'package:zifromania/services/settings_service.dart';
 import 'package:zifromania/services/title_service.dart';
 import 'package:zifromania/services/user_service.dart';
@@ -42,13 +43,22 @@ final List<BlocProvider> blocProviders = [
       )..add(SettingsEvent.getLanguage());
     },
   ),
+  BlocProvider<UserBloc>(
+    create: (_) {
+      return UserBloc(
+        userService: locator.get<UserService>(),
+        cacheService: locator.get<SecureCacheService>(),
+      )..add(UserEvent.loadCachedUser());
+    },
+  ),
   BlocProvider<GameBloc>(
     create: (_) {
       return GameBloc(
         authService: locator.get<AuthService>(),
+        cacheService: locator.get<SecureCacheService>(),
         userService: locator.get<UserService>(),
         audioService: locator.get<AudioService>(),
-        openAIService: locator.get<EnhancedOpenAIService>(),
+        questionService: locator.get<QuestionService>(),
         titleService: locator.get<TitleService>(),
         inAppPurchaseService: locator.get<InAppPurchaseService>(),
       );
