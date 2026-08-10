@@ -1,6 +1,6 @@
 class MathQuestion {
   final String question;
-  final String correctAnswer;
+  final int correctAnswer;
   final Map<String, String> answerOptions;
 
   const MathQuestion({
@@ -12,7 +12,7 @@ class MathQuestion {
   factory MathQuestion.fromJson(Map<String, dynamic> json) {
     return MathQuestion(
       question: json['question'] as String,
-      correctAnswer: json['correct_option'] as String,
+      correctAnswer: json['correct_option'] as int,
       answerOptions: Map<String, String>.from(json['options']),
     );
   }
