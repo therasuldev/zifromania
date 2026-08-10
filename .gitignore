@@ -50,3 +50,4 @@ firebase_options.dart
 
 .env
 zifromania-service-account.json
+upload_certificate.pem
