@@ -91,7 +91,7 @@ class _DailyRewardWidgetState extends State<DailyRewardWidget> {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Reward',
-      barrierColor: Colors.black.withOpacity(0.4),
+      barrierColor: Colors.black.withValues(alpha: 0.4),
       transitionDuration: const Duration(milliseconds: 1000),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Center(
@@ -327,7 +327,7 @@ class _AnimatedRewardWidgetState extends State<AnimatedRewardWidget> with Ticker
                             fontSize: 48,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Scabber',
-                            color: Colors.indigo.shade300,
+                            color: Colors.white,
                             decoration: TextDecoration.none,
                             shadows: [
                               Shadow(
