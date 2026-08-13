@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -33,16 +34,26 @@ class _AuthScreenState extends State<AuthScreen> {
         listener: _onAuthStateChanged,
         builder: (ctx, state) {
           final isLoading = _isLoadingState(state);
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AuthScreen._horizontalPadding),
-              child: Stack(
-                children: [
-                  _buildMainContent(ctx),
-                  if (isLoading) _buildLoadingOverlay(),
-                ],
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              // Background Image
+              Image.asset(
+                'assets/images/scaffold.jpg',
+                fit: BoxFit.cover,
               ),
-            ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AuthScreen._horizontalPadding),
+                  child: Stack(
+                    children: [
+                      _buildMainContent(ctx),
+                      if (isLoading) _buildLoadingOverlay(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -53,7 +64,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _onAuthStateChanged(BuildContext ctx, AuthState state) {
     if (state.event == AuthEvents.googleSignInRequestedError) {
-      final msg = state.error ?? 'Google sign‑in was cancelled';
+      final msg = state.error ?? 'auth.google_sign_in_cancelled'.tr();
       ScaffoldMessenger.of(ctx).showSnackBar(
         SnackBar(content: Text(msg), backgroundColor: Colors.red),
       );
@@ -69,7 +80,7 @@ class _AuthScreenState extends State<AuthScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Spacer(flex: 2),
-        Center(child: Image.asset('assets/images/zifromania.png', height: 180)),
+        Center(child: _buildLogoWithFullFade()),
         const SizedBox(height: 32),
         _buildTitle(),
         const SizedBox(height: 16),
@@ -83,33 +94,56 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  Widget _buildTitle() => Text(
-        'Zifromania',
+  Widget _buildLogoWithFullFade() {
+    return ShaderMask(
+      shaderCallback: (Rect bounds) {
+        return const RadialGradient(
+          center: Alignment.center,
+          radius: 0.55,
+          colors: [
+            Colors.white,
+            Colors.white,
+            Colors.transparent,
+          ],
+          stops: [0.6, 0.6, 1.0],
+        ).createShader(bounds);
+      },
+      blendMode: BlendMode.dstIn,
+      child: Image.asset(
+        'assets/images/zifromania.png',
+        height: 200,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+
+  Widget _buildTitle() => const Text(
+        'ZifroMania',
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: 50,
           fontFamily: 'Brawler',
           fontWeight: FontWeight.bold,
-          color: Colors.blue.shade800,
+          color: Colors.white70,
         ),
       );
 
   Widget _buildSubtitle() => Text(
-        'Sign in to continue your math adventure',
+        'auth.sign_in_prompt'.tr(),
         textAlign: TextAlign.center,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 16,
-          fontFamily: 'RimouskisB',
-          color: Colors.grey.shade600,
+          fontFamily: 'Scabber',
+          color: Colors.white38,
         ),
       );
 
   Widget _buildGoogleButton(BuildContext context) {
     return SignInButton(
-      text: 'Continue with Google',
+      text: 'auth.continue_with_google'.tr(),
       iconpath: 'assets/icons/google.png',
-      backgroundColor: _acceptedTerms ? Colors.white : Colors.grey.shade200,
-      textColor: _acceptedTerms ? Colors.black87 : Colors.grey,
+      backgroundColor: _acceptedTerms ? Colors.white : Colors.white60,
+      textColor: _acceptedTerms ? Colors.black87 : Colors.white,
       borderColor: _acceptedTerms ? Colors.grey.shade300 : Colors.grey.shade400,
       enabled: _acceptedTerms,
       onTap: () => context.read<AuthBloc>().add(AuthEvent.googleSignInRequested()),
@@ -117,10 +151,52 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Widget _buildTermsRow(BuildContext context) {
+    final termsText = 'auth.termsOfService'.tr();
+    final privacyText = 'auth.privacyPolicy'.tr();
+
+    final fullText = 'auth.termsCombined'.tr().replaceAll('{terms}', '[[TERMS]]').replaceAll('{privacy}', '[[PRIVACY]]');
+
+    final List<InlineSpan> spans = [];
+
+    fullText.splitMapJoin(
+      RegExp(r'\[\[(TERMS|PRIVACY)\]\]'),
+      onMatch: (match) {
+        final type = match.group(1);
+        if (type == 'TERMS') {
+          spans.add(TextSpan(
+            text: termsText,
+            style: const TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () => Navigator.push(
+                    context,
+                    PartialModalRoute(child: const TermsOfServiceScreen()),
+                  ),
+          ));
+        } else {
+          spans.add(TextSpan(
+            text: privacyText,
+            style: const TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () => Navigator.push(
+                    context,
+                    PartialModalRoute(child: const PrivacyPolicyScreen()),
+                  ),
+          ));
+        }
+        return '';
+      },
+      onNonMatch: (text) {
+        spans.add(TextSpan(text: text));
+        return '';
+      },
+    );
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Checkbox(
+          fillColor: WidgetStateProperty.all(Colors.white),
+          checkColor: Colors.green,
           value: _acceptedTerms,
           onChanged: (val) => setState(() => _acceptedTerms = val ?? false),
         ),
@@ -128,29 +204,13 @@ class _AuthScreenState extends State<AuthScreen> {
           child: RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
-              style: TextStyle(fontSize: 12, fontFamily: 'RimouskisB', color: Colors.grey.shade600),
-              children: [
-                const TextSpan(text: 'I agree to the '),
-                TextSpan(
-                  text: 'Terms of Service',
-                  style: const TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () => Navigator.push(
-                          context,
-                          PartialModalRoute(child: const TermsOfServiceScreen()),
-                        ),
-                ),
-                const TextSpan(text: ' and '),
-                TextSpan(
-                  text: 'Privacy Policy',
-                  style: const TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () => Navigator.push(
-                          context,
-                          PartialModalRoute(child: const PrivacyPolicyScreen()),
-                        ),
-                ),
-              ],
+              style: const TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                fontFamily: 'Scabber',
+                color: Colors.white70,
+              ),
+              children: spans,
             ),
           ),
         ),
@@ -224,7 +284,7 @@ class SignInButton extends StatelessWidget {
                 text,
                 style: TextStyle(
                   fontSize: 18,
-                  fontFamily: 'rimouskisb',
+                  fontFamily: 'Scabber',
                   fontWeight: FontWeight.w500,
                   color: textColor,
                 ),
