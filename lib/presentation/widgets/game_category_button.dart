@@ -1,7 +1,6 @@
-import 'package:zifromania/locator.dart';
-import 'package:zifromania/presentation/screens/game_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:zifromania/services/game_limit_service.dart';
+
+import 'package:zifromania/presentation/screens/game_screen.dart';
 
 import '../../domain/entities/enums.dart';
 import 'dialogs/rules_dialog.dart';
@@ -57,37 +56,16 @@ class _GameCategoryButtonState extends State<GameCategoryButton> with SingleTick
     setState(() => _buttonColor = widget.color);
 
     // Qaydalar pəncərəsini göstər və nəticəni gözlə
-    final result = await showDialog<bool>(
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => StreamBuilder(
-          stream: locator.get<GameLimitService>().getCategoryLimitStream(widget.category),
-          builder: (context, asyncSnapshot) {
-            if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (asyncSnapshot.hasError) {
-              return AlertDialog(
-                title: const Text('Xəta'),
-                content: Text('Qaydalar yüklənərkən xəta baş verdi: ${asyncSnapshot.error}'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Bağla'),
-                  ),
-                ],
-              );
-            }
-            return RulesDialog(
-              gameCategory: widget.category,
-              limit: (asyncSnapshot.data?['current']! ?? 0, asyncSnapshot.data?['limit']! ?? 0),
-            );
-          }),
+      builder: (context) => RulesDialog(gameCategory: widget.category),
     );
 
     // Əgər istifadəçi oyuna başlamağı seçibsə:
-    if (result == true && mounted) {
+    if ((result?['isTrue'] ?? false) && mounted) {
       // Create the UnifiedGameBloc provider and navigate to the game screen
-      final page = GameScreen(gameCategory: widget.category);
+      final page = GameScreen(gameCategory: widget.category, paidWithCoin: result?['paidWithCoin']);
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
     }
   }
