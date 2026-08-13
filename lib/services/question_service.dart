@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 import 'package:zifromania/app_exception.dart';
 import 'package:zifromania/domain/entities/global.dart';
@@ -29,8 +30,7 @@ class QuestionService {
 
       throw AppException(
         AppErrorType.dailyLimitReached,
-        'Daily limit reached for ${gameCategory.name} (${stats['dailyRequestCount']}/${stats['categoryLimit']} requests used). '
-        'Flexible games: ${stats['flexibleGamesAvailable']}.',
+        'game.limit_reached'.tr(),
       );
     }
 
@@ -101,11 +101,11 @@ class QuestionService {
         final String correctOptionKey = questionData['correct_option'];
 
         bool isTrueFalse = gameCategory == GameCategory.trueOrFalse ||
-            (options.containsKey('A') && options['A'] == 'True' && options.containsKey('B') && options['B'] == 'False');
+            (options.containsKey('A') && options['A'] == tr('title.true') && options.containsKey('B') && options['B'] == tr('title.false'));
 
         if (isTrueFalse) {
           // True/False sualları üçün
-          int correctAnswerValue = options[correctOptionKey] == 'True' ? 1 : 0;
+          int correctAnswerValue = options[correctOptionKey] == tr('title.true') ? 1 : 0;
           Map<String, String> answerOptions = {};
 
           options.forEach((key, value) {
