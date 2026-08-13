@@ -1,7 +1,7 @@
-
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class FireworksCongratulationsWidget extends StatefulWidget {
@@ -12,7 +12,7 @@ class FireworksCongratulationsWidget extends StatefulWidget {
 
   const FireworksCongratulationsWidget({
     super.key,
-    this.text = 'Congratulations!',
+    this.text = 'congratulations',
     this.fontSize = 30,
     this.fontFamily = 'Scabber',
     this.textColor = const Color(0xCCFFFFFF),
@@ -199,7 +199,7 @@ class _FireworksCongratulationsWidgetState extends State<FireworksCongratulation
                 return Transform.scale(
                   scale: _textScaleAnimation.value,
                   child: Text(
-                    widget.text,
+                    widget.text.tr(),
                     style: TextStyle(
                       fontSize: widget.fontSize,
                       fontFamily: widget.fontFamily,
