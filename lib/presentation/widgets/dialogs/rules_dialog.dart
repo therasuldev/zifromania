@@ -146,16 +146,15 @@ class RulesDialog extends StatelessWidget {
             if (current == baseLimit) ...[
               const SizedBox(height: 20),
               AnimatedButton(
-                title: context.tr('subscription.spend_coins_for_games'), // "Spend Coins" və ya "Coin Xərcləyərək 2 Oyun Al"
-                color: Colors.blue,
-                onTap: () async {
-                  Navigator.of(context).pop({'isTrue': true, 'paidWithCoin': true});
-                },
+                width: 200,
+                title: context.tr('subscription.spend_coins_for_games'),
+                color: Colors.transparent,
+                onTap: () => Navigator.of(context).pop({'isTrue': true, 'paidWithCoin': true}),
                 fontSize: 18,
                 fontFamily: 'Scabber',
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                borderRadius: const BorderRadius.all(Radius.circular(25)),
-              ),
+                borderRadius: const BorderRadius.all(Radius.circular(15)),
+              )
             ],
             const SizedBox(height: 20),
           ],
