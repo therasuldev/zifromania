@@ -4,7 +4,8 @@ class AnimatedButton extends StatefulWidget {
   final String? title; // Title artık optional
   final Widget? icon; // Icon da optional
   final Color color;
-  final VoidCallback onTap;
+  final Color? borderColor; // Varsayılan border rengi
+  final VoidCallback? onTap;
   final double? width;
   final double? height;
   final double fontSize;
@@ -19,7 +20,8 @@ class AnimatedButton extends StatefulWidget {
     this.title,
     this.icon,
     required this.color,
-    required this.onTap,
+    this.borderColor,
+    this.onTap,
     this.width,
     this.height,
     this.fontSize = 22,
@@ -61,7 +63,7 @@ class _AnimatedButtonState extends State<AnimatedButton> with SingleTickerProvid
 
   void _onTapUp(TapUpDetails _) {
     _animationController.forward();
-    widget.onTap();
+    widget.onTap?.call();
   }
 
   void _onTapCancel() {
@@ -82,6 +84,7 @@ class _AnimatedButtonState extends State<AnimatedButton> with SingleTickerProvid
             title: widget.title,
             icon: widget.icon,
             color: widget.color,
+            borderColor: widget.borderColor?.withValues(alpha: 0.3) ?? Colors.brown.shade100.withValues(alpha: 0.3),
             width: widget.width,
             height: widget.height,
             fontSize: widget.fontSize,
@@ -101,6 +104,7 @@ class _ButtonContent extends StatelessWidget {
   final String? title;
   final Widget? icon;
   final Color color;
+  final Color borderColor;
   final double? width;
   final double? height;
   final double fontSize;
@@ -114,6 +118,7 @@ class _ButtonContent extends StatelessWidget {
     this.title,
     this.icon,
     required this.color,
+    required this.borderColor,
     this.width,
     this.height,
     required this.fontSize,
@@ -129,7 +134,8 @@ class _ButtonContent extends StatelessWidget {
     // Eğer icon sağlanmışsa onu, aksi halde title'ı göster
     Widget contentChild = icon != null
         ? Center(child: icon)
-        : Text(
+        : FittedBox(
+            child: Text(
             title ?? '',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -138,14 +144,14 @@ class _ButtonContent extends StatelessWidget {
               fontFamily: fontFamily,
               color: Colors.grey.shade200.withValues(alpha: 0.7),
             ),
-          );
+          ));
 
     Widget content = Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
         color: color,
-        border: Border.all(color: Colors.brown.shade100.withValues(alpha: 0.2), width: 1.5),
+        border: Border.all(color: borderColor, width: 1.5),
         borderRadius: borderRadius,
       ),
       child: Padding(
