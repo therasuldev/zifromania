@@ -43,33 +43,42 @@ class NotificationService {
   }
 
   // === Topic subscription ====================================================
+  // Future<void> _subscribeToTopic(String topic) async {
+  //   try {
+  //     final token = await _locator<FirebaseAuthService>().getServiceAccountToken();
+  //     if (token == null) {
+  //       _log.w('Skipped topic subscription – server token is null');
+  //       return;
+  //     }
+
+  //     const url = 'https://fcm.googleapis.com/v1/projects/zifromania/messages:send';
+
+  //     await _apiClient.dio.post(
+  //       url,
+  //       options: Options(
+  //         headers: {'Authorization': 'Bearer $token'},
+  //         contentType: Headers.jsonContentType,
+  //       ),
+  //       data: jsonEncode({
+  //         'message': {
+  //           'topic': topic,
+  //           'data': {'type': 'topic_subscription', 'topic': topic},
+  //         }
+  //       }),
+  //     );
+
+  //     _log.i('Subscribed to FCM topic «$topic»');
+  //   } on DioException catch (e, s) {
+  //     _log.e('FCM topic subscription failed: ${e.message}', e, s);
+  //   }
+  // }
+
   Future<void> _subscribeToTopic(String topic) async {
     try {
-      final token = await _locator<FirebaseAuthService>().getServiceAccountToken();
-      if (token == null) {
-        _log.w('Skipped topic subscription – server token is null');
-        return;
-      }
-
-      const url = 'https://fcm.googleapis.com/v1/projects/zifromania/messages:send';
-
-      await _apiClient.dio.post(
-        url,
-        options: Options(
-          headers: {'Authorization': 'Bearer $token'},
-          contentType: Headers.jsonContentType,
-        ),
-        data: jsonEncode({
-          'message': {
-            'topic': topic,
-            'data': {'type': 'topic_subscription', 'topic': topic},
-          }
-        }),
-      );
-
+      await _fcm.subscribeToTopic(topic);
       _log.i('Subscribed to FCM topic «$topic»');
-    } on DioException catch (e, s) {
-      _log.e('FCM topic subscription failed: ${e.message}', e, s);
+    } catch (e, s) {
+      _log.e('FCM topic subscription failed: $e', e, s);
     }
   }
 
@@ -117,7 +126,7 @@ class LocalNotificationService {
       iOS: DarwinInitializationSettings(),
     );
     await _plugin.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveBackgroundNotificationResponse: _backgroundTap,
     );
   }
@@ -136,7 +145,7 @@ class LocalNotificationService {
       iOS: DarwinNotificationDetails(),
     );
 
-    await _plugin.show(0, title, body, details);
+    await _plugin.show(id: 0, title: title, body: body, notificationDetails: details);
   }
 
   // Must be a top-level/tear-off for Android background isolate
