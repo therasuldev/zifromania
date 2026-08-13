@@ -44,7 +44,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     // Allow time for animation to play
     Timer(const Duration(seconds: 2), () async {
-      await context.read<AuthBloc>().checkAuthentication();
+      if (mounted) {
+        await context.read<AuthBloc>().checkAuthentication();
+      }
     });
   }
 
@@ -90,12 +92,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           ),
                         ],
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.calculate_rounded,
-                          color: Colors.blue,
-                          size: 80,
-                        ),
+                      child: Image.asset(
+                        'assets/images/zifromania.png',
+                        height: 200,
+                        fit: BoxFit.contain,
                       ),
                     ),
                     const SizedBox(height: 40),
