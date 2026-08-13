@@ -57,13 +57,27 @@ class SubscriptionDialog extends StatelessWidget {
                 ),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const Spacer(),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontFamily: 'Scabber',
+                      height: 1.4,
+                    ),
+                  ),
+                  const Spacer(),
                   AnimatedIconButton(
                     onTap: () {
                       Navigator.of(context).pop();
-                      final newRoute = MaterialPageRoute(builder: (_) => const GameIntroScreen());
-                      Navigator.pushReplacement(context, newRoute);
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const GameIntroScreen()),
+                        (Route<dynamic> route) => false,
+                      );
                     },
                     icon: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/delete.png')),
                   ),
@@ -78,24 +92,11 @@ class SubscriptionDialog extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Message
-                  Text(
-                    message,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontFamily: 'Scabber',
-                      height: 1.4,
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
                   // Subscription Button
                   AnimatedButton(
                     title: context.tr('subscription.upgrade_premium'),
-                    color: Colors.orange,
+                    color: Colors.transparent,
+                    borderColor: Colors.orange,
                     onTap: () {
                       Navigator.of(context).pop();
                       const page = SubscriptionScreen(tabType: TabType.subscription);
@@ -103,8 +104,8 @@ class SubscriptionDialog extends StatelessWidget {
                     },
                     fontSize: 18,
                     fontFamily: 'Scabber',
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    borderRadius: const BorderRadius.all(Radius.circular(25)),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    borderRadius: const BorderRadius.all(Radius.circular(15)),
                   ),
 
                   const SizedBox(height: 15),
@@ -112,7 +113,8 @@ class SubscriptionDialog extends StatelessWidget {
                   // Watch Ad Button
                   AnimatedButton(
                     title: context.tr('subscription.watch_ad'), // "Watch Ad" və ya "Reklam İzlə"
-                    color: Colors.green,
+                    color: Colors.transparent,
+                    borderColor: Colors.deepPurpleAccent,
                     onTap: () {
                       Navigator.of(context).pop();
                       const page = SubscriptionScreen(tabType: TabType.coins);
@@ -120,8 +122,26 @@ class SubscriptionDialog extends StatelessWidget {
                     },
                     fontSize: 18,
                     fontFamily: 'Scabber',
-                    padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
-                    borderRadius: const BorderRadius.all(Radius.circular(25)),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    borderRadius: const BorderRadius.all(Radius.circular(15)),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  // Watch Ad Button
+                  AnimatedButton(
+                    title: context.tr('coin.purchase'), // "Watch Ad" və ya "Reklam İzlə"
+                    color: Colors.transparent,
+                    borderColor: Colors.green,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      const page = SubscriptionScreen(tabType: TabType.coins);
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => page));
+                    },
+                    fontSize: 18,
+                    fontFamily: 'Scabber',
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    borderRadius: const BorderRadius.all(Radius.circular(15)),
                   ),
 
                   const SizedBox(height: 10),
@@ -185,8 +205,10 @@ class AppDialog extends StatelessWidget {
                   AnimatedIconButton(
                     onTap: () {
                       Navigator.of(context).pop();
-                      final newRoute = MaterialPageRoute(builder: (_) => const GameIntroScreen());
-                      Navigator.pushReplacement(context, newRoute);
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const GameIntroScreen()),
+                        (Route<dynamic> route) => false,
+                      );
                     },
                     icon: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/delete.png')),
                   ),
