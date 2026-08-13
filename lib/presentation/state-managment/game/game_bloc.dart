@@ -32,11 +32,11 @@ class CancelToken {
 
 class GameBloc extends Bloc<GameEvent, GameState> {
   static const int MAX_INCORRECT_ANSWERS = 4;
-  static const int QUICK_THINKING_TIME = 60;
-  static const int MULTIPLY_DIVIDE_TIME = 60;
+  static const int QUICK_THINKING_TIME = 30;
+  static const int MULTIPLY_DIVIDE_TIME = 30;
   static const int TRUE_OR_FALSE_PER_QUESTION_TIME = 3;
-  static const int EXPERT_MODE_TIME = 120;
-  static const int TRAINING_MODE_QUESTIONS = 100;
+  static const int EXPERT_MODE_TIME = 60;
+  static const int TRAINING_MODE_QUESTIONS = 500;
 
   final AuthService _authService;
   final SecureCacheService _cacheService;
@@ -340,7 +340,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       } else {
         newIncorrect++;
         if (newIncorrect >= GameBloc.MAX_INCORRECT_ANSWERS) {
-          newScore = max(0, newScore - 1);
+          newScore = max(0, newScore - (state.gameCategory == GameCategory.expert ? 2 : 1));
           newIncorrect = 0;
         }
       }
