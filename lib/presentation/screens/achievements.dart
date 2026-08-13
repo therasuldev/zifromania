@@ -11,8 +11,6 @@ import 'package:zifromania/domain/entities/constant.dart';
 import 'package:zifromania/models/task_model.dart';
 import 'package:zifromania/presentation/common/back_button.dart';
 import 'package:zifromania/models/title_model.dart';
-import 'package:zifromania/presentation/state-managment/auth/auth_bloc.dart';
-import 'package:zifromania/presentation/state-managment/tasks-bloc/task_bloc.dart';
 import 'package:zifromania/presentation/state-managment/titles-bloc/title_bloc.dart';
 
 String getTitleIconAsset(String titleKey) {
@@ -78,15 +76,32 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     });
   }
 
-  void _showTitleDetails(BuildContext context, TitleModel title, bool isUnlocked) {
+  Color _getTitleColor(String titleKey) {
+    return switch (titleKey) {
+      "truth-seeker" => Colors.cyan,
+      "xp-seeker" => Colors.cyanAccent,
+      "expert-challenger" => Colors.deepOrange,
+      "quick-thinker" => Colors.lightBlueAccent,
+      "speedster" => Colors.teal,
+      "marathon-mind" => Colors.blue,
+      "no-mistake" => Colors.green,
+      "persistent-player" => Colors.indigo,
+      "legendary" => Colors.amber,
+      "multiplier-player" => Colors.cyan,
+      "zifro-premium" => Colors.lime,
+      _ => Colors.grey,
+    };
+  }
+
+  void _showTitleDetails(BuildContext context, TitleModel title) {
     final achievement = Achievement(
       title: title.name,
-      description: title.description,
+      description: context.tr(title.description),
       icon: getTitleIconAsset(title.key),
-      color: Colors.purple, // TODO: DEYISECEK
+      color: _getTitleColor(title.key),
       titleKey: title.key,
-      isUnlocked: isUnlocked,
-      unlockedDate: isUnlocked ? DateTime.now() : null,
+      isUnlocked: true,
+      unlockedDate: DateTime.now(),
     );
 
     showModalBottomSheet(
@@ -154,98 +169,107 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
                 children: [
                   CustomBackButton(color: lightBrownColor),
                   const SizedBox(width: 12),
-                  Text('achievements.title'.tr(),
-                      style: TextStyle(
-                        color: lightBrownColor,
-                        fontSize: 22,
-                        fontFamily: 'Scabber',
-                        fontWeight: FontWeight.bold,
-                      )),
+                  Text(
+                    'achievements.title'.tr(),
+                    style: TextStyle(
+                      color: lightBrownColor,
+                      fontSize: 22,
+                      fontFamily: 'Scabber',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ),
 
             // Tab Bar
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: backgroundColor.withValues(alpha: 0.7),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TabBar(
-                controller: _tabController,
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicator: BoxDecoration(
-                  color: lightIndigoColor.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF4C87FF).withValues(alpha: 0.4),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                unselectedLabelColor: _textColor.withValues(alpha: 0.5),
-                labelColor: Colors.white,
-                dividerColor: Colors.transparent,
-                labelStyle: const TextStyle(fontSize: 16, fontFamily: 'Scabber'),
-                tabs: [
-                  Tab(text: 'achievements.titles'.tr()),
-                  Tab(text: 'achievements.tasks'.tr()),
-                ],
-              ),
+            BlocBuilder<TitleBloc, TitleState>(
+              builder: (context, state) {
+                if (state.event == TitleEvents.fetchUserTitlesStart) {
+                  return Center(child: CircularProgressIndicator(color: lightIndigoColor));
+                }
+
+                if (state.event == TitleEvents.fetchAllTitlesFailure) {
+                  return _buildEmptyState(
+                    icon: 'assets/icons/empty.png',
+                    message: 'achievements.no_titles'.tr(),
+                    noButton: true,
+                  );
+                }
+
+                if (state.titles.isEmpty) {
+                  return _buildEmptyState(
+                    icon: 'assets/icons/empty.png',
+                    message: 'achievements.no_titles'.tr(),
+                    noButton: true,
+                  );
+                }
+
+                // Get current user's earned titles (would need to be fetched from user model)
+                // final user = context.read<UserModel>(); // This would need to be provided in a real app
+                // final earnedTitles = context.select((AuthBloc bloc) => bloc.state.user?.achievements ?? []);
+                return _buildTitleGrid(state.titles);
+              },
             ),
 
             // Tab Bar View
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  // TITLES TAB
-                  BlocBuilder<TitleBloc, TitleState>(
-                    builder: (context, state) {
-                      if (state.event == TitleEvents.fetchAllTitlesStart) {
-                        return Center(child: CircularProgressIndicator(color: lightIndigoColor));
-                      }
-                      if (state.titles.isEmpty) {
-                        return _buildEmptyState(
-                          icon: 'assets/icons/empty.png',
-                          message: 'achievements.no_titles'.tr(),
-                          noButton: true,
-                        );
-                      }
+            // Expanded(
+            //   child: TabBarView(
+            //     controller: _tabController,
+            //     children: [
+            //       // TITLES TAB
+            //       BlocBuilder<TitleBloc, TitleState>(
+            //         builder: (context, state) {
+            //           if (state.event == TitleEvents.fetchUserTitlesStart) {
+            //             return Center(child: CircularProgressIndicator(color: lightIndigoColor));
+            //           }
 
-                      // Get current user's earned titles (would need to be fetched from user model)
-                      // final user = context.read<UserModel>(); // This would need to be provided in a real app
-                      final earnedTitles = context.select((AuthBloc bloc) => bloc.state.user?.achievements ?? []);
-                      return _buildTitleGrid(state.titles, earnedTitles);
-                    },
-                  ),
+            //           if (state.event == TitleEvents.fetchAllTitlesFailure) {
+            //             return _buildEmptyState(
+            //               icon: 'assets/icons/empty.png',
+            //               message: 'achievements.no_titles'.tr(),
+            //               noButton: true,
+            //             );
+            //           }
 
-                  // TASKS TAB
-                  BlocBuilder<TaskBloc, TaskState>(
-                    builder: (context, state) {
-                      if (state.event == TaskEvents.fetchAllTasksStart) {
-                        return Center(child: CircularProgressIndicator(color: lightIndigoColor));
-                      }
-                      if (state.tasks.isEmpty) {
-                        return _buildEmptyState(
-                          icon: 'assets/icons/empty.png',
-                          message: 'achievements.no_tasks'.tr(),
-                          noButton: true,
-                        );
-                      }
+            //           if (state.titles.isEmpty) {
+            //             return _buildEmptyState(
+            //               icon: 'assets/icons/empty.png',
+            //               message: 'achievements.no_titles'.tr(),
+            //               noButton: true,
+            //             );
+            //           }
 
-                      // Get current user's completed tasks (would need to be fetched from user model)
-                      final completedTasks = context.select((AuthBloc bloc) => bloc.state.user?.completedTasks ?? []);
+            //           // Get current user's earned titles (would need to be fetched from user model)
+            //           // final user = context.read<UserModel>(); // This would need to be provided in a real app
+            //           // final earnedTitles = context.select((AuthBloc bloc) => bloc.state.user?.achievements ?? []);
+            //           return _buildTitleGrid(state.titles);
+            //         },
+            //       ),
 
-                      return _buildTaskGrid(state.tasks, completedTasks);
-                    },
-                  ),
-                ],
-              ),
-            ),
+            //       // TASKS TAB
+            //       BlocBuilder<TaskBloc, TaskState>(
+            //         builder: (context, state) {
+            //           if (state.event == TaskEvents.fetchAllTasksStart) {
+            //             return Center(child: CircularProgressIndicator(color: lightIndigoColor));
+            //           }
+            //           if (state.tasks.isEmpty) {
+            //             return _buildEmptyState(
+            //               icon: 'assets/icons/empty.png',
+            //               message: 'achievements.no_tasks'.tr(),
+            //               noButton: true,
+            //             );
+            //           }
+
+            //           // Get current user's completed tasks (would need to be fetched from user model)
+            //           final completedTasks = context.select((AuthBloc bloc) => bloc.state.user?.completedTasks ?? []);
+
+            //           return _buildTaskGrid(state.tasks, completedTasks);
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -261,41 +285,39 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     VoidCallback? onButton,
     bool noButton = false,
   }) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(
-            icon,
-            width: 100,
-            height: 100,
-            //color: noButton ? Colors.amber : Colors.grey[600],
-          ),
-          const SizedBox(height: 16),
-          Text(message, style: TextStyle(color: _textColor, fontFamily: 'Scabber')),
-          if (subMessage != null) ...[
-            const SizedBox(height: 8),
-            Text(subMessage, style: TextStyle(color: _subTextColor, fontFamily: 'Scabber')),
-          ],
-          if (buttonText != null && onButton != null) ...[
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: onButton,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4C87FF),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: Text(buttonText, style: const TextStyle(fontFamily: 'Scabber')),
-            ),
-          ],
+    return Column(
+      children: [
+        const SizedBox(height: 200),
+        Image.asset(
+          icon,
+          width: 100,
+          height: 100,
+          //color: noButton ? Colors.amber : Colors.grey[600],
+        ),
+        const SizedBox(height: 16),
+        Text(message, textAlign: TextAlign.center, style: TextStyle(color: _textColor, fontFamily: 'Scabber')),
+        if (subMessage != null) ...[
+          const SizedBox(height: 8),
+          Text(subMessage, textAlign: TextAlign.center, style: TextStyle(color: _subTextColor, fontFamily: 'Scabber')),
         ],
-      ),
+        if (buttonText != null && onButton != null) ...[
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: onButton,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4C87FF),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text(buttonText, style: const TextStyle(fontFamily: 'Scabber')),
+          ),
+        ],
+      ],
     );
   }
 
   /// Title grid
-  Widget _buildTitleGrid(List<TitleModel> titles, List<String> earnedTitles) {
+  Widget _buildTitleGrid(List<TitleModel> titles) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -307,20 +329,20 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
       itemCount: titles.length,
       itemBuilder: (context, i) {
         final title = titles[i];
-        final isUnlocked = earnedTitles.contains(title.id);
+        // final isUnlocked = earnedTitles.contains(title.id);
 
         final achievement = Achievement(
           title: title.name,
-          description: title.description,
+          description: context.tr(title.description),
           icon: title.iconUrl,
           titleKey: title.key,
-          color: Colors.purple,
-          isUnlocked: isUnlocked,
+          color: _getTitleColor(title.key),
+          isUnlocked: true,
         );
 
         return AchievementCard(
           achievement: achievement,
-          onTap: () => _showTitleDetails(context, title, isUnlocked),
+          onTap: () => _showTitleDetails(context, title),
           backgroundColor: backgroundColor,
           textColor: _textColor,
           subTextColor: _subTextColor,
