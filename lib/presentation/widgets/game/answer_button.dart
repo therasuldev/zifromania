@@ -38,8 +38,8 @@ class _AnswerButtonState extends State<AnswerButton> with SingleTickerProviderSt
   }
 
   Color _getButtonColor({
-    required dynamic answerValue,
-    required String correctAnswer,
+    required String answerValue,
+    required int correctAnswer,
     required int index,
     int? lastSelectedAnswer,
     required int currentQuestionIndex,
@@ -49,14 +49,30 @@ class _AnswerButtonState extends State<AnswerButton> with SingleTickerProviderSt
       return Colors.transparent;
     }
 
-    // Handle true/false as 1/0
-    if (answerValue is String && (answerValue == "True" || answerValue == "False")) {
-      final numeric = answerValue == "True" ? "1" : "0";
-      if (numeric == correctAnswer) return const Color.fromARGB(50, 50, 255, 153);
-      if (lastSelectedAnswer == index) return const Color.fromARGB(50, 255, 50, 50);
+    // Check if this is the correct answer
+    bool isCorrectAnswer = false;
+
+    // Handle true/false questions
+    if (answerValue == "True" || answerValue == "False") {
+      final numericValue = answerValue == "True" ? 1 : 0;
+      isCorrectAnswer = numericValue == correctAnswer;
     } else {
-      if (answerValue == correctAnswer) return const Color.fromARGB(50, 50, 255, 153);
-      if (lastSelectedAnswer == index) return const Color.fromARGB(50, 255, 50, 50);
+      // Handle numeric questions
+      final numericValue = int.tryParse(answerValue);
+      if (numericValue != null) {
+        isCorrectAnswer = numericValue == correctAnswer;
+      } else {
+        // String comparison as fallback
+        isCorrectAnswer = answerValue == correctAnswer.toString();
+      }
+    }
+
+    // Color logic
+    if (isCorrectAnswer) {
+      return const Color.fromARGB(50, 50, 255, 153); // Green for correct
+    }
+    if (lastSelectedAnswer == index) {
+      return const Color.fromARGB(50, 255, 50, 50); // Red for selected wrong
     }
 
     return Colors.transparent;
@@ -67,11 +83,22 @@ class _AnswerButtonState extends State<AnswerButton> with SingleTickerProviderSt
     return BlocBuilder<GameBloc, GameState>(
       builder: (context, state) {
         final question = state.currentQuestion;
-        if (question == null || widget.index >= question.answerOptions.length) {
+        if (question == null) {
           return const SizedBox.shrink();
         }
 
-        final answerValue = question.answerOptions[widget.index];
+        // Get the answer options as a list of keys and values
+        final optionKeys = question.answerOptions.keys.toList();
+        final optionValues = question.answerOptions.values.toList();
+
+        // Check if the index is valid
+        if (widget.index >= optionKeys.length) {
+          return const SizedBox.shrink();
+        }
+
+        // Get the answer value for this index
+        final answerKey = optionKeys[widget.index];
+        final answerValue = question.answerOptions[answerKey]!;
         final correctAnswer = question.correctAnswer;
 
         return GestureDetector(
@@ -85,40 +112,79 @@ class _AnswerButtonState extends State<AnswerButton> with SingleTickerProviderSt
           onTapCancel: () => _scaleController.forward(),
           child: ScaleTransition(
             scale: _scaleController,
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: _getButtonColor(
-                  answerValue: answerValue,
-                  correctAnswer: correctAnswer,
-                  index: widget.index,
-                  currentQuestionIndex: state.currentQuestionIndex,
-                  state: state,
-                  lastSelectedAnswer: state.lastSelectedAnswer,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 2),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: double.infinity,
                   decoration: BoxDecoration(
-                    color: state.lastSelectedAnswer != null ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
-                    borderRadius: BorderRadius.circular(15),
+                    color: _getButtonColor(
+                      answerValue: answerValue,
+                      correctAnswer: correctAnswer,
+                      index: widget.index,
+                      currentQuestionIndex: state.currentQuestionIndex,
+                      state: state,
+                      lastSelectedAnswer: state.lastSelectedAnswer,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 2),
                   ),
-                  child: Text(
-                    answerValue.toString(),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontFamily: 'Scabber',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: state.lastSelectedAnswer != null ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Option key (A, B, C, D)
+
+                          // Answer value
+                          FittedBox(
+                            child: Text(
+                              answerValue,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontFamily: 'Scabber',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
+
+                // Option key (A, B, C, D)
+                Positioned(
+                  left: -10,
+                  top: -15,
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.2),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 2),
+                    ),
+                    child: Text(
+                      optionKeys[widget.index],
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'Scabber',
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         );
