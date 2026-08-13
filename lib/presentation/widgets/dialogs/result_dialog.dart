@@ -110,7 +110,7 @@ class ResultDialog extends StatelessWidget {
                       Text(
                         context.tr('game.score', args: ['$score']),
                         style: const TextStyle(
-                          fontSize: 30,
+                          fontSize: 25,
                           fontWeight: FontWeight.bold,
                           color: Colors.yellow,
                           fontFamily: 'Scabber',
@@ -120,7 +120,7 @@ class ResultDialog extends StatelessWidget {
                       Text(
                         context.tr('earned_xp', args: ['${state.xpEarned}']),
                         style: const TextStyle(
-                          fontSize: 30,
+                          fontSize: 25,
                           fontWeight: FontWeight.bold,
                           color: Colors.yellow,
                           fontFamily: 'Scabber',
@@ -130,7 +130,7 @@ class ResultDialog extends StatelessWidget {
                       Text(
                         context.tr('game.time', args: ['${60 - state.secondsRemaining}']),
                         style: const TextStyle(
-                          fontSize: 30,
+                          fontSize: 25,
                           fontWeight: FontWeight.bold,
                           color: Colors.deepOrange,
                           fontFamily: 'Scabber',
@@ -140,7 +140,7 @@ class ResultDialog extends StatelessWidget {
                       Text(
                         context.tr('game_categories.${state.gameCategory!.toTextWithUnderscores()}'),
                         style: const TextStyle(
-                          fontSize: 30,
+                          fontSize: 25,
                           fontWeight: FontWeight.bold,
                           color: Colors.cyan,
                           fontFamily: 'Scabber',
