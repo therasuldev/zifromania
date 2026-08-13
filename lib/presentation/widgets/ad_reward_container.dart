@@ -1,7 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:zifromania/presentation/state-managment/ad_manager.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
+import 'package:zifromania/presentation/widgets/dialogs/subscription_dialog.dart';
 import 'package:zifromania/services/game_limit_service.dart';
 
 class AdRewardContainer extends StatefulWidget {
@@ -11,12 +12,12 @@ class AdRewardContainer extends StatefulWidget {
   final VoidCallback? onClose;
 
   const AdRewardContainer({
-    Key? key,
+    super.key,
     required this.gameLimitService,
     required this.adManager,
     this.onRewardEarned,
     this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   State<AdRewardContainer> createState() => _AdRewardContainerState();
@@ -70,11 +71,9 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
     });
 
     try {
-      widget.adManager.showRewardedAdForBonus(
-        onRewardEarned: (RewardItem reward) async {
-          // Reklam sayını artır
-          await widget.gameLimitService.incrementGlobalAdWatchedCount();
-
+      // YENİ: AdManager-in yeni metodundan istifadə et
+      final success = await widget.adManager.showRewardedAdForFlexibleGames(
+        onRewardEarned: () {
           setState(() {
             _isLoading = false;
           });
@@ -86,17 +85,31 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
           // Ad status-u yenilə
           _loadAdStatus();
 
-          // Əgər 3 reklam tamamlandısa, mükafat dialog-u göstər
-          if (_adStatus['hasEarnedReward'] == true) {
-            _applyReward();
+          // Yenidən yoxla ki, mükafat verildinimi
+          final newStatus = widget.gameLimitService.getGlobalAdStatus();
+          if (newStatus['hasEarnedReward'] == true) {
+            _showRewardDialog();
           }
+
+          // Callback-i çağır
+          widget.onRewardEarned?.call();
         },
-        onRewardedAdClosed: () {
+        onError: (String error) {
           setState(() {
             _isLoading = false;
           });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error)),
+          );
         },
       );
+
+      if (!success) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -107,46 +120,10 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
     }
   }
 
-  void _applyReward() async {
-    // Mükafat artıq GameLimitService tərəfindən verildi
-    widget.onRewardEarned?.call();
-
-    // Reward dialog göstər
-    _showRewardDialog();
-  }
-
   void _showRewardDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.celebration, color: Colors.amber, size: 28),
-            SizedBox(width: 8),
-            Text('Təbriklər!'),
-          ],
-        ),
-        content: const Text(
-          'Bütün kateqoriyalar üçün 2 əlavə oyun hüququ qazandınız!',
-          style: TextStyle(fontSize: 16),
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              widget.onClose?.call();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            child: const Text('Tamam', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
+    final flexibleGames = _adStatus['flexibleGames'] ?? 0;
+
+    showDialog(context: context, barrierDismissible: false, builder: (context) => AppDialog(message: 'extra_games_unlocked'.tr()));
   }
 
   @override
@@ -194,10 +171,10 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
                   ),
                   child: Column(
                     children: [
-                      const Text(
-                        '3 reklam izləyərək bütün kateqoriyalar üçün 2 əlavə oyun qazanın',
+                      Text(
+                        context.tr('subscription.extra_games'),
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 16,
                           fontFamily: 'Scabber',
@@ -213,7 +190,6 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
                           _maxAdsForReward,
                           (index) => Container(
                             margin: const EdgeInsets.symmetric(horizontal: 8),
-                            // padding: const EdgeInsets.all(12),
                             height: 50,
                             width: 50,
                             decoration: BoxDecoration(
@@ -230,7 +206,10 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${_adStatus['watchedAds'] ?? 0}/$_maxAdsForReward reklam izləndi',
+                        'subscription.ad_status'.tr(namedArgs: {
+                          'watched': (_adStatus['watchedAds'] ?? 0).toString(),
+                          'max': _maxAdsForReward.toString(),
+                        }),
                         style: const TextStyle(
                           color: Colors.white70,
                           fontFamily: 'Scabber',
@@ -244,70 +223,39 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
                         ScaleTransition(
                           scale: _scaleAnimation,
                           child: SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: PressableFilledButton(
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: Colors.cyanAccent.withValues(alpha: 0.2),
-                                  foregroundColor: Colors.white70,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                ),
-                                onPressed: _isLoading ? null : _watchAd,
-                                child: _isLoading
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(
-                                            Colors.black,
-                                          ),
-                                        ),
-                                      )
-                                    : const Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.play_arrow, size: 24),
-                                          SizedBox(width: 8),
-                                          Text(
-                                            'Reklam İzlə',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontFamily: 'Scabber',
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                              )),
-                        )
-                      else
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.8),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.check_circle, color: Colors.white, size: 24),
-                              SizedBox(width: 8),
-                              Text(
-                                '+2 oyun',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontFamily: 'Scabber',
-                                  fontWeight: FontWeight.bold,
+                            width: double.infinity,
+                            height: 50,
+                            child: PressableFilledButton(
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Colors.cyanAccent.withValues(alpha: 0.2),
+                                foregroundColor: Colors.white70,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-                            ],
+                              onPressed: _isLoading ? null : _watchAd,
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.black,
+                                        ),
+                                      ),
+                                    )
+                                  : Text(
+                                      'subscription.watch_ad'.tr(),
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontFamily: 'Scabber',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                            ),
                           ),
-                        ),
+                        )
                     ],
                   ),
                 ),
@@ -318,22 +266,22 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Colors.white.withOpacity(0.8),
-                        size: 20,
+                      Image.asset(
+                        'assets/icons/information.png',
+                        width: 18,
+                        height: 18,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Hər reklam izlədikdən sonra növbəti reklamı izləyə bilərsiniz',
+                          'subscription.ad_info'.tr(),
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 12,
                             fontFamily: 'Scabber',
                           ),
@@ -356,7 +304,7 @@ class PatternPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.05)
+      ..color = Colors.white.withValues(alpha: 0.05)
       ..strokeWidth = 1;
 
     // Diagonal xətlər
