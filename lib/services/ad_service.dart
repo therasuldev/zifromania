@@ -38,7 +38,7 @@ class AdService {
 
   final String _realInterstitialAdUnitId = Platform.isAndroid ? 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX' : 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX';
 
-  final String _realRewardedAdUnitId = Platform.isAndroid ? 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX' : 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX';
+  final String _realRewardedAdUnitId = Platform.isAndroid ? 'ca-app-pub-7254369494202990/7653383408' : 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX';
 
   // Banner ad ID getter
   String get bannerAdUnitId => _testMode ? _testBannerAdUnitId : _realBannerAdUnitId;
