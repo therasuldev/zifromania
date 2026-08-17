@@ -4,9 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
-import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
-import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
+import 'package:zifromania/locator.dart';
 
+import 'cache_service.dart';
 import 'user_service.dart';
 import 'package:zifromania/models/subscription_model.dart';
 
@@ -75,15 +75,15 @@ class InAppPurchaseService {
   // ƏSL məhsul ID-ləri ilə EYNİ olmalıdır. Screenshot-da yalnız coin cədvəlini
   // gördüm, subscription ID-lərini öz konsolunuzdan yoxlayıb bura yazın.
   final List<String> _subscriptionIds = [
-    'subscription_monthly',   // 1 Ay - $4.99
+    'subscription_monthly', // 1 Ay - $4.99
     'subscription_quarterly', // 3 Ay - $9.99
     'subscription_semiannual', // 6 Ay - $17.99
   ];
 
   // Coin paketləri ID-ləri — Play Console-dakı əsl ID-lərlə uyğunlaşdırıldı
   final List<String> _coinProductIds = [
-    '100_coin',  // 100 coin - $0.99
-    '550_coin',  // 500 coin (+50 bonus) - $4.99
+    '100_coin', // 100 coin - $0.99
+    '550_coin', // 500 coin (+50 bonus) - $4.99
     '1200_coin', // 1200 coin (+200 bonus) - $9.99
     '5000_coin', // 5000 coin (+2000 bonus) - $39.99
   ];
@@ -102,21 +102,17 @@ class InAppPurchaseService {
   bool get isLoading => _isLoading;
 
   // Stream controllerlər
-  final StreamController<List<StoreProduct>> _productsController =
-      StreamController<List<StoreProduct>>.broadcast();
+  final StreamController<List<StoreProduct>> _productsController = StreamController<List<StoreProduct>>.broadcast();
   Stream<List<StoreProduct>> get productsStream => _productsController.stream;
 
-  final StreamController<PurchaseResult> _purchaseController =
-      StreamController<PurchaseResult>.broadcast();
+  final StreamController<PurchaseResult> _purchaseController = StreamController<PurchaseResult>.broadcast();
   Stream<PurchaseResult> get purchaseStream => _purchaseController.stream;
 
   // Abunəlik məhsulları
-  List<StoreProduct> get subscriptions =>
-      _products.where((p) => _subscriptionIds.contains(p.productDetails.id)).toList();
+  List<StoreProduct> get subscriptions => _products.where((p) => _subscriptionIds.contains(p.productDetails.id)).toList();
 
   // Coin məhsulları
-  List<StoreProduct> get coinProducts =>
-      _products.where((p) => _coinProductIds.contains(p.productDetails.id)).toList();
+  List<StoreProduct> get coinProducts => _products.where((p) => _coinProductIds.contains(p.productDetails.id)).toList();
 
   // Abunəlik aktiv olub olmadığını yoxlamaq üçün
   bool _hasActiveSubscription = false;
@@ -148,13 +144,6 @@ class InAppPurchaseService {
       return;
     }
 
-    // Platform spesifik quraşdırmalar
-    if (Platform.isIOS) {
-      final iosPlatformAddition =
-          _inAppPurchase.getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
-      await iosPlatformAddition.setDelegate(IOSPaymentQueueDelegate());
-    }
-
     // Satın almaları dinləyən - init başında bir dəfə qoşulmalıdır
     _subscription = _inAppPurchase.purchaseStream.listen(
       _listenToPurchaseUpdated,
@@ -183,8 +172,7 @@ class InAppPurchaseService {
   Future<void> loadProducts() async {
     _isLoading = true;
     try {
-      final ProductDetailsResponse response =
-          await _inAppPurchase.queryProductDetails(_storeProductIds.toSet());
+      final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(_storeProductIds.toSet());
 
       if (response.error != null) {
         _purchaseController.add(
@@ -276,8 +264,7 @@ class InAppPurchaseService {
 
   Future<void> _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) async {
     for (final PurchaseDetails purchaseDetails in purchaseDetailsList) {
-      final String purchaseKey = purchaseDetails.purchaseID ??
-          '${purchaseDetails.productID}_${purchaseDetails.transactionDate}';
+      final String purchaseKey = purchaseDetails.purchaseID ?? '${purchaseDetails.productID}_${purchaseDetails.transactionDate}';
 
       switch (purchaseDetails.status) {
         case PurchaseStatus.pending:
@@ -399,6 +386,10 @@ class InAppPurchaseService {
     }
 
     await _userService.addCoins(uid, amount);
+
+    // 🔑 Lokal cache/notifier-i dərhal yenilə ki, UI manual refresh
+    // olmadan yeni balansı göstərsin (ValueListenableBuilder bunu tutacaq).
+    await locator.get<SecureCacheService>().increaseUserCoins(amount);
   }
 
   // Abunəliyi aktivləşdirir: plan tipini müəyyən edir, başlanğıc/bitmə
@@ -474,11 +465,9 @@ class InAppPurchaseService {
   Future<void> checkActiveSubscriptions() async {
     try {
       if (Platform.isAndroid) {
-        final androidAddition =
-            _inAppPurchase.getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
+        final androidAddition = _inAppPurchase.getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
 
-        final QueryPurchaseDetailsResponse response =
-            await androidAddition.queryPastPurchases();
+        final QueryPurchaseDetailsResponse response = await androidAddition.queryPastPurchases();
 
         if (response.error != null) {
           _purchaseController.add(
@@ -530,36 +519,5 @@ class InAppPurchaseService {
     _productsController.close();
     _purchaseController.close();
     _initialized = false;
-  }
-}
-
-/* ------------------------------------------------------------------------
-services_init.dart-da qeydiyyat SIRASI vacibdir: InAppPurchaseService,
-UserService-dən SONRA qeydiyyatdan keçməlidir, çünki ona bağımlıdır:
-
-  locator
-    ..registerLazySingleton(() => UserService())
-    ..registerLazySingleton(
-      () => InAppPurchaseService(userService: locator<UserService>()),
-    );
-
-Və Future.wait([...]) siyahısına əlavə edin:
-
-  await Future.wait([
-    ...
-    locator<InAppPurchaseService>().init(),
-  ]);
------------------------------------------------------------------------- */
-
-// iOS üçün ödəniş növbəsi delegatı
-class IOSPaymentQueueDelegate implements SKPaymentQueueDelegateWrapper {
-  @override
-  bool shouldContinueTransaction(SKPaymentTransactionWrapper transaction, SKStorefrontWrapper storefront) {
-    return true;
-  }
-
-  @override
-  bool shouldShowPriceConsent() {
-    return true;
   }
 }
