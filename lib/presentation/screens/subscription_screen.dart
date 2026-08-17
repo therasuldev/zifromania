@@ -284,7 +284,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           child: Column(
             children: [
               _buildHeader(),
-
               ValueListenableBuilder<UserModel?>(
                 valueListenable: locator.get<SecureCacheService>().userNotifier,
                 builder: (ctx, user, _) {
@@ -346,7 +345,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
+                          color: Colors.grey.withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -428,7 +427,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   );
                 },
               ),
-
               const SizedBox(height: 16),
               Expanded(
                 child: DefaultTabController(
@@ -508,7 +506,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             ),
           ),
           const SizedBox(height: 16),
-
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -691,13 +688,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               );
             },
           ),
-
           Center(
             child: TextButton(
               onPressed: _isPurchasing ? null : _handleRestore,
               child: Text(
                 'subscription.restore_purchases'.tr(),
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: 'Scabber',
                   color: Colors.white54,
                   decoration: TextDecoration.underline,
@@ -705,7 +701,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               ),
             ),
           ),
-
           Container(
             margin: const EdgeInsets.only(top: 8),
             padding: const EdgeInsets.all(16),
