@@ -2,8 +2,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'settings_local_datasource.dart';
 
-class SettingsLocalDatasourceImpl implements SettingsLocalDatasource {
-  SettingsLocalDatasourceImpl({required this.sharedPreferences});
+final class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
+  SettingsLocalDataSourceImpl({required this.sharedPreferences});
 
   final SharedPreferences sharedPreferences;
 
@@ -45,8 +45,8 @@ class SettingsLocalDatasourceImpl implements SettingsLocalDatasource {
   }
 
   @override
-  Future<void> resetToDefaults() {
-    return Future.wait([
+  Future<void> resetToDefaults() async {
+    await Future.wait([
       sharedPreferences.setBool(_soundKey, _defaultSoundEnabled),
       sharedPreferences.setBool(_musicKey, _defaultMusicEnabled),
       sharedPreferences.setBool(_vibrationKey, _defaultVibrationEnabled),
