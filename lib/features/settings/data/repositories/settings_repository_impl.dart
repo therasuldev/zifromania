@@ -1,8 +1,8 @@
 import 'package:zifromania/features/settings/data/datasource/settings_local_datasource.dart';
 import 'package:zifromania/features/settings/domain/repositories/settings_repository.dart';
 
-class SettingsRepositoryImpl implements SettingsRepository {
-  final SettingsLocalDatasource localDatasource;
+final class SettingsRepositoryImpl implements SettingsRepository {
+  final SettingsLocalDataSource localDatasource;
 
   SettingsRepositoryImpl({required this.localDatasource});
 
@@ -47,7 +47,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
-  Future<void> resetToDefaults() {
-    return localDatasource.resetToDefaults();
+  Future<void> resetToDefaults() async {
+    await localDatasource.resetToDefaults();
   }
 }
