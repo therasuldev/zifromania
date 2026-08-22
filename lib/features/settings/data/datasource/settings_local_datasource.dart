@@ -1,4 +1,4 @@
-abstract interface class SettingsLocalDatasource {
+abstract interface class SettingsLocalDataSource {
   Future<bool> setSoundEnabled(bool enabled);
   bool getSoundEnabled();
 
