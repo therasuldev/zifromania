@@ -100,7 +100,10 @@
             "title": "Günlük Ödül",
             "tap_to_collect": "Ücretsiz jetonlarını toplamak için dokun!",
             "come_back_later": "{} sonra tekrar gel",
-            "collect_button": "Topla"
+            "collect_button": "Topla",
+            "reward_time_hours_minutes": "{hours} sa {minutes} dk",
+            "reward_time_minutes": "{minutes} dk",
+            "reward_time_ready": "Hazır"
         },
         "notEnoughCoins": "Yeterli miktarda coin yok.",
         "coin_balance_update_error": "Coin bakiyesi güncellenirken bir hata oluştu.",
