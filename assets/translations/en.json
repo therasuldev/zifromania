@@ -100,7 +100,10 @@
             "title": "Daily Reward",
             "tap_to_collect": "Tap to collect your free coins!",
             "come_back_later": "Come back in {}",
-            "collect_button": "Collect"
+            "collect_button": "Collect",
+            "reward_time_hours_minutes": "{hours}h {minutes}m",
+            "reward_time_minutes": "{minutes}m",
+            "reward_time_ready": "Ready"
         },
         "notEnoughCoins": "Not enough coins!",
         "coin_balance_update_error": "An error occurred while updating the coin balance.",
