@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:zifromania/features/auth/data/models/user_model.dart';
+import 'package:zifromania/features/user/data/models/user_model.dart';
 import 'package:zifromania/services/cache_service.dart';
 
 import 'auth_remote_datasource.dart';
