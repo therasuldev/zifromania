@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:zifromania/features/auth/data/models/user_model.dart';
+import 'package:zifromania/features/user/data/models/user_model.dart';
 
 abstract interface class AuthRepository {
   Future<UserModel> signInWithGoogle();
