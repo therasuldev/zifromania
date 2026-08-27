@@ -16,21 +16,17 @@ final class SoundLocalDataSourceImpl implements SoundLocalDataSource {
   final AudioPlayer _musicPlayer;
 
   String? _currentBackgroundMusic;
-  bool _isMusicPlaying = false;
 
   @override
   Future<void> init() async {
     await _effectPlayer.setReleaseMode(ReleaseMode.release);
-
     await _musicPlayer.setReleaseMode(ReleaseMode.loop);
     await _musicPlayer.setVolume(0.5);
   }
 
   @override
   Future<void> playSoundEffect(String assetPath) async {
-    await _effectPlayer.play(
-      AssetSource(assetPath),
-    );
+    await _effectPlayer.play(AssetSource(assetPath));
   }
 
   @override
@@ -38,38 +34,27 @@ final class SoundLocalDataSourceImpl implements SoundLocalDataSource {
     if (_currentBackgroundMusic != assetPath) {
       _currentBackgroundMusic = assetPath;
 
-      await _musicPlayer.setSource(
-        AssetSource(assetPath),
-      );
-
-      await _musicPlayer.setReleaseMode(
-        ReleaseMode.loop,
-      );
+      await _musicPlayer.setSource(AssetSource(assetPath));
+      await _musicPlayer.setReleaseMode(ReleaseMode.loop);
     }
 
-    if (!_isMusicPlaying) {
-      await _musicPlayer.resume();
-      _isMusicPlaying = true;
-    }
+    await _musicPlayer.resume();
   }
 
   @override
   Future<void> stopBackgroundMusic() async {
     await _musicPlayer.stop();
-    _isMusicPlaying = false;
     _currentBackgroundMusic = null;
   }
 
   @override
   Future<void> pauseBackgroundMusic() async {
     await _musicPlayer.pause();
-    _isMusicPlaying = false;
   }
 
   @override
   Future<void> resumeBackgroundMusic() async {
     await _musicPlayer.resume();
-    _isMusicPlaying = true;
   }
 
   @override
@@ -80,9 +65,7 @@ final class SoundLocalDataSourceImpl implements SoundLocalDataSource {
       return;
     }
 
-    await Vibration.vibrate(
-      duration: durationInMilliseconds,
-    );
+    await Vibration.vibrate(duration: durationInMilliseconds);
   }
 
   @override
