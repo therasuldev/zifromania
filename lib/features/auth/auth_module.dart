@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:zifromania/core/providers/firebase_provider.dart';
 import 'package:zifromania/features/auth/data/datasource/auth_remote_datasource_impl.dart';
 import 'package:zifromania/features/auth/domain/repositories/auth_repository.dart';
 import 'package:zifromania/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
@@ -9,10 +9,6 @@ import 'package:zifromania/services/cache_service.dart';
 
 import 'data/datasource/auth_remote_datasource.dart';
 import 'data/repositories/auth_repository_impl.dart';
-
-final authProvider = Provider<FirebaseAuth>((ref) {
-  return FirebaseAuth.instance;
-});
 
 final secureCacheServiceProvider = Provider<SecureCacheService>((ref) {
   return SecureCacheService();
