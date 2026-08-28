@@ -21,14 +21,14 @@ abstract interface class UserRemoteDataSource {
     required int amount,
   });
 
-  Future<void> spendCoins({
+  Future<UserModel> spendCoins({
     required String uid,
     required int amount,
   });
 
   // XP
 
-  Future<void> addXp({
+  Future<UserModel> addXp({
     required String uid,
     required int xpEarned,
   });
