@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:zifromania/core/storage/shared_prefs_provider.dart';
+import 'package:zifromania/core/providers/shared_prefs_provider.dart';
 
 import 'data/datasource/settings_local_datasource.dart';
 import 'data/datasource/settings_local_datasource_impl.dart';
