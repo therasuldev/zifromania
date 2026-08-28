@@ -95,7 +95,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   }
 
   @override
-  Future<void> spendCoins({required String uid, required int amount}) async {
+  Future<UserModel> spendCoins({required String uid, required int amount}) async {
     final user = await getUser(uid: uid);
 
     if (user.coins < amount) {
@@ -105,11 +105,15 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     await _userDoc(uid).update({
       'coins': FieldValue.increment(-amount),
     });
+
+    return getUser(uid: uid);
   }
 
   @override
-  Future<void> addXp({required String uid, required int xpEarned}) async {
+  Future<UserModel> addXp({required String uid, required int xpEarned}) async {
     await _applyXp(uid: uid, xpEarned: xpEarned);
+
+    return getUser(uid: uid);
   }
 
   Future<void> _applyXp({
