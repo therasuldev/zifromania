@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zifromania/core/providers/firebase_provider.dart';
+import 'package:zifromania/core/services/secure_storage_service.dart';
 
+import 'data/datasource/user_local_data_source.dart';
+import 'data/datasource/user_local_data_source_impl.dart';
 import 'data/datasource/user_remote_datasource.dart';
 import 'data/datasource/user_remote_datasource_impl.dart';
 import 'data/helpers/game_statistics_calculator.dart';
@@ -40,9 +43,18 @@ final userRemoteDataSourceProvider = Provider<UserRemoteDataSource>((ref) {
   return UserRemoteDataSourceImpl(firestore: firestore, calculator: calculator);
 });
 
+final userLocalDataSourceProvider = Provider<UserLocalDataSource>((ref) {
+  final secureStorageService = ref.watch(secureStorageServiceProvider);
+  return UserLocalDataSourceImpl(storage: secureStorageService);
+});
+
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   final remoteDataSource = ref.watch(userRemoteDataSourceProvider);
-  return UserRepositoryImpl(remoteDataSource: remoteDataSource);
+  final localDataSource = ref.watch(userLocalDataSourceProvider);
+  return UserRepositoryImpl(
+    remoteDataSource: remoteDataSource,
+    localDataSource: localDataSource,
+  );
 });
 
 final spendCoinsUseCaseProvider = Provider<SpendCoinsUseCase>((ref) {
