@@ -1,3 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
+
+import 'enums.dart';
+
 class MathQuestion {
   final String question;
   final int correctAnswer;
@@ -9,12 +13,45 @@ class MathQuestion {
     required this.answerOptions,
   });
 
-  factory MathQuestion.fromJson(Map<String, dynamic> json) {
-    return MathQuestion(
-      question: json['question'] as String,
-      correctAnswer: json['correct_option'] as int,
-      answerOptions: Map<String, String>.from(json['options']),
-    );
+  factory MathQuestion.fromJson(Map<String, dynamic> json, GameCategory gameCategory) {
+    final String questionText = json['question'] as String;
+    final Map<String, dynamic> rawOptions = Map<String, dynamic>.from(json['options'] ?? {});
+    final String correctOptionKey = json['correct_option']?.toString() ?? '';
+
+    bool isTrueFalse = gameCategory == GameCategory.trueOrFalse ||
+        (rawOptions.containsKey('A') && rawOptions['A'] == tr('title.true') && rawOptions.containsKey('B') && rawOptions['B'] == tr('title.false'));
+
+    if (isTrueFalse) {
+      int correctAnswerValue = rawOptions[correctOptionKey] == tr('title.true') ? 1 : 0;
+      Map<String, String> answerOptions = {};
+
+      rawOptions.forEach((key, value) {
+        if (value != null && value != '-') {
+          answerOptions[key] = value.toString();
+        }
+      });
+
+      return MathQuestion(
+        question: questionText,
+        correctAnswer: correctAnswerValue,
+        answerOptions: answerOptions,
+      );
+    } else {
+      int correctAnswerValue = int.tryParse(rawOptions[correctOptionKey]?.toString() ?? '0') ?? 0;
+      Map<String, String> answerOptions = {};
+
+      rawOptions.forEach((key, value) {
+        if (value != null) {
+          answerOptions[key] = value.toString();
+        }
+      });
+
+      return MathQuestion(
+        question: questionText,
+        correctAnswer: correctAnswerValue,
+        answerOptions: answerOptions,
+      );
+    }
   }
 
   Map<String, dynamic> toJson() => {
