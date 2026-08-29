@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:zifromania/core/services/secure_storage_service.dart';
 import 'package:zifromania/features/user/data/models/user_model.dart';
-import 'package:zifromania/services/cache_service.dart';
 
 import 'auth_remote_datasource.dart';
 
 class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   final FirebaseAuth _auth;
-  final SecureCacheService _cacheService;
+  final SecureStorageService _cacheService;
 
-  AuthRemoteDatasourceImpl({required FirebaseAuth auth, required SecureCacheService cacheService})
+  AuthRemoteDatasourceImpl({required FirebaseAuth auth, required SecureStorageService cacheService})
       : _auth = auth,
         _cacheService = cacheService;
 
