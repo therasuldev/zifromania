@@ -1,11 +1,10 @@
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:zifromania/core/services/shared_preferences_service.dart';
 import 'settings_local_datasource.dart';
 
 final class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   SettingsLocalDataSourceImpl({required this.sharedPreferences});
 
-  final SharedPreferences sharedPreferences;
+  final PreferencesService sharedPreferences;
 
   // Keys for SharedPreferences
   static const String _soundKey = 'sound_enabled';
