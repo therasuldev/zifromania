@@ -1,4 +1,4 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zifromania/core/services/shared_preferences_service.dart';
 
 abstract class DailyRewardLocalDataSource {
   Future<int> getLastClaimMillis();
@@ -6,7 +6,7 @@ abstract class DailyRewardLocalDataSource {
 }
 
 class DailyRewardLocalDataSourceImpl implements DailyRewardLocalDataSource {
-  final SharedPreferences prefs;
+  final PreferencesService prefs;
 
   DailyRewardLocalDataSourceImpl(this.prefs);
 
