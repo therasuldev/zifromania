@@ -6,10 +6,7 @@ class ActivateSubscriptionUseCase {
 
   final SubscriptionRepository repository;
 
-  Future<void> call({
-    required String uid,
-    required SubscriptionEntity subscription,
-  }) async {
+  Future<void> call({required String uid, required SubscriptionEntity subscription}) async {
     await repository.updateSubscriptionDetails(uid: uid, subscription: subscription);
   }
 }
