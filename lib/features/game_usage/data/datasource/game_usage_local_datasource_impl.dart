@@ -1,11 +1,10 @@
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:zifromania/core/services/shared_preferences_service.dart';
 import 'game_usage_local_datasource.dart';
 
 final class GameUsageLocalDataSourceImpl implements GameUsageLocalDataSource {
   const GameUsageLocalDataSourceImpl({required this.sharedPreferences});
 
-  final SharedPreferences sharedPreferences;
+  final PreferencesService sharedPreferences;
   static const String _dailyRequestCountPrefix = 'daily_request_count_';
   static const String _deviceIdPrefix = 'device_id_';
   static const String _installDatePrefix = 'install_date_';
@@ -92,7 +91,7 @@ final class GameUsageLocalDataSourceImpl implements GameUsageLocalDataSource {
   Future<void> setGlobalAdWatchedRaw(String key, int value) {
     return sharedPreferences.setInt(key, value);
   }
-  
+
   // Cleanup
   @override
   Future<void> removeKey(String key) {
