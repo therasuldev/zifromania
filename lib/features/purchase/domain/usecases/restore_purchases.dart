@@ -1,9 +1,9 @@
-import 'package:zifromania/features/purchase/domain/repositories/purchase_repository.dart';
+import 'package:zifromania/features/purchase/domain/repositories/store_repository.dart';
 
 class RestorePurchasesUseCase {
   RestorePurchasesUseCase({required this.repository});
 
-  final PurchaseRepository repository;
+  final StoreRepository repository;
 
   Future<void> call() {
     return repository.restorePurchases();
