@@ -1,15 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:zifromania/features/user/domain/entities/subscription_entity.dart';
 
-class SubscriptionModel {
-  final SubscriptionTypeEntity? type;
-  final DateTime? startDate;
-  final DateTime? endDate;
-
+class SubscriptionModel extends SubscriptionEntity {
   const SubscriptionModel({
-    this.type,
-    this.startDate,
-    this.endDate,
+    super.type = SubscriptionTypeEntity.free,
+    super.startDate,
+    super.endDate,
   });
 
   factory SubscriptionModel.fromMap(
@@ -31,9 +27,7 @@ class SubscriptionModel {
     );
   }
 
-  factory SubscriptionModel.fromEntity(
-    SubscriptionEntity entity,
-  ) {
+  factory SubscriptionModel.fromEntity(SubscriptionEntity entity) {
     return SubscriptionModel(
       type: SubscriptionTypeEntity.values.firstWhere(
         (e) => e.name == entity.type.name,
@@ -44,17 +38,10 @@ class SubscriptionModel {
     );
   }
 
-  SubscriptionEntity toEntity() {
-    return SubscriptionEntity(
-      type: type ?? SubscriptionTypeEntity.free,
-      startDate: startDate,
-      endDate: endDate,
-    );
-  }
-
+  @override
   Map<String, dynamic> toMap() {
     return {
-      'type': type?.name,
+      'type': type.name,
       'startDate': startDate == null ? null : Timestamp.fromDate(startDate!),
       'endDate': endDate == null ? null : Timestamp.fromDate(endDate!),
     };
