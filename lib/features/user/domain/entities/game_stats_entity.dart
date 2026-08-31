@@ -22,6 +22,19 @@ class GameStatsEntity {
     required this.averageTimePerQuestion,
   });
 
+  Map<String, dynamic> toMap() {
+    return {
+      'categoriesPlayed': categoriesPlayed,
+      'categoryStats': categoryStats.map(
+        (key, value) => MapEntry(key, value.toMap()),
+      ),
+      'totalGamesPlayed': totalGamesPlayed,
+      'totalQuestionsAnswered': totalQuestionsAnswered,
+      'totalCorrectAnswers': totalCorrectAnswers,
+      'averageTimePerQuestion': averageTimePerQuestion,
+    };
+  }
+
   double get overallAccuracy {
     if (totalQuestionsAnswered == 0) return 0;
 
