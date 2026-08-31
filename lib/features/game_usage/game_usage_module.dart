@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zifromania/core/providers/shared_preferences_provider.dart';
 import 'package:zifromania/features/user/user_module.dart';
@@ -6,6 +5,7 @@ import 'package:zifromania/features/user/user_module.dart';
 import 'data/datasource/game_usage_local_datasource.dart';
 import 'data/datasource/game_usage_local_datasource_impl.dart';
 import 'data/datasource/question_local_datasource.dart';
+import 'data/datasource/question_local_datasource_impl.dart';
 import 'data/repositories/game_usage_repositories_impl.dart';
 import 'data/repositories/question_repository_impl.dart';
 import 'domain/repositories/question_repository.dart';
@@ -22,7 +22,7 @@ final gameUsageRepositoryProvider = Provider<GameUsageRepositoryImpl>(
 );
 
 final questionLocalDataSourceProvider = Provider<QuestionLocalDataSource>((ref) {
-  return QuestionLocalDataSourceImpl(assetBundle: rootBundle);
+  return const QuestionLocalDataSourceImpl();
 });
 
 final questionRepositoryProvider = Provider<QuestionRepository>((ref) {
