@@ -3,7 +3,7 @@ import 'package:zifromania/core/errors/exceptions.dart';
 import 'package:zifromania/features/user/data/helpers/game_statistics_calculator.dart';
 import 'package:zifromania/features/user/data/models/game_update_data.dart';
 import 'package:zifromania/features/user/domain/entities/subscription_entity.dart';
-import 'package:zifromania/services/xp_service.dart';
+import 'package:zifromania/core/services/xp_service.dart';
 
 import '../models/subscription_model.dart';
 import '../models/user_model.dart';
@@ -34,7 +34,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       await docRef.update({
         'displayName': user.displayName ?? data['displayName'],
         'email': user.email ?? data['email'],
-        'photoURL': user.photoURL ?? data['photoURL'],
+        'photoURL': user.photoUrl ?? data['photoURL'],
       });
 
       return;
