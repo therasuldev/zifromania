@@ -1,22 +1,18 @@
 import 'package:zifromania/features/user/data/models/category_stats.dart';
 import 'package:zifromania/features/user/domain/entities/game_stats_entity.dart';
 
-class GameStats {
-  final Map<String, int> categoriesPlayed;
-  final Map<String, CategoryStats> categoryStats;
-  final int totalGamesPlayed;
-  final int totalQuestionsAnswered;
-  final int totalCorrectAnswers;
-  final double averageTimePerQuestion;
-
+class GameStats extends GameStatsEntity {
   const GameStats({
-    this.categoriesPlayed = const {},
-    this.categoryStats = const {},
-    this.totalGamesPlayed = 0,
-    this.totalQuestionsAnswered = 0,
-    this.totalCorrectAnswers = 0,
-    this.averageTimePerQuestion = 0.0,
+    super.categoriesPlayed = const {},
+    super.categoryStats = const {},
+    super.totalGamesPlayed = 0,
+    super.totalQuestionsAnswered = 0,
+    super.totalCorrectAnswers = 0,
+    super.averageTimePerQuestion = 0.0,
   });
+
+  @override
+  Map<String, CategoryStats> get categoryStats => super.categoryStats.cast<String, CategoryStats>();
 
   factory GameStats.fromMap(Map<String, dynamic>? map) {
     if (map == null) {
@@ -26,12 +22,7 @@ class GameStats {
     return GameStats(
       categoriesPlayed: Map<String, int>.from(map['categoriesPlayed'] ?? {}),
       categoryStats: (map['categoryStats'] as Map<String, dynamic>?)?.map(
-            (key, value) => MapEntry(
-              key,
-              CategoryStats.fromMap(
-                value as Map<String, dynamic>,
-              ),
-            ),
+            (key, value) => MapEntry(key, CategoryStats.fromMap(value as Map<String, dynamic>)),
           ) ??
           {},
       totalGamesPlayed: map['totalGamesPlayed'] ?? 0,
@@ -42,9 +33,7 @@ class GameStats {
   }
 
   /// Entity -> Model
-  factory GameStats.fromEntity(
-    GameStatsEntity entity,
-  ) {
+  factory GameStats.fromEntity(GameStatsEntity entity) {
     return GameStats(
       categoriesPlayed: entity.categoriesPlayed,
       categoryStats: entity.categoryStats.map(
@@ -57,31 +46,12 @@ class GameStats {
     );
   }
 
-  /// Model -> Entity
-  GameStatsEntity toEntity() {
-    return GameStatsEntity(
-      categoriesPlayed: categoriesPlayed,
-      categoryStats: categoryStats.map(
-        (key, value) => MapEntry(
-          key,
-          value.toEntity(),
-        ),
-      ),
-      totalGamesPlayed: totalGamesPlayed,
-      totalQuestionsAnswered: totalQuestionsAnswered,
-      totalCorrectAnswers: totalCorrectAnswers,
-      averageTimePerQuestion: averageTimePerQuestion,
-    );
-  }
-
+  @override
   Map<String, dynamic> toMap() {
     return {
       'categoriesPlayed': categoriesPlayed,
       'categoryStats': categoryStats.map(
-        (key, value) => MapEntry(
-          key,
-          value.toMap(),
-        ),
+        (key, value) => MapEntry(key, value.toMap()),
       ),
       'totalGamesPlayed': totalGamesPlayed,
       'totalQuestionsAnswered': totalQuestionsAnswered,
