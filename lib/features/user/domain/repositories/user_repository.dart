@@ -14,12 +14,12 @@ abstract interface class UserRepository {
     required int amount,
   });
 
-  Future<void> spendCoins({
+  Future<UserEntity> spendCoins({
     required String uid,
     required int amount,
   });
 
-  Future<void> addXp({
+  Future<UserEntity> addXp({
     required String uid,
     required int xpEarned,
   });
