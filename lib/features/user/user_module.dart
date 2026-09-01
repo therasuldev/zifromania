@@ -15,7 +15,6 @@ import 'domain/repositories/subscription_repository.dart';
 import 'domain/repositories/user_repository.dart';
 import 'domain/repositories/user_statistics_repository.dart';
 import 'domain/usecases/statistics/add_achievement.dart';
-import 'domain/usecases/statistics/complete_task.dart';
 import 'domain/usecases/statistics/get_category_average_time.dart';
 import 'domain/usecases/statistics/get_current_streak.dart';
 import 'domain/usecases/statistics/get_distinct_categories_played_usecase.dart';
@@ -51,10 +50,7 @@ final userLocalDataSourceProvider = Provider<UserLocalDataSource>((ref) {
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   final remoteDataSource = ref.watch(userRemoteDataSourceProvider);
   final localDataSource = ref.watch(userLocalDataSourceProvider);
-  return UserRepositoryImpl(
-    remoteDataSource: remoteDataSource,
-    localDataSource: localDataSource,
-  );
+  return UserRepositoryImpl(remoteDataSource: remoteDataSource, localDataSource: localDataSource);
 });
 
 final spendCoinsUseCaseProvider = Provider<SpendCoinsUseCase>((ref) {
@@ -111,10 +107,6 @@ final getCategoryAverageTimeUseCaseProvider = Provider<GetCategoryAverageTimeUse
   return GetCategoryAverageTimeUseCase(ref.watch(userStatisticsRepositoryProvider));
 });
 
-final completeTaskUseCaseProvider = Provider<CompleteTaskUseCase>((ref) {
-  return CompleteTaskUseCase(ref.watch(userStatisticsRepositoryProvider));
-});
-
 final addAchievementUseCaseProvider = Provider<AddAchievementUseCase>((ref) {
   return AddAchievementUseCase(ref.watch(userStatisticsRepositoryProvider));
 });
@@ -127,19 +119,13 @@ final subscriptionRepositoryProvider = Provider<SubscriptionRepository>((ref) {
 
 // Subscription Use Cases
 final updateSubscriptionDetailsUseCaseProvider = Provider<UpdateSubscriptionDetailsUseCase>((ref) {
-  return UpdateSubscriptionDetailsUseCase(
-    ref.watch(subscriptionRepositoryProvider),
-  );
+  return UpdateSubscriptionDetailsUseCase(ref.watch(subscriptionRepositoryProvider));
 });
 
 final updateSubscriptionStatusUseCaseProvider = Provider<UpdateSubscriptionStatusUseCase>((ref) {
-  return UpdateSubscriptionStatusUseCase(
-    ref.watch(subscriptionRepositoryProvider),
-  );
+  return UpdateSubscriptionStatusUseCase(ref.watch(subscriptionRepositoryProvider));
 });
 
 final expireSubscriptionUseCaseProvider = Provider<ExpireSubscriptionUseCase>((ref) {
-  return ExpireSubscriptionUseCase(
-    ref.watch(subscriptionRepositoryProvider),
-  );
+  return ExpireSubscriptionUseCase(ref.watch(subscriptionRepositoryProvider));
 });
