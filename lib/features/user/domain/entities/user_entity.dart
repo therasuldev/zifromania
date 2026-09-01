@@ -9,7 +9,6 @@ class UserEntity {
   final String? photoUrl;
 
   final int coins;
-  
   final int level;
   final int xp;
   final int xpForNextLevel;
