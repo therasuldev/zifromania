@@ -16,6 +16,14 @@ class SubscriptionEntity {
     this.endDate,
   });
 
+  Map<String, dynamic> toMap() {
+    return {
+      'type': type.name,
+      'startDate': startDate?.toIso8601String(),
+      'endDate': endDate?.toIso8601String(),
+    };
+  }
+
   bool get isActive {
     if (endDate == null) return false;
     return endDate!.isAfter(DateTime.now());
