@@ -27,12 +27,12 @@ class UserRepositoryImpl implements UserRepository {
 
       await localDataSource.cacheUser(user);
 
-      return user.toEntity();
+      return user;
     } catch (e) {
       final cachedUser = await localDataSource.getUser();
 
       if (cachedUser != null && cachedUser.uid == uid) {
-        return cachedUser.toEntity();
+        return cachedUser;
       }
 
       rethrow;
@@ -44,7 +44,7 @@ class UserRepositoryImpl implements UserRepository {
     return remoteDataSource.watchUser(uid: uid).map((user) {
       localDataSource.cacheUser(user);
 
-      return user.toEntity();
+      return user;
     });
   }
 
@@ -59,7 +59,7 @@ class UserRepositoryImpl implements UserRepository {
     final user = await remoteDataSource.addCoins(uid: uid, amount: amount);
     await localDataSource.cacheUser(user);
 
-    return user.toEntity();
+    return user;
   }
 
   @override
@@ -67,7 +67,7 @@ class UserRepositoryImpl implements UserRepository {
     final user = await remoteDataSource.spendCoins(uid: uid, amount: amount);
     await localDataSource.cacheUser(user);
 
-    return user.toEntity();
+    return user;
   }
 
   @override
@@ -75,6 +75,6 @@ class UserRepositoryImpl implements UserRepository {
     final user = await remoteDataSource.addXp(uid: uid, xpEarned: xpEarned);
     await localDataSource.cacheUser(user);
 
-    return user.toEntity();
+    return user;
   }
 }
