@@ -15,6 +15,17 @@ class CategoryStatsEntity {
     required this.averageTimePerQuestion,
   });
 
+  Map<String, dynamic> toMap() {
+    return {
+      'gamesPlayed': gamesPlayed,
+      'questionsAnswered': questionsAnswered,
+      'correctAnswers': correctAnswers,
+      'bestScore': bestScore,
+      'averageTimePerQuestion': averageTimePerQuestion,
+      'totalTimeSpent': totalTimeSpent,
+    };
+  }
+
   double get accuracy {
     if (questionsAnswered == 0) return 0;
     return (correctAnswers / questionsAnswered) * 100;
