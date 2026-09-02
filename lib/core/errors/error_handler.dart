@@ -1,6 +1,6 @@
-import 'data_exception.dart';
-import 'domain_exception.dart';
-import 'app_exception.dart';
+import 'package:zifromania/core/errors/data_exception.dart';
+import 'package:zifromania/core/errors/domain_exception.dart';
+import 'package:zifromania/core/errors/app_exception.dart';
 
 abstract class ErrorHandler {
   static String mapToMessage(AppException exception) {
