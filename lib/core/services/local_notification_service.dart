@@ -1,5 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'log_service.dart';
+import 'package:zifromania/core/services/log_service.dart';
 
 class LocalNotificationService {
   static final _plugin = FlutterLocalNotificationsPlugin();
