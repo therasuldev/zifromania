@@ -1,4 +1,4 @@
-import '../repositories/daily_reward_repository.dart';
+import 'package:zifromania/features/daily_reward/domain/repositories/daily_reward_repository.dart';
 
 class ClaimDailyRewardUseCase {
   final DailyRewardRepository _repository;
