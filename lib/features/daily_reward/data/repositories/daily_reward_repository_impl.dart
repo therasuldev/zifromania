@@ -1,5 +1,5 @@
-import '../datasources/daily_reward_local_datasource.dart';
-import '../../domain/repositories/daily_reward_repository.dart';
+import 'package:zifromania/features/daily_reward/data/datasources/daily_reward_local_datasource.dart';
+import 'package:zifromania/features/daily_reward/domain/repositories/daily_reward_repository.dart';
 
 class DailyRewardRepositoryImpl implements DailyRewardRepository {
   final DailyRewardLocalDataSource localDataSource;
