@@ -1,5 +1,5 @@
 import 'package:zifromania/features/daily_reward/presentation/state/daily_reward_state.dart';
-import '../repositories/daily_reward_repository.dart';
+import 'package:zifromania/features/daily_reward/domain/repositories/daily_reward_repository.dart';
 
 class GetDailyRewardStatusUseCase {
   final DailyRewardRepository _repository;
