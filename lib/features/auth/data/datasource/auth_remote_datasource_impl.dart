@@ -4,7 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:zifromania/core/services/secure_storage_service.dart';
 import 'package:zifromania/features/user/data/models/user_model.dart';
 
-import 'auth_remote_datasource.dart';
+import 'package:zifromania/features/auth/data/datasource/auth_remote_datasource.dart';
 
 class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   final FirebaseAuth _auth;
