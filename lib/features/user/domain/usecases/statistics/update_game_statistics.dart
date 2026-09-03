@@ -1,5 +1,5 @@
 import 'package:zifromania/features/user/data/models/game_update_data.dart';
-import '../../repositories/user_statistics_repository.dart';
+import 'package:zifromania/features/user/domain/repositories/user_statistics_repository.dart';
 
 class UpdateGameStatisticsUseCase {
   final UserStatisticsRepository repository;
