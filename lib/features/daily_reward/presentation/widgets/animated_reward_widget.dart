@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'models/particle_data.dart';
+import 'package:zifromania/features/daily_reward/presentation/widgets/models/particle_data.dart';
 
 class AnimatedRewardWidget extends StatefulWidget {
   final Animation<double> animation;
