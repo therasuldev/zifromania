@@ -1,7 +1,7 @@
 import 'package:zifromania/features/task/data/datasource/task_datasource.dart';
 
-import '../../domain/entities/task_entity.dart';
-import '../../domain/repositories/task_repository.dart';
+import 'package:zifromania/features/task/domain/entities/task_entity.dart';
+import 'package:zifromania/features/task/domain/repositories/task_repository.dart';
 
 final class TaskRepositoryImpl implements TaskRepository {
   const TaskRepositoryImpl({required this.remoteDataSource});
