@@ -7,8 +7,8 @@ import 'package:zifromania/features/auth/presentation/providers/auth_provider.da
 import 'package:zifromania/features/auth/presentation/widgets/sign_in_button.dart';
 
 import 'package:zifromania/presentation/common/partial_modal_route.dart';
-import 'package:zifromania/presentation/screens/privacy_policy.dart';
-import 'package:zifromania/presentation/screens/terms_of_service.dart';
+import 'package:zifromania/features/settings/presentation/pages/privacy_policy.dart';
+import 'package:zifromania/features/settings/presentation/pages/terms_of_service.dart';
 
 /// Sign-in screen with mandatory Terms of Service acceptance.
 /// The Google button stays disabled until the checkbox is ticked.
@@ -185,7 +185,9 @@ class _TermsRow extends StatelessWidget {
   final TextStyle textStyle;
   final TextStyle linkStyle;
 
-  static final _placeholderPattern = RegExp(r'\[\[(TERMS|PRIVACY)\]\]');
+  // RegExp is required here because the placeholders are matched by pattern.
+  // ignore: deprecated_member_use
+  static final Pattern _placeholderPattern = RegExp(r'\[\[(TERMS|PRIVACY)\]\]');
 
   @override
   Widget build(BuildContext context) {
@@ -240,7 +242,7 @@ class _TermsRow extends StatelessWidget {
       recognizer: TapGestureRecognizer()
         ..onTap = () => Navigator.push(
               context,
-              PartialModalRoute(
+              PartialModalRoute<void>(
                 child: isTerms ? const TermsOfServiceScreen() : const PrivacyPolicyScreen(),
               ),
             ),
