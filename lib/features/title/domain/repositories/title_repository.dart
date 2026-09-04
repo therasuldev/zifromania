@@ -1,4 +1,4 @@
-import '../entities/title_entity.dart';
+import 'package:zifromania/features/title/domain/entities/title_entity.dart';
 
 abstract interface class TitleRepository {
   Future<List<TitleEntity>> getAllTitles();
