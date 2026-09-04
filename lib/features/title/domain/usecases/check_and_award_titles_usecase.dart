@@ -1,8 +1,8 @@
 import 'package:zifromania/features/title/domain/service/title_evaluator.dart';
 import 'package:zifromania/features/user/domain/repositories/user_repository.dart';
 import 'package:zifromania/features/user/domain/repositories/user_statistics_repository.dart';
-import '../repositories/title_repository.dart';
-import 'award_title_to_user_usecase.dart';
+import 'package:zifromania/features/title/domain/repositories/title_repository.dart';
+import 'package:zifromania/features/title/domain/usecases/award_title_to_user_usecase.dart';
 
 final class CheckAndAwardTitlesUseCase {
   final TitleRepository titleRepository;
