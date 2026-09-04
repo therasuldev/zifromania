@@ -1,6 +1,6 @@
 import 'package:zifromania/features/user/domain/repositories/user_repository.dart';
-import '../entities/task_entity.dart';
-import '../repositories/task_repository.dart';
+import 'package:zifromania/features/task/domain/entities/task_entity.dart';
+import 'package:zifromania/features/task/domain/repositories/task_repository.dart';
 
 final class GetPendingTasksUseCase {
   const GetPendingTasksUseCase({
