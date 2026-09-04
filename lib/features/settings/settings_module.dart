@@ -1,19 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zifromania/core/providers/shared_preferences_provider.dart';
 
-import 'data/datasource/settings_local_datasource.dart';
-import 'data/datasource/settings_local_datasource_impl.dart';
-import 'data/repositories/settings_repository_impl.dart';
-import 'domain/repositories/settings_repository.dart';
-import 'domain/usecases/get_language.dart';
-import 'domain/usecases/get_music_enabled.dart';
-import 'domain/usecases/get_sound_enabled.dart';
-import 'domain/usecases/get_vibration_enabled.dart';
-import 'domain/usecases/reset_to_defaults_use_case.dart';
-import 'domain/usecases/set_language.dart';
-import 'domain/usecases/set_music_enabled.dart';
-import 'domain/usecases/set_sound_enabled.dart';
-import 'domain/usecases/set_vibration_enabled.dart';
+import 'package:zifromania/features/settings/data/datasource/settings_local_datasource.dart';
+import 'package:zifromania/features/settings/data/datasource/settings_local_datasource_impl.dart';
+import 'package:zifromania/features/settings/data/repositories/settings_repository_impl.dart';
+import 'package:zifromania/features/settings/domain/repositories/settings_repository.dart';
+import 'package:zifromania/features/settings/domain/usecases/get_language.dart';
+import 'package:zifromania/features/settings/domain/usecases/get_music_enabled.dart';
+import 'package:zifromania/features/settings/domain/usecases/get_sound_enabled.dart';
+import 'package:zifromania/features/settings/domain/usecases/get_vibration_enabled.dart';
+import 'package:zifromania/features/settings/domain/usecases/reset_to_defaults_use_case.dart';
+import 'package:zifromania/features/settings/domain/usecases/set_language.dart';
+import 'package:zifromania/features/settings/domain/usecases/set_music_enabled.dart';
+import 'package:zifromania/features/settings/domain/usecases/set_sound_enabled.dart';
+import 'package:zifromania/features/settings/domain/usecases/set_vibration_enabled.dart';
 
 final settingsLocalDataSourceProvider = Provider<SettingsLocalDataSource>(
   (ref) => SettingsLocalDataSourceImpl(sharedPreferences: ref.read(sharedPreferencesProvider)),
