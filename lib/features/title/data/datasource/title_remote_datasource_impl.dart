@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:zifromania/core/errors/exceptions.dart';
 import 'package:zifromania/features/title/data/models/title_model.dart';
 
-import 'title_remote_datasource.dart';
+import 'package:zifromania/core/errors/exceptions.dart';
+import 'package:zifromania/features/title/data/datasource/title_remote_datasource.dart';
 
 final class TitleRemoteDataSourceImpl implements TitleRemoteDataSource {
   final FirebaseFirestore firestore;
@@ -16,7 +16,7 @@ final class TitleRemoteDataSourceImpl implements TitleRemoteDataSource {
       final snapshot = await firestore.collection(titlesCollection).get();
       return snapshot.docs.map((doc) => TitleModel.fromMap(doc.data(), doc.id)).toList();
     } catch (e) {
-      throw ServerException('Failed to get titles: $e');
+      throw ServerException(message: 'Failed to get titles', error: e);
     }
   }
 
@@ -25,12 +25,12 @@ final class TitleRemoteDataSourceImpl implements TitleRemoteDataSource {
     try {
       final doc = await firestore.collection(titlesCollection).doc(titleId).get();
       if (!doc.exists || doc.data() == null) {
-        throw const ServerException('Title not found');
+        throw const ServerException(message: 'Title not found');
       }
       return TitleModel.fromMap(doc.data()!, doc.id);
     } catch (e) {
       if (e is ServerException) rethrow;
-      throw ServerException('Failed to get title: $e');
+      throw ServerException(message: 'Failed to get title', error: e);
     }
   }
 
