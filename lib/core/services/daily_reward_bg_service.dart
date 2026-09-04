@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:workmanager/workmanager.dart';
-import 'local_notification_service.dart';
+import 'package:zifromania/core/services/local_notification_service.dart';
 
 const kDailyRewardTaskName = 'dailyRewardTask';
 const _kLastClaimKey = 'lastClaimMillis';
