@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/remote_message_data.dart';
-import 'local_notification_service.dart';
-import 'log_service.dart';
+import 'package:zifromania/core/models/remote_message_data.dart';
+import 'package:zifromania/core/services/local_notification_service.dart';
+import 'package:zifromania/core/services/log_service.dart';
 
 class NotificationService {
   NotificationService({
