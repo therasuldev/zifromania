@@ -1,5 +1,5 @@
 import 'package:zifromania/features/user/domain/entities/subscription_entity.dart';
-import 'global_ad_status.dart';
+import 'package:zifromania/features/game_usage/domain/entities/global_ad_status.dart';
 
 class SecurityStats {
   final String deviceId;
