@@ -1,7 +1,7 @@
 import 'package:zifromania/features/title/data/datasource/title_remote_datasource.dart';
 
-import '../../domain/entities/title_entity.dart';
-import '../../domain/repositories/title_repository.dart';
+import 'package:zifromania/features/title/domain/entities/title_entity.dart';
+import 'package:zifromania/features/title/domain/repositories/title_repository.dart';
 
 final class TitleRepositoryImpl implements TitleRepository {
   final TitleRemoteDataSource remoteDataSource;
