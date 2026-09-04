@@ -1,4 +1,4 @@
-import '../entities/task_entity.dart';
+import 'package:zifromania/features/task/domain/entities/task_entity.dart';
 
 abstract interface class TaskRepository {
   Future<List<TaskEntity>> getAllTasks();
