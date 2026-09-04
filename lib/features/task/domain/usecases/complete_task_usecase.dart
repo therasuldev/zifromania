@@ -1,5 +1,5 @@
 import 'package:zifromania/features/user/domain/repositories/user_statistics_repository.dart';
-import '../repositories/task_repository.dart';
+import 'package:zifromania/features/task/domain/repositories/task_repository.dart';
 
 final class CompleteTaskUseCase {
   const CompleteTaskUseCase({
