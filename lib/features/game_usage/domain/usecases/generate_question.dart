@@ -1,13 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:zifromania/app_exception.dart';
 import 'package:zifromania/core/utils/cancel_token.dart';
 import 'package:zifromania/domain/entities/enums.dart';
 import 'package:zifromania/domain/entities/math_question.dart';
 import 'package:zifromania/features/game_usage/domain/repositories/question_repository.dart';
 import 'package:zifromania/features/user/domain/repositories/user_repository.dart';
 
-import 'can_play_game_usecase.dart';
-import 'play_game_usecase.dart';
+import 'package:zifromania/core/errors/exceptions.dart';
+import 'package:zifromania/features/game_usage/domain/usecases/can_play_game_usecase.dart';
+import 'package:zifromania/features/game_usage/domain/usecases/play_game_usecase.dart';
 
 final class GenerateQuestionsUseCase {
   const GenerateQuestionsUseCase({
@@ -36,9 +36,8 @@ final class GenerateQuestionsUseCase {
     // 2. Oynamaq hüququnun yoxlanılması
     final canPlay = canPlayGameUseCase(gameCategory, willPayWithCoin: paidWithCoin);
     if (!canPlay) {
-      throw AppException(
-        AppErrorType.dailyLimitReached,
-        'game.limit_reached'.tr(),
+      throw DailyLimitReachedException(
+        message: 'game.limit_reached'.tr(),
       );
     }
 
@@ -52,7 +51,7 @@ final class GenerateQuestionsUseCase {
       if (cancelToken?.isCancelled == true) {
         throw const OperationCanceledException();
       }
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
     }
 
     // Pul çıxılmadan sonuncu yoxlanış
