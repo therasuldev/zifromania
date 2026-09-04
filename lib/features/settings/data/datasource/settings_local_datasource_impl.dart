@@ -1,5 +1,5 @@
 import 'package:zifromania/core/services/shared_preferences_service.dart';
-import 'settings_local_datasource.dart';
+import 'package:zifromania/features/settings/data/datasource/settings_local_datasource.dart';
 
 final class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   SettingsLocalDataSourceImpl({required this.sharedPreferences});
