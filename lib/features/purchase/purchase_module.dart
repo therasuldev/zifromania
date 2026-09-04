@@ -3,15 +3,15 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:zifromania/features/purchase/data/datasource/store_data_source_impl.dart';
 import 'package:zifromania/features/user/user_module.dart';
 
-import 'data/datasource/store_datasource.dart';
-import 'data/repositories/store_repository_impl.dart';
-import 'domain/repositories/store_repository.dart';
-import 'domain/usecases/activate_subscription.dart';
-import 'domain/usecases/buy_product.dart';
-import 'domain/usecases/deliver_coins.dart';
-import 'domain/usecases/listen_purchase_updates_usecase.dart';
-import 'domain/usecases/load_products.dart';
-import 'domain/usecases/restore_purchases.dart';
+import 'package:zifromania/features/purchase/data/datasource/store_datasource.dart';
+import 'package:zifromania/features/purchase/data/repositories/store_repository_impl.dart';
+import 'package:zifromania/features/purchase/domain/repositories/store_repository.dart';
+import 'package:zifromania/features/purchase/domain/usecases/activate_subscription.dart';
+import 'package:zifromania/features/purchase/domain/usecases/buy_product.dart';
+import 'package:zifromania/features/purchase/domain/usecases/deliver_coins.dart';
+import 'package:zifromania/features/purchase/domain/usecases/listen_purchase_updates_usecase.dart';
+import 'package:zifromania/features/purchase/domain/usecases/load_products.dart';
+import 'package:zifromania/features/purchase/domain/usecases/restore_purchases.dart';
 
 final iapProvider = Provider<InAppPurchase>((ref) {
   return InAppPurchase.instance;
