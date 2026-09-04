@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
-import 'package:zifromania/app_exception.dart';
 import 'package:zifromania/domain/entities/enums.dart';
 import 'package:zifromania/domain/entities/math_question.dart';
-import 'question_local_datasource.dart';
+import 'package:zifromania/core/errors/exceptions.dart';
+import 'package:zifromania/features/game_usage/data/datasource/question_local_datasource.dart';
 
 final class QuestionLocalDataSourceImpl implements QuestionLocalDataSource {
   const QuestionLocalDataSourceImpl();
@@ -14,22 +14,20 @@ final class QuestionLocalDataSourceImpl implements QuestionLocalDataSource {
     try {
       final categoryString = category.toTextWithUnderscores();
       final jsonString = await rootBundle.loadString('assets/questions/$categoryString.json');
-      final Map<String, dynamic> jsonData = json.decode(jsonString);
+      final jsonData = json.decode(jsonString) as Map<String, dynamic>;
 
       if (!jsonData.containsKey('questions')) {
-        throw const AppException(
-          AppErrorType.invalidJson,
-          'Invalid JSON format: missing "questions" key',
+        throw const InvalidJsonException(
+          message: 'Invalid JSON format: missing "questions" key',
         );
       }
 
-      final List<dynamic> questionsJson = jsonData['questions'];
+      final questionsJson = jsonData['questions'] as List<dynamic>;
       return _convertToMathQuestions(questionsJson, category);
     } catch (e) {
-      if (e is AppException) rethrow;
-      throw AppException(
-        AppErrorType.fileLoadError,
-        'Failed to load questions from file: $e',
+      throw InvalidJsonException(
+        message: 'Failed to load or parse questions JSON',
+        error: e,
       );
     }
   }
@@ -39,7 +37,7 @@ final class QuestionLocalDataSourceImpl implements QuestionLocalDataSource {
     try {
       final categoryString = category.toTextWithUnderscores();
       final jsonString = await rootBundle.loadString('assets/questions/$categoryString.json');
-      final Map<String, dynamic> jsonData = json.decode(jsonString);
+      final jsonData = json.decode(jsonString) as Map<String, dynamic>;
 
       if (jsonData.containsKey('questions')) {
         return (jsonData['questions'] as List).length;
@@ -55,9 +53,9 @@ final class QuestionLocalDataSourceImpl implements QuestionLocalDataSource {
 
     for (var questionData in questions) {
       try {
-        final String questionText = questionData['question'];
-        final Map<String, dynamic> options = Map<String, dynamic>.from(questionData['options']);
-        final String correctOptionKey = questionData['correct_option'];
+        final questionText = questionData['question'] as String;
+        final options = Map<String, dynamic>.from(questionData['options'] as Map<String, dynamic>);
+        final correctOptionKey = questionData['correct_option'];
 
         bool isTrueFalse = gameCategory == GameCategory.trueOrFalse ||
             (options.containsKey('A') && options['A'] == tr('title.true') && options.containsKey('B') && options['B'] == tr('title.false'));
