@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 
-import 'enums.dart';
+import 'package:zifromania/domain/entities/enums.dart';
 
 class MathQuestion {
   final String question;
@@ -15,7 +15,7 @@ class MathQuestion {
 
   factory MathQuestion.fromJson(Map<String, dynamic> json, GameCategory gameCategory) {
     final String questionText = json['question'] as String;
-    final Map<String, dynamic> rawOptions = Map<String, dynamic>.from(json['options'] ?? {});
+    final Map<String, dynamic> rawOptions = Map<String, dynamic>.from(json['options'] as Map<String, dynamic>);
     final String correctOptionKey = json['correct_option']?.toString() ?? '';
 
     bool isTrueFalse = gameCategory == GameCategory.trueOrFalse ||
