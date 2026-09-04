@@ -1,7 +1,7 @@
 import 'package:zifromania/domain/entities/enums.dart';
 import 'package:zifromania/features/user/domain/entities/subscription_entity.dart';
 
-import 'category_stats.dart';
+import 'package:zifromania/features/game_usage/domain/entities/category_stats.dart';
 
 class AllCategoriesStats {
   final SubscriptionTypeEntity subscriptionType;
