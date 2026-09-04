@@ -1,5 +1,5 @@
 import 'package:zifromania/core/services/shared_preferences_service.dart';
-import 'game_usage_local_datasource.dart';
+import 'package:zifromania/features/game_usage/data/datasource/game_usage_local_datasource.dart';
 
 final class GameUsageLocalDataSourceImpl implements GameUsageLocalDataSource {
   const GameUsageLocalDataSourceImpl({required this.sharedPreferences});
