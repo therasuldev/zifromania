@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:vibration/vibration.dart';
 import 'package:zifromania/core/enum/haptic_feedback_type.dart';
 
-import 'sound_local_datasource.dart';
+import 'package:zifromania/features/sound/data/datasource/sound_local_datasource.dart';
 
 final class SoundLocalDataSourceImpl implements SoundLocalDataSource {
   SoundLocalDataSourceImpl({
