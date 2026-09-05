@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zifromania/features/daily_reward/presentation/widgets/models/particle_data.dart';
 
 class AnimatedRewardWidget extends StatefulWidget {
@@ -74,7 +75,7 @@ class _AnimatedRewardWidgetState extends State<AnimatedRewardWidget> with Ticker
     });
 
     Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) context.pop();
     });
   }
 
