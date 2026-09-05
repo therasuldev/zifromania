@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:zifromania/core/errors/exceptions.dart';
 import 'package:zifromania/features/user/data/models/user_model.dart';
 
-import 'rank_remote_datasouce.dart';
+import 'package:zifromania/core/errors/exceptions.dart';
+import 'package:zifromania/features/rank/data/datasource/rank_remote_datasouce.dart';
 
 final class RankRemoteDataSourceImpl implements RankRemoteDataSource {
   const RankRemoteDataSourceImpl({required FirebaseFirestore firestore}) : _firestore = firestore;
@@ -19,8 +19,19 @@ final class RankRemoteDataSourceImpl implements RankRemoteDataSource {
       return querySnapshot.docs.map((doc) {
         return UserModel.fromMap(doc.data());
       }).toList();
-    } catch (e) {
-      throw ServerException('Failed to fetch top ranked users: $e');
+    } on FirebaseException catch (e, st) {
+      throw ServerException(
+        message: e.message ?? 'Məlumatlar yüklənərkən Firestore xətası baş verdi.',
+        statusCode: int.tryParse(e.code),
+        error: e,
+        stackTrace: st,
+      );
+    } catch (e, st) {
+      throw UnknownException(
+        message: 'İstifadəçilər gətirilərkən gözlənilməz xəta baş verdi.',
+        error: e,
+        stackTrace: st,
+      );
     }
   }
 
@@ -33,11 +44,22 @@ final class RankRemoteDataSourceImpl implements RankRemoteDataSource {
         .limit(limit)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return UserModel.fromMap(doc.data());
-      }).toList();
-    }).handleError((error) {
-      throw ServerException('Error in top ranked stream: $error');
+      return snapshot.docs.map((doc) => UserModel.fromMap(doc.data())).toList();
+    }).handleError((Object error, StackTrace stackTrace) {
+      if (error is FirebaseException) {
+        throw ServerException(
+          message: error.message ?? 'Liderlər lövhəsi yenilənərkən xəta baş verdi.',
+          statusCode: int.tryParse(error.code),
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
+
+      throw UnknownException(
+        message: 'Liderlər lövhəsində gözlənilməz xəta baş verdi.',
+        error: error,
+        stackTrace: stackTrace,
+      );
     });
   }
 
@@ -47,7 +69,7 @@ final class RankRemoteDataSourceImpl implements RankRemoteDataSource {
       final userDoc = await _firestore.collection(_usersCollection).doc(userId).get();
 
       if (!userDoc.exists || userDoc.data() == null) {
-        throw const ServerException('User not found');
+        throw const ServerException(message: 'User not found');
       }
 
       final userData = userDoc.data()!;
@@ -66,8 +88,7 @@ final class RankRemoteDataSourceImpl implements RankRemoteDataSource {
 
       return higherLevelCount + sameLevelHigherXpCount + 1;
     } catch (e) {
-      if (e is ServerException) rethrow;
-      throw ServerException('Failed to get user rank position: $e');
+      throw const ServerException(message: 'Failed to get user rank position');
     }
   }
 }
