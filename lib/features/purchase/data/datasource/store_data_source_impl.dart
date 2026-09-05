@@ -1,5 +1,5 @@
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'store_datasource.dart';
+import 'package:zifromania/features/purchase/data/datasource/store_datasource.dart';
 
 class StoreDataSourceImpl implements StoreDataSource {
   StoreDataSourceImpl({required this.inAppPurchase});
