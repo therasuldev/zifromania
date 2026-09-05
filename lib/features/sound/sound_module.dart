@@ -1,15 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'data/datasource/sound_local_datasource.dart';
-import 'data/datasource/sound_local_datasource_impl.dart';
-import 'data/repositories/sound_repository_impl.dart';
-import 'domain/usecases/haptic_feedback.dart';
-import 'domain/usecases/pause_background_music.dart';
-import 'domain/usecases/play_background_music.dart';
-import 'domain/usecases/play_sound_effect.dart';
-import 'domain/usecases/resume_background_music.dart';
-import 'domain/usecases/stop_background_music.dart';
-import 'domain/usecases/vibration.dart';
+import 'package:zifromania/features/sound/data/datasource/sound_local_datasource.dart';
+import 'package:zifromania/features/sound/data/datasource/sound_local_datasource_impl.dart';
+import 'package:zifromania/features/sound/data/repositories/sound_repository_impl.dart';
+import 'package:zifromania/features/sound/domain/usecases/haptic_feedback.dart';
+import 'package:zifromania/features/sound/domain/usecases/pause_background_music.dart';
+import 'package:zifromania/features/sound/domain/usecases/play_background_music.dart';
+import 'package:zifromania/features/sound/domain/usecases/play_sound_effect.dart';
+import 'package:zifromania/features/sound/domain/usecases/resume_background_music.dart';
+import 'package:zifromania/features/sound/domain/usecases/stop_background_music.dart';
+import 'package:zifromania/features/sound/domain/usecases/vibration.dart';
 
 final soundDataSourceProvider = Provider<SoundLocalDataSource>((ref) {
   final dataSource = SoundLocalDataSourceImpl();
