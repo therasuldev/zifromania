@@ -25,11 +25,11 @@ class TaskModel extends TaskEntity {
   factory TaskModel.fromMap(Map<String, dynamic> map, String documentId) {
     return TaskModel(
       id: documentId,
-      title: map['title'] ?? '',
-      description: map['description'] ?? '',
-      iconUrl: map['iconUrl'] ?? '',
-      xpReward: map['xpReward'] ?? 0,
-      coinsReward: map['coinsReward'] ?? 0,
+      title: map['title'] as String,
+      description: map['description'] as String,
+      iconUrl: map['iconUrl'] as String,
+      xpReward: map['xpReward'] as int,
+      coinsReward: map['coinsReward'] as int,
     );
   }
 }
