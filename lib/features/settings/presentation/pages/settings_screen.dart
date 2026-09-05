@@ -2,7 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:zifromania/core/router/route_names.dart';
 import 'package:zifromania/domain/entities/constant.dart';
 import 'package:zifromania/features/auth/presentation/providers/auth_provider.dart';
 import 'package:zifromania/features/settings/presentation/providers/language_notifier.dart';
@@ -12,13 +14,8 @@ import 'package:zifromania/features/settings/presentation/providers/vibration_no
 import 'package:zifromania/features/settings/presentation/widgets/settings_section_title.dart';
 import 'package:zifromania/features/settings/presentation/widgets/settings_tile.dart';
 import 'package:zifromania/features/user/domain/entities/user_entity.dart';
-import 'package:zifromania/features/user/presentation/providers/user_notifier.dart';
+import 'package:zifromania/features/user/presentation/providers/user/user_notifier.dart';
 import 'package:zifromania/presentation/common/back_button.dart';
-import 'package:zifromania/presentation/common/partial_modal_route.dart';
-import 'package:zifromania/features/settings/presentation/pages/about_zifromania.dart';
-import 'package:zifromania/features/settings/presentation/pages/feedback_screen.dart';
-import 'package:zifromania/features/settings/presentation/pages/privacy_policy.dart';
-import 'package:zifromania/features/settings/presentation/pages/terms_of_service.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -356,8 +353,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           leading: Image.asset('assets/icons/feedback.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
           title: context.tr('send_feedback'),
           onTap: () {
-            final route = PartialModalRoute<void>(child: const FeedbackScreen());
-            Navigator.push(context, route);
+            context.push(RouteNames.feedback);
           },
         ),
       ],
@@ -372,24 +368,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           leading: Image.asset('assets/icons/information.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
           title: context.tr('about_zifromania'),
           onTap: () {
-            final route = PartialModalRoute<void>(child: const AboutZifroManiaScreen());
-            Navigator.push(context, route);
+            context.push(RouteNames.about);
           },
         ),
         SettingsTile(
           leading: Image.asset('assets/icons/privacy.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
           title: context.tr('privacy_policy'),
           onTap: () {
-            final route = PartialModalRoute<void>(child: const PrivacyPolicyScreen());
-            Navigator.push(context, route);
+            context.push(RouteNames.privacy);
           },
         ),
         SettingsTile(
           leading: Image.asset('assets/icons/service.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
           title: context.tr('terms_of_service'),
           onTap: () {
-            final route = PartialModalRoute<void>(child: const TermsOfServiceScreen());
-            Navigator.push(context, route);
+            context.push(RouteNames.terms);
           },
         ),
       ],
