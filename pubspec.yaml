@@ -23,8 +23,6 @@ dependencies:
   package_info_plus: ^10.2.0
 
   # ==================== STATE MANAGEMENT ====================
-  flutter_bloc: ^9.1.1
-  bloc: ^9.2.1
   flutter_riverpod: ^3.4.2
 
   # ==================== NAVIGATION ====================
