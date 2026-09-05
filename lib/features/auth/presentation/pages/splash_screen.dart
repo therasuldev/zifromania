@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zifromania/features/auth/presentation/providers/auth_provider.dart';
 import 'package:zifromania/features/user/data/models/user_model.dart';
 
@@ -79,9 +80,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
     }
 
     if (_user != null) {
-      Navigator.of(context).pushReplacementNamed('/home');
+      context.go('/home');
     } else {
-      Navigator.of(context).pushReplacementNamed('/login');
+      context.go('/login');
     }
   }
 
