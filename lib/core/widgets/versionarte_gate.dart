@@ -1,5 +1,6 @@
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:versionarte/versionarte.dart';
 
 class VersionarteGate extends StatefulWidget {
@@ -95,7 +96,7 @@ class _VersionarteGateState extends State<VersionarteGate> {
                   child: const Text('Yenilə'),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => context.pop(),
                   child: const Text('Sonra'),
                 ),
               ],
