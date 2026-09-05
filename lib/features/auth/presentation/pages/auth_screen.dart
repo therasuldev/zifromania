@@ -3,12 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zifromania/features/auth/presentation/providers/auth_provider.dart';
 import 'package:zifromania/features/auth/presentation/widgets/sign_in_button.dart';
 
-import 'package:zifromania/presentation/common/partial_modal_route.dart';
-import 'package:zifromania/features/settings/presentation/pages/privacy_policy.dart';
-import 'package:zifromania/features/settings/presentation/pages/terms_of_service.dart';
+import 'package:zifromania/core/router/route_names.dart';
 
 /// Sign-in screen with mandatory Terms of Service acceptance.
 /// The Google button stays disabled until the checkbox is ticked.
@@ -239,13 +238,7 @@ class _TermsRow extends StatelessWidget {
     return TextSpan(
       text: isTerms ? 'auth.termsOfService'.tr() : 'auth.privacyPolicy'.tr(),
       style: linkStyle,
-      recognizer: TapGestureRecognizer()
-        ..onTap = () => Navigator.push(
-              context,
-              PartialModalRoute<void>(
-                child: isTerms ? const TermsOfServiceScreen() : const PrivacyPolicyScreen(),
-              ),
-            ),
+      recognizer: TapGestureRecognizer()..onTap = () => context.push(isTerms ? RouteNames.terms : RouteNames.privacy),
     );
   }
 }
