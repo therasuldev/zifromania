@@ -61,7 +61,7 @@ class _FireworksCongratulationsWidgetState extends State<FireworksCongratulation
 
   void _startAnimation() async {
     await _textController.forward();
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
 
     // İlk fişəng yaradıb
     _createFireworks();
