@@ -1,5 +1,5 @@
-import 'game_stats_entity.dart';
-import 'subscription_entity.dart';
+import 'package:zifromania/features/user/domain/entities/game_stats_entity.dart';
+import 'package:zifromania/features/user/domain/entities/subscription_entity.dart';
 
 class UserEntity {
   final String uid;
