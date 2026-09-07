@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:zifromania/core/services/secure_storage_service.dart';
 
-import '../models/user_model.dart';
-import 'user_local_data_source.dart';
+import 'package:zifromania/features/user/data/models/user_model.dart';
+import 'package:zifromania/features/user/data/datasource/user_local_data_source.dart';
 
 class UserLocalDataSourceImpl implements UserLocalDataSource {
   UserLocalDataSourceImpl({
