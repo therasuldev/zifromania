@@ -1,40 +1,36 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:zifromania/app_exception.dart';
 
+import 'package:zifromania/core/errors/exceptions.dart';
 import 'package:zifromania/domain/entities/constant.dart';
-import 'package:zifromania/models/title_model.dart';
-import 'package:zifromania/models/user_model.dart';
-import 'package:zifromania/presentation/state-managment/ad_manager.dart';
-import 'package:zifromania/presentation/state-managment/game/game_bloc.dart';
+import 'package:zifromania/domain/entities/enums.dart';
+import 'package:zifromania/domain/entities/math_question.dart';
+import 'package:zifromania/features/auth/presentation/providers/auth_provider.dart';
+import 'package:zifromania/features/game_usage/presentation/providers/game_notifier.dart';
+import 'package:zifromania/features/title/data/models/title_model.dart';
 import 'package:zifromania/presentation/widgets/dialogs/result_dialog.dart';
 import 'package:zifromania/presentation/widgets/dialogs/subscription_dialog.dart';
 import 'package:zifromania/presentation/widgets/dialogs/title_unlock_dialog.dart';
-import 'package:zifromania/services/auth_service.dart';
-import 'package:zifromania/services/cache_service.dart';
-import 'package:zifromania/services/services_init.dart';
+import 'package:zifromania/presentation/widgets/game/answer_button.dart';
+import 'package:zifromania/presentation/widgets/game/question_container.dart';
+import 'package:zifromania/presentation/widgets/game/score_indicator.dart';
+import 'package:zifromania/presentation/widgets/game/timer_indicator.dart';
 
-import '../../domain/entities/enums.dart';
-import '../../domain/entities/math_question.dart';
-import '../widgets/game/answer_button.dart';
-import '../widgets/game/question_container.dart';
-import '../widgets/game/score_indicator.dart';
-import '../widgets/game/timer_indicator.dart';
-
-class GameScreen extends StatefulWidget {
+class GameScreen extends ConsumerStatefulWidget {
   const GameScreen({super.key, required this.gameCategory, this.paidWithCoin = false});
 
   final GameCategory gameCategory;
   final bool paidWithCoin;
 
   @override
-  State<GameScreen> createState() => _GameScreenState();
+  ConsumerState<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
+class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStateMixin {
   late AnimationController buttonAnimationController;
 
   @override
@@ -50,16 +46,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     // Start the game with the selected category once the widget is fully built
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final user = await locator.get<AuthService>().currentUserModel;
-      if (user == null) return;
-
-      final payload = {
-        'category': widget.gameCategory,
-        'paidWithCoin': widget.paidWithCoin,
-        'haveEnoughCoins': user.coins >= 10,
-      };
+      final user = ref.read(authNotifierProvider).value;
       if (!mounted) return;
-      context.read<GameBloc>().add(GameEvent.startGame(payload: payload));
+      if (user != null) {
+        ref.read(gameProvider.notifier).start(user.uid, category: widget.gameCategory, paidWithCoin: widget.paidWithCoin);
+      }
     });
   }
 
@@ -71,7 +62,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void showResultDialog(int score, GameState state) async {
     final buildDialog = ResultDialog(score: score, state: state, onPlayAgain: onPlayAgain);
-    await showDialog(
+    await showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext _) => buildDialog,
@@ -79,7 +70,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void showSubscriptionDialog(BuildContext context, String message) async {
-    final user = await locator.get<SecureCacheService>().read<UserModel>('user');
+    final user = ref.read(authNotifierProvider).value;
     if (user == null) return;
 
     final buildDialog = SubscriptionDialog(
@@ -89,7 +80,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
 
     if (!context.mounted) return;
-    await showDialog(
+    await showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext _) => buildDialog,
@@ -97,27 +88,34 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void onPlayAgain() async {
-    Navigator.pop(context);
+    context.pop();
 
-    final user = await locator.get<SecureCacheService>().read<UserModel>('user');
+    final user = ref.read(authNotifierProvider).value;
     if (user == null) return;
-    final payload = {
-      'category': widget.gameCategory,
-      'paidWithCoin': widget.paidWithCoin,
-      'haveEnoughCoins': user.coins >= 10,
-    };
     if (!mounted) return;
-    final event = GameEvent.playAgain(payload: payload);
-    context.read<GameBloc>().add(event);
+    ref.read(gameProvider.notifier).playAgain(user.uid);
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(gameProvider);
+    ref.listen<GameState>(gameProvider, (previous, next) {
+      if (!next.isGameActive && next.showResultDialog && !(previous?.showResultDialog ?? false)) {
+        _handleGameEnd(context, next);
+      }
+      final error = next.appException;
+      if (error == null || error == previous?.appException) return;
+      if (error is DailyLimitReachedException || error is InsufficientCoinsException) {
+        showSubscriptionDialog(context, error.message);
+      } else {
+        _showSnackBar(context, error);
+      }
+    });
+
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
-          // Geri gedəndə current operasiyanı cancel et
-          context.read<GameBloc>().cancelCurrentOperation();
+          ref.read(gameProvider.notifier).cancelCurrentOperation();
         }
       },
       child: Scaffold(
@@ -134,57 +132,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             ),
           ),
           child: SafeArea(
-            child: BlocConsumer<GameBloc, GameState>(
-              listener: (context, state) {
-                // Show result dialog when game ends
-                if (!state.isGameActive && (state.showResultDialog ?? false)) {
-                  _handleGameEnd(context, state);
-                }
-
-                // Show subscription dialog
-                if (state.showSubscribeDialog) {
-                  print('Showing subscription dialog');
-                  showSubscriptionDialog(context, context.tr('error.daily_limit_reached'));
-                }
-
-                if (state.appException != null) {
-                  final error = state.appException!;
-
-                  switch (error.type) {
-                    case AppErrorType.dailyLimitReached:
-                    case AppErrorType.notEnoughCoins:
-                      showSubscriptionDialog(context, error.message);
-                      break;
-
-                    case AppErrorType.invalidJson:
-                    case AppErrorType.fileLoadError:
-                      _showAlertDialog(context, error);
-                      break;
-                    default:
-                      _showSnackBar(context, error);
-                  }
-                }
-              },
-              builder: (context, state) {
-                // Loading state
-                if (state.isLoading) {
-                  return _buildLoadingState();
-                }
-
-                // No questions available
-                if (state.questions.isEmpty) {
-                  return _buildEmptyState(appErrorType: state.appException?.type);
-                }
-
-                // Game active with questions
-                final question = state.currentQuestion;
-                if (question == null) {
-                  return _buildEmptyState();
-                }
-
-                return _buildGameContent(context, state, question);
-              },
-            ),
+            child: state.isLoading
+                ? _buildLoadingState()
+                : state.questions.isEmpty
+                    ? _buildEmptyState(appException: state.appException)
+                    : state.currentQuestion == null
+                        ? _buildEmptyState()
+                        : _buildGameContent(context, state, state.currentQuestion!),
           ),
         ),
       ),
@@ -201,7 +155,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               Container(
                 padding: const EdgeInsets.all(8.0),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: const Icon(
@@ -239,7 +193,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20.0),
                 ),
                 child: IconButton(
@@ -273,37 +227,24 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showAlertDialog(BuildContext context, AppException exp) {
-    showDialog(context: context, builder: (_) => AppDialog(message: exp.message));
-  }
-
   // Add this method to your widget class
   void _handleGameEnd(BuildContext context, GameState state) {
-    // Always show ad first
-    AdManager().showAdAfterGame(
-      onAdClosed: () {
-        if (!context.mounted) return;
-
-        // After ad closes, check if we have titles to show
-        if (state.newlyEarnedTitles.isNotEmpty) {
-          _showTitleRewardAnimation(context, state.newlyEarnedTitles, state);
-        } else {
-          // No titles, go directly to result dialog
-          _showResultDialog(context, state);
-        }
-      },
-    );
+    if (state.newlyEarnedTitles.isNotEmpty) {
+      _showTitleRewardAnimation(context, state.newlyEarnedTitles, state);
+    } else {
+      _showResultDialog(context, state);
+    }
   }
 
   void _showTitleRewardAnimation(BuildContext context, List<TitleModel> newTitles, GameState state) {
-    showDialog(
+    showDialog<void>(
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black87,
       builder: (context) => TitleRewardDialog(
         titles: newTitles,
         onComplete: () {
-          Navigator.of(context).pop(); // Close title dialog
+          context.pop(); // Close title dialog
           _showResultDialog(context, state); // Show result dialog last
         },
       ),
@@ -372,7 +313,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildEmptyState({AppErrorType? appErrorType}) {
+  Widget _buildEmptyState({AppException? appException}) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -387,7 +328,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             ),
             const SizedBox(height: 16),
             Text(
-              _getErrorMessage(appErrorType),
+              _getErrorMessage(appException),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 18,
@@ -407,21 +348,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return 'assets/lotties/timer.json';
   }
 
-  String _getErrorMessage(AppErrorType? appErrorType) {
-    switch (appErrorType) {
-      case AppErrorType.dailyLimitReached:
-        return context.tr('error.daily_limit_reached');
-      case AppErrorType.networkError:
-        return context.tr('error.network_error');
-      case AppErrorType.fileLoadError:
-        return context.tr('error.file_load_error');
-      case AppErrorType.invalidJson:
-        return context.tr('error.invalid_json');
-      case AppErrorType.unknown:
-        return context.tr('error.unknown');
-      default:
-        return context.tr('game.no_questions');
-    }
+  String _getErrorMessage(AppException? exception) {
+    if (exception is DailyLimitReachedException) return context.tr('error.daily_limit_reached');
+    if (exception is FileLoadException) return context.tr('error.file_load_error');
+    if (exception is InvalidJsonException) return context.tr('error.invalid_json');
+    if (exception is NetworkException) return context.tr('error.network_error');
+    return exception?.message ?? context.tr('game.no_questions');
   }
 
   Widget _buildGameContent(BuildContext context, GameState state, MathQuestion question) {
@@ -483,12 +415,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               angle: -0.07, // Yüngül meyillik
               child: AnswerButton(
                 index: 0,
+                state: state,
                 onTap: () {
-                  final event = GameEvent.checkAnswer(
-                    question: state.currentQuestion!,
-                    selectedAnswerIndex: 0,
-                  );
-                  context.read<GameBloc>().add(event);
+                  ref.read(gameProvider.notifier).checkAnswer(0);
                 },
               ),
             ),
@@ -502,12 +431,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               angle: 0.07, // Əks istiqamətdə yüngül meyillik
               child: AnswerButton(
                 index: 1,
+                state: state,
                 onTap: () {
-                  final event = GameEvent.checkAnswer(
-                    question: state.currentQuestion!,
-                    selectedAnswerIndex: 1,
-                  );
-                  context.read<GameBloc>().add(event);
+                  ref.read(gameProvider.notifier).checkAnswer(1);
                 },
               ),
             ),
@@ -528,12 +454,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 padding: const EdgeInsets.only(right: 8.0, bottom: 16.0),
                 child: AnswerButton(
                   index: 0,
+                  state: state,
                   onTap: () {
-                    final event = GameEvent.checkAnswer(
-                      question: state.currentQuestion!,
-                      selectedAnswerIndex: 0,
-                    );
-                    context.read<GameBloc>().add(event);
+                    ref.read(gameProvider.notifier).checkAnswer(0);
                   },
                 ),
               ),
@@ -543,12 +466,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 padding: const EdgeInsets.only(left: 8.0, bottom: 16.0),
                 child: AnswerButton(
                   index: 1,
+                  state: state,
                   onTap: () {
-                    final event = GameEvent.checkAnswer(
-                      question: state.currentQuestion!,
-                      selectedAnswerIndex: 1,
-                    );
-                    context.read<GameBloc>().add(event);
+                    ref.read(gameProvider.notifier).checkAnswer(1);
                   },
                 ),
               ),
@@ -563,12 +483,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 padding: const EdgeInsets.only(right: 8.0),
                 child: AnswerButton(
                   index: 2,
+                  state: state,
                   onTap: () {
-                    final event = GameEvent.checkAnswer(
-                      question: state.currentQuestion!,
-                      selectedAnswerIndex: 2,
-                    );
-                    context.read<GameBloc>().add(event);
+                    ref.read(gameProvider.notifier).checkAnswer(2);
                   },
                 ),
               ),
@@ -578,12 +495,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 padding: const EdgeInsets.only(left: 8.0),
                 child: AnswerButton(
                   index: 3,
+                  state: state,
                   onTap: () {
-                    final event = GameEvent.checkAnswer(
-                      question: state.currentQuestion!,
-                      selectedAnswerIndex: 3,
-                    );
-                    context.read<GameBloc>().add(event);
+                    ref.read(gameProvider.notifier).checkAnswer(3);
                   },
                 ),
               ),
