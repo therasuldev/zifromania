@@ -1,7 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:zifromania/presentation/state-managment/game/game_bloc.dart';
+import 'package:zifromania/features/game_usage/presentation/providers/game_notifier.dart';
 import 'package:zifromania/presentation/widgets/animated_button.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ResultDialog extends StatelessWidget {
   final int score;
@@ -77,9 +78,10 @@ class ResultDialog extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => Navigator.of(context)
-                          ..pop()
-                          ..pop(),
+                        onTap: () {
+                          context.pop();
+                          context.pop();
+                        },
                         child: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/delete.png')),
                       ),
                     ],
@@ -168,9 +170,10 @@ class ResultDialog extends StatelessWidget {
                   AnimatedButton(
                     icon: Image.asset('assets/icons/home.png', width: 40, height: 40),
                     color: Colors.transparent,
-                    onTap: () => Navigator.of(context)
-                      ..pop()
-                      ..pop(),
+                    onTap: () {
+                      context.pop();
+                      context.pop();
+                    },
                     fontSize: 18,
                     fontFamily: 'Onacona',
                     padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
