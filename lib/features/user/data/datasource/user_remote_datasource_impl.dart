@@ -1,18 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:zifromania/core/errors/exceptions.dart';
+
+import 'package:zifromania/core/services/xp_service.dart';
 import 'package:zifromania/features/user/data/helpers/game_statistics_calculator.dart';
 import 'package:zifromania/features/user/data/models/game_update_data.dart';
 import 'package:zifromania/features/user/domain/entities/subscription_entity.dart';
-import 'package:zifromania/core/services/xp_service.dart';
 
-import '../models/subscription_model.dart';
-import '../models/user_model.dart';
-import 'user_remote_datasource.dart';
+import 'package:zifromania/core/errors/exceptions.dart';
+import 'package:zifromania/features/user/data/models/subscription_model.dart';
+import 'package:zifromania/features/user/data/models/user_model.dart';
+import 'package:zifromania/features/user/data/datasource/user_remote_datasource.dart';
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
-  final FirebaseFirestore firestore;
-  final GameStatisticsCalculator calculator;
-
   const UserRemoteDataSourceImpl({required this.firestore, required this.calculator});
 
   static const String usersCollection = 'users';
@@ -22,6 +20,9 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   DocumentReference<Map<String, dynamic>> _userDoc(String uid) {
     return _users.doc(uid);
   }
+
+  final FirebaseFirestore firestore;
+  final GameStatisticsCalculator calculator;
 
   @override
   Future<void> createUserProfile({required UserModel user}) async {
@@ -48,13 +49,13 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     final snapshot = await _userDoc(uid).get();
 
     if (!snapshot.exists) {
-      throw const ServerException('User not found');
+      throw const ServerException(message: 'User not found');
     }
 
     final data = snapshot.data();
 
     if (data == null) {
-      throw const ServerException('User data is null');
+      throw const ServerException(message: 'User data is null');
     }
 
     return UserModel.fromMap({...data, 'uid': uid});
@@ -64,13 +65,13 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   Stream<UserModel> watchUser({required String uid}) {
     return _userDoc(uid).snapshots().map((snapshot) {
       if (!snapshot.exists) {
-        throw const ServerException('User not found');
+        throw const ServerException(message: 'User not found');
       }
 
       final data = snapshot.data();
 
       if (data == null) {
-        throw const ServerException('User data is null');
+        throw const ServerException(message: 'User data is null');
       }
 
       return UserModel.fromMap({...data, 'uid': uid});
@@ -99,7 +100,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     final user = await getUser(uid: uid);
 
     if (user.coins < amount) {
-      throw const ServerException('Not enough coins');
+      throw const ServerException(message: 'Not enough coins');
     }
 
     await _userDoc(uid).update({
@@ -125,15 +126,15 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     final snapshot = await docRef.get();
 
     if (!snapshot.exists) {
-      throw const ServerException('User not found');
+      throw const ServerException(message: 'User not found');
     }
 
     final data = snapshot.data()!;
 
-    int level = data['level'] ?? 1;
-    int xp = data['xp'] ?? 0;
+    int level = (data['level'] as int?) ?? 1;
+    int xp = data['xp'] as int? ?? 0;
 
-    int xpForNextLevel = data['xpForNextLevel'] ?? XpService.xpForNextLevel(level);
+    int xpForNextLevel = (data['xpForNextLevel'] as int?) ?? XpService.xpForNextLevel(level);
 
     xp += xpEarned;
 
@@ -229,7 +230,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     final data = snapshot.data()!;
 
     final playedDates = List<String>.from(
-      data['playedDates'] ?? [],
+      (data['playedDates'] as List<dynamic>?) ?? [],
     );
 
     if (playedDates.contains(today)) {
@@ -242,7 +243,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       playedDates,
     );
 
-    final longestStreak = currentStreak > (data['longestStreak'] ?? 0) ? currentStreak : data['longestStreak'] ?? 0;
+    final longestStreak = currentStreak > ((data['longestStreak'] as int?) ?? 0) ? currentStreak : data['longestStreak'] ?? 0;
 
     await _userDoc(uid).update({
       'playedDates': playedDates,
@@ -299,7 +300,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       return 0;
     }
 
-    return snapshot.data()?['currentStreak'] ?? 0;
+    return (snapshot.data()?['currentStreak'] as int?) ?? 0;
   }
 
   @override
@@ -351,6 +352,6 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     final categoryStats = gameStats?['categoryStats'] as Map<String, dynamic>?;
     final currentCategory = categoryStats?[category] as Map<String, dynamic>?;
 
-    return (currentCategory?['averageTimePerQuestion'] ?? 0.0).toDouble();
+    return (currentCategory?['averageTimePerQuestion'] as double?) ?? 0.0;
   }
 }
