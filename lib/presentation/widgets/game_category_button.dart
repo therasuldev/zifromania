@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:zifromania/presentation/screens/game_screen.dart';
-
-import '../../domain/entities/enums.dart';
-import 'dialogs/rules_dialog.dart';
+import 'package:zifromania/core/router/route_names.dart';
+import 'package:zifromania/domain/entities/enums.dart';
+import 'package:zifromania/presentation/widgets/dialogs/rules_dialog.dart';
 
 class GameCategoryButton extends StatefulWidget {
   final String title;
@@ -63,10 +63,10 @@ class _GameCategoryButtonState extends State<GameCategoryButton> with SingleTick
     );
 
     // Əgər istifadəçi oyuna başlamağı seçibsə:
-    if ((result?['isTrue'] ?? false) && mounted) {
+    if ((result?['isTrue'] as bool?) ?? false) {
       // Create the UnifiedGameBloc provider and navigate to the game screen
-      final page = GameScreen(gameCategory: widget.category, paidWithCoin: result?['paidWithCoin']);
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+      final paidWithCoin = result?['paidWithCoin'] as bool? ?? false;
+      context.push('${RouteNames.game}/${widget.category.name}?paidWithCoin=$paidWithCoin');
     }
   }
 
