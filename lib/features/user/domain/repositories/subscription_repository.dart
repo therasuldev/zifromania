@@ -1,4 +1,4 @@
-import '../entities/subscription_entity.dart';
+import 'package:zifromania/features/user/domain/entities/subscription_entity.dart';
 
 abstract interface class SubscriptionRepository {
   Future<void> updateSubscriptionDetails({
