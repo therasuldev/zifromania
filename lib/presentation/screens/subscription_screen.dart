@@ -1,56 +1,35 @@
-import 'dart:async';
-import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:zifromania/domain/entities/constant.dart';
-import 'package:zifromania/locator.dart';
-import 'package:zifromania/models/user_model.dart';
+import 'package:zifromania/features/auth/presentation/providers/auth_provider.dart';
+import 'package:zifromania/features/purchase/domain/entities/subscription_plan.dart';
+import 'package:zifromania/features/purchase/presentation/enum/tab_type.dart';
+import 'package:zifromania/features/purchase/presentation/providers/purchase_notifier.dart';
+import 'package:zifromania/features/purchase/presentation/providers/state/purchase_state.dart';
+import 'package:zifromania/features/purchase/presentation/widgets/game_coin_purchase_widget.dart';
 import 'package:zifromania/presentation/common/back_button.dart';
-import 'package:zifromania/presentation/state-managment/ad_manager.dart';
-import 'package:zifromania/presentation/state-managment/user/user_bloc.dart';
 import 'package:zifromania/presentation/widgets/ad_reward_container.dart';
-import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
 import 'package:zifromania/presentation/widgets/daily_reward.dart';
-import 'package:zifromania/services/cache_service.dart';
-import 'package:zifromania/services/game_limit_service.dart';
-import 'package:zifromania/services/in_app_purchase_service.dart';
 
-enum TabType {
-  subscription,
-  coins;
-
-  int get idx => switch (this) {
-        TabType.subscription => 0,
-        TabType.coins => 1,
-      };
-}
-
-class SubscriptionScreen extends StatefulWidget {
+class SubscriptionScreen extends ConsumerStatefulWidget {
   const SubscriptionScreen({super.key, required this.tabType});
   final TabType tabType;
 
   @override
-  State<SubscriptionScreen> createState() => _SubscriptionScreenState();
+  ConsumerState<SubscriptionScreen> createState() => _SubscriptionScreenState();
 }
 
-class _SubscriptionScreenState extends State<SubscriptionScreen> {
+class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   int _selectedSubscriptionIndex = 1;
-
-  late final AdManager adManager;
-  late final InAppPurchaseService _iapService;
-
-  StreamSubscription<List<StoreProduct>>? _productsSub;
-  StreamSubscription<PurchaseResult>? _purchaseSub;
 
   bool _isPurchasing = false;
   String? _purchasingProductId;
 
   // Yerli marketinq məlumatları (features, "best value" tag və s.).
-  // `productId` sahəsi InAppPurchaseService-dəki _subscriptionIds ilə EYNİ
-  // olmalıdır - orada dəyişsəniz burada da dəyişin.
+  // Product IDs must match the IDs configured in the store data source.
   late List<SubscriptionPlan> _subscriptionPlans = [
     SubscriptionPlan(
       productId: 'subscription_monthly',
@@ -84,55 +63,21 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   @override
   void initState() {
     super.initState();
-    adManager = locator.get<AdManager>();
-    _iapService = locator.get<InAppPurchaseService>();
-
-    // Servis app başlanğıcında artıq init olunub (services_init.dart), ona
-    // görə mövcud məhsulları dərhal götürüb ekrana bağlayırıq.
-    _syncPlansWithStore(_iapService.products);
-
-    _productsSub = _iapService.productsStream.listen((storeProducts) {
+    ref.listenManual<PurchaseState>(purchaseNotifierProvider, (previous, next) {
       if (!mounted) return;
-      _syncPlansWithStore(storeProducts);
+      if (next.successMessage != null && next.successMessage != previous?.successMessage) {
+        _showResultDialog(success: true, message: next.successMessage!);
+      } else if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
+        _showResultDialog(success: false, message: next.errorMessage!);
+      }
     });
-
-    _purchaseSub = _iapService.purchaseStream.listen(_handlePurchaseResult);
-  }
-
-  @override
-  void dispose() {
-    _productsSub?.cancel();
-    _purchaseSub?.cancel();
-    super.dispose();
-  }
-
-  void _syncPlansWithStore(List<StoreProduct> storeProducts) {
-    setState(() {
-      _subscriptionPlans = _subscriptionPlans.map((plan) {
-        ProductDetails? match;
-        for (final sp in storeProducts) {
-          if (sp.productDetails.id == plan.productId) {
-            match = sp.productDetails;
-            break;
-          }
-        }
-        return plan.copyWithProduct(match);
-      }).toList();
-    });
-  }
-
-  StoreProduct? _findStoreProduct(String productId) {
-    for (final p in _iapService.products) {
-      if (p.productDetails.id == productId) return p;
-    }
-    return null;
   }
 
   Future<void> _handleBuy(String productId) async {
     if (_isPurchasing) return;
 
-    final storeProduct = _findStoreProduct(productId);
-    if (storeProduct == null) {
+    final product = ref.read(purchaseNotifierProvider).products.where((item) => item.id == productId).firstOrNull;
+    if (product == null) {
       _showResultDialog(
         success: false,
         message: 'subscription.not_available'.tr(),
@@ -145,65 +90,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       _purchasingProductId = productId;
     });
 
-    final bool started = await _iapService.buyProduct(storeProduct.productDetails);
-
-    // `started == false` deməkdir ki, native ödəniş axını heç başlamadı
-    // (məs. istifadəçi dərhal imtina etdi və ya store xətası). Əks halda
-    // nəticə purchaseStream vasitəsilə _handlePurchaseResult-a gələcək.
-    if (!started && mounted) {
-      setState(() {
-        _isPurchasing = false;
-        _purchasingProductId = null;
-      });
-    }
-  }
-
-  void _handlePurchaseResult(PurchaseResult result) {
-    if (!mounted) return;
-
-    switch (result.status) {
-      case PurchaseStatus.pending:
-        setState(() => _isPurchasing = true);
-        break;
-
-      case PurchaseStatus.purchased:
-      case PurchaseStatus.restored:
-        setState(() {
-          _isPurchasing = false;
-          _purchasingProductId = null;
-        });
-        _showResultDialog(
-          success: true,
-          message: 'subscription.purchase_success'.tr(),
-        );
-        break;
-
-      case PurchaseStatus.error:
-        setState(() {
-          _isPurchasing = false;
-          _purchasingProductId = null;
-        });
-        _showResultDialog(
-          success: false,
-          message: result.message ?? 'subscription.purchase_error'.tr(),
-        );
-        break;
-
-      case PurchaseStatus.canceled:
-        setState(() {
-          _isPurchasing = false;
-          _purchasingProductId = null;
-        });
-        break;
-    }
+    await ref.read(purchaseNotifierProvider.notifier).buyProduct(productId);
+    if (mounted) setState(() => _purchasingProductId = null);
   }
 
   Future<void> _handleRestore() async {
     setState(() => _isPurchasing = true);
-    await _iapService.restorePurchases();
-    // Nəticə purchaseStream vasitəsilə PurchaseStatus.restored kimi gələcək
-    // (əgər bərpa ediləcək bir şey varsa); heç nə gəlməzsə _isPurchasing
-    // özü aşağıdakı timeout ilə söndürülür ki, istifadəçi əbədi gözləməsin.
+    await ref.read(purchaseNotifierProvider.notifier).restorePurchases();
+    // The provider handles restored purchase updates; stop the spinner if no
+    // update arrives from the store.
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted && _isPurchasing) {
         setState(() => _isPurchasing = false);
@@ -212,7 +107,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   void _showResultDialog({required bool success, required String message}) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
@@ -248,7 +143,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         ),
         actions: [
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             style: ElevatedButton.styleFrom(
               backgroundColor: success ? Colors.green.shade400 : Colors.red.shade300,
             ),
@@ -284,149 +179,147 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           child: Column(
             children: [
               _buildHeader(),
-              ValueListenableBuilder<UserModel?>(
-                valueListenable: locator.get<SecureCacheService>().userNotifier,
-                builder: (ctx, user, _) {
-                  if (user == null) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Shimmer.fromColors(
-                        baseColor: Colors.grey.shade700,
-                        highlightColor: Colors.white70,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            children: [
-                              const CircleAvatar(
-                                radius: 20,
-                                backgroundColor: Colors.white,
+              Builder(builder: (ctx) {
+                final user = ref.watch(authNotifierProvider).value;
+                if (user == null) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Shimmer.fromColors(
+                      baseColor: Colors.grey.shade700,
+                      highlightColor: Colors.white70,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            const CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Colors.white,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(height: 16, width: 100, color: Colors.white),
+                                  const SizedBox(height: 6),
+                                  Container(height: 12, width: 80, color: Colors.white),
+                                ],
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(height: 16, width: 100, color: Colors.white),
-                                    const SizedBox(height: 6),
-                                    Container(height: 12, width: 80, color: Colors.white),
-                                  ],
-                                ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.white, width: 1.5),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: Colors.white, width: 1.5),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(height: 18, width: 18, color: Colors.white),
-                                    const SizedBox(width: 6),
-                                    Container(height: 14, width: 30, color: Colors.white),
-                                  ],
-                                ),
+                              child: Row(
+                                children: [
+                                  Container(height: 18, width: 18, color: Colors.white),
+                                  const SizedBox(width: 6),
+                                  Container(height: 14, width: 30, color: Colors.white),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    );
-                  }
-
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.white,
-                          backgroundImage: user.photoURL != null ? NetworkImage(user.photoURL!) : null,
-                          child: user.photoURL == null
-                              ? Text(
-                                  user.displayName?.isNotEmpty == true ? user.displayName![0].toUpperCase() : '?',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue.shade700,
-                                  ),
-                                )
-                              : null,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                user.displayName ?? 'Math Player',
-                                maxLines: 1,
-                                style: TextStyle(
-                                  fontFamily: 'Scabber',
-                                  fontSize: 16,
-                                  overflow: TextOverflow.ellipsis,
-                                  color: transparentIndigoColor,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                'subscription.account'.tr(),
-                                style: TextStyle(
-                                  fontFamily: 'Scabber',
-                                  fontSize: 12,
-                                  color: Colors.grey.shade700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.amber.shade300, width: 1.5),
-                          ),
-                          child: Row(
-                            children: [
-                              Image.asset(
-                                'assets/icons/star.png',
-                                height: 18,
-                                width: 18,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${user.coins}',
-                                style: TextStyle(
-                                  fontFamily: 'Scabber',
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.amber.shade800,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
                     ),
                   );
-                },
-              ),
+                }
+
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.white,
+                        backgroundImage: user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+                        child: user.photoUrl == null
+                            ? Text(
+                                user.displayName?.isNotEmpty == true ? user.displayName![0].toUpperCase() : '?',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue.shade700,
+                                ),
+                              )
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              user.displayName ?? 'Math Player',
+                              maxLines: 1,
+                              style: TextStyle(
+                                fontFamily: 'Scabber',
+                                fontSize: 16,
+                                overflow: TextOverflow.ellipsis,
+                                color: transparentIndigoColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'subscription.account'.tr(),
+                              style: TextStyle(
+                                fontFamily: 'Scabber',
+                                fontSize: 12,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.amber.shade300, width: 1.5),
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'assets/icons/star.png',
+                              height: 18,
+                              width: 18,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${user.coins}',
+                              style: TextStyle(
+                                fontFamily: 'Scabber',
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.amber.shade800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
               const SizedBox(height: 16),
               Expanded(
                 child: DefaultTabController(
@@ -482,6 +375,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Widget _buildSubscriptionTab() {
+    final products = ref.watch(purchaseNotifierProvider).products;
+    final plans = _subscriptionPlans.map((plan) {
+      final product = products.where((item) => item.id == plan.productId).firstOrNull;
+      return plan.copyWithProduct(product);
+    }).toList();
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -509,9 +408,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _subscriptionPlans.length,
+            itemCount: plans.length,
             itemBuilder: (context, index) {
-              final plan = _subscriptionPlans[index];
+              final plan = plans[index];
               final bool isThisPurchasing = _isPurchasing && _purchasingProductId == plan.productId;
               final bool isSelected = _selectedSubscriptionIndex == index;
 
@@ -756,21 +655,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GameCoinPurchaseWidget(
+            products: ref.watch(purchaseNotifierProvider).products,
             onBuy: _handleBuy,
             isPurchasing: _isPurchasing,
             purchasingProductId: _purchasingProductId,
           ),
           const SizedBox(height: 24),
-          AdRewardContainer(
-            gameLimitService: locator.get<GameLimitService>(),
-            adManager: adManager,
-          ),
+          const AdRewardContainer(),
           const SizedBox(height: 24),
-          BlocBuilder<UserBloc, UserState>(
-            builder: (context, state) {
-              return DailyRewardWidget(user: state.user);
-            },
-          ),
+          DailyRewardWidget(user: ref.watch(authNotifierProvider).value),
         ],
       ),
     );
@@ -797,383 +690,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 color: Colors.brown.shade300,
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Data Models
-class SubscriptionPlan {
-  final String productId;
-  final String title;
-  final double staticPrice; // store yüklənməyibsə fallback qiymət
-  final int duration; // in months
-  final List<String> features;
-  final bool mostPopular;
-  final int savePercentage;
-  final ProductDetails? productDetails;
-
-  SubscriptionPlan({
-    required this.productId,
-    required this.title,
-    required this.staticPrice,
-    required this.duration,
-    required this.features,
-    required this.mostPopular,
-    required this.savePercentage,
-    this.productDetails,
-  });
-
-  // Store yüklənəndə real, lokallaşdırılmış qiymət mətnini göstərir
-  // (məs. "$4.99" AŞB-də, "4,99 ₼" Azərbaycanda və s.).
-  String get priceLabel => productDetails?.price ?? '\$${staticPrice.toStringAsFixed(2)}';
-
-  SubscriptionPlan copyWithProduct(ProductDetails? details) => SubscriptionPlan(
-        productId: productId,
-        title: title,
-        staticPrice: staticPrice,
-        duration: duration,
-        features: features,
-        mostPopular: mostPopular,
-        savePercentage: savePercentage,
-        productDetails: details,
-      );
-}
-
-class CoinPack {
-  final String productId;
-  final int amount;
-  final int bonus;
-  final double staticPrice;
-  final String? specialOffer;
-  final ProductDetails? productDetails;
-
-  CoinPack({
-    required this.productId,
-    required this.amount,
-    this.bonus = 0,
-    required this.staticPrice,
-    this.specialOffer,
-    this.productDetails,
-  });
-
-  String get priceLabel => productDetails?.price ?? '\$${staticPrice.toStringAsFixed(2)}';
-
-  CoinPack copyWithProduct(ProductDetails? details) => CoinPack(
-        productId: productId,
-        amount: amount,
-        bonus: bonus,
-        staticPrice: staticPrice,
-        specialOffer: specialOffer,
-        productDetails: details,
-      );
-}
-
-class GameCoinPurchaseWidget extends StatefulWidget {
-  const GameCoinPurchaseWidget({
-    super.key,
-    required this.onBuy,
-    required this.isPurchasing,
-    required this.purchasingProductId,
-  });
-
-  final Future<void> Function(String productId) onBuy;
-  final bool isPurchasing;
-  final String? purchasingProductId;
-
-  @override
-  State<GameCoinPurchaseWidget> createState() => _GameCoinPurchaseWidgetState();
-}
-
-class _GameCoinPurchaseWidgetState extends State<GameCoinPurchaseWidget> with SingleTickerProviderStateMixin {
-  int _selectedCoinsPackIndex = 0;
-  late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
-  late final InAppPurchaseService _iapService;
-  StreamSubscription<List<StoreProduct>>? _productsSub;
-
-  // productId-lər InAppPurchaseService-dəki _coinProductIds ilə EYNİ olmalıdır.
-  late List<CoinPack> coinPacks = [
-    CoinPack(productId: '100_coin', amount: 100, staticPrice: 0.99),
-    CoinPack(productId: '550_coin', amount: 550, bonus: 50, staticPrice: 4.99),
-    CoinPack(productId: '1200_coin', amount: 1200, bonus: 200, staticPrice: 9.99, specialOffer: 'POPULAR'),
-    CoinPack(productId: '5000_coin', amount: 5000, bonus: 2000, staticPrice: 39.99, specialOffer: 'BEST VALUE'),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _iapService = locator.get<InAppPurchaseService>();
-
-    _syncPacksWithStore(_iapService.products);
-    _productsSub = _iapService.productsStream.listen((storeProducts) {
-      if (!mounted) return;
-      _syncPacksWithStore(storeProducts);
-    });
-
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-  }
-
-  void _syncPacksWithStore(List<StoreProduct> storeProducts) {
-    setState(() {
-      coinPacks = coinPacks.map((pack) {
-        ProductDetails? match;
-        for (final sp in storeProducts) {
-          if (sp.productDetails.id == pack.productId) {
-            match = sp.productDetails;
-            break;
-          }
-        }
-        return pack.copyWithProduct(match);
-      }).toList();
-    });
-  }
-
-  @override
-  void dispose() {
-    _productsSub?.cancel();
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _confirmAndBuy(CoinPack pack) async {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.3),
-      builder: (context) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Dialog(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.85,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFF4E342E).withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.orange.shade200.withValues(alpha: 0.3), width: 1.5),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 25, offset: const Offset(0, 12)),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'coin.confirm_title'.tr(),
-                  style: TextStyle(
-                    fontFamily: 'Scabber',
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.orange.shade100.withValues(alpha: 0.95),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'coin.confirm_message'.tr(args: ['${pack.amount + pack.bonus}', pack.priceLabel]),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, fontFamily: 'Scabber', color: Colors.white.withValues(alpha: 0.85)),
-                ),
-                const SizedBox(height: 28),
-                PressableFilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.orange.shade400.withValues(alpha: 0.8),
-                    foregroundColor: Colors.brown.shade900,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    widget.onBuy(pack.productId);
-                  },
-                  child: Text('coin.buy_now'.tr(), style: const TextStyle(fontFamily: 'Scabber')),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.indigo.shade100.withValues(alpha: .3),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.indigo.shade400, width: 1.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                Image.asset(
-                  'assets/icons/treasure.png',
-                  height: 32,
-                  opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'coin.pack'.tr(),
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontFamily: 'Scabber',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.indigo.shade100,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 1.5,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-            ),
-            itemCount: coinPacks.length,
-            itemBuilder: (context, index) {
-              final pack = coinPacks[index];
-              final isSelected = _selectedCoinsPackIndex == index;
-              final isThisPurchasing = widget.isPurchasing && widget.purchasingProductId == pack.productId;
-
-              return GestureDetector(
-                onTap: widget.isPurchasing
-                    ? null
-                    : () async {
-                        setState(() {
-                          _selectedCoinsPackIndex = index;
-                        });
-                        _animationController.forward().then((_) => _animationController.reverse());
-                        await _confirmAndBuy(pack);
-                      },
-                child: AnimatedBuilder(
-                  animation: _scaleAnimation,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: isSelected ? _scaleAnimation.value : 1.0,
-                      child: child,
-                    );
-                  },
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.indigo.shade200.withValues(alpha: .4),
-                              Colors.indigo.shade50.withValues(alpha: .6),
-                            ],
-                          ),
-                          border: Border.all(
-                            color: isSelected ? Colors.indigo.shade100 : Colors.indigo.shade500,
-                            width: isSelected ? 2.0 : 1.0,
-                          ),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.indigo.shade200.withValues(alpha: 0.3),
-                                    blurRadius: 8,
-                                    spreadRadius: 1,
-                                  ),
-                                ]
-                              : null,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset('assets/icons/coin-bag.png', height: 32),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '${pack.amount}',
-                                  style: TextStyle(
-                                    fontFamily: 'Scabber',
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.indigo.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.indigo.shade500.withValues(alpha: 0.8),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: isThisPurchasing
-                                  ? const SizedBox(
-                                      height: 14,
-                                      width: 14,
-                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                    )
-                                  : Text(
-                                      pack.priceLabel,
-                                      style: const TextStyle(
-                                        fontFamily: 'Scabber',
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (pack.bonus > 0)
-                        Positioned(
-                          top: -12,
-                          right: -4,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.teal.shade600,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.white, width: 1),
-                            ),
-                            child: Text(
-                              '+${pack.bonus}',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontFamily: 'Scabber',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.teal.shade100,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              );
-            },
           ),
         ],
       ),
