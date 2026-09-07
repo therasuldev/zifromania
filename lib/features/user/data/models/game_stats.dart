@@ -20,15 +20,15 @@ class GameStats extends GameStatsEntity {
     }
 
     return GameStats(
-      categoriesPlayed: Map<String, int>.from(map['categoriesPlayed'] ?? {}),
+      categoriesPlayed: Map<String, int>.from(map['categoriesPlayed'] as Map<String, int>? ?? {}),
       categoryStats: (map['categoryStats'] as Map<String, dynamic>?)?.map(
             (key, value) => MapEntry(key, CategoryStats.fromMap(value as Map<String, dynamic>)),
           ) ??
           {},
-      totalGamesPlayed: map['totalGamesPlayed'] ?? 0,
-      totalQuestionsAnswered: map['totalQuestionsAnswered'] ?? 0,
-      totalCorrectAnswers: map['totalCorrectAnswers'] ?? 0,
-      averageTimePerQuestion: (map['averageTimePerQuestion'] ?? 0.0).toDouble(),
+      totalGamesPlayed: map['totalGamesPlayed'] as int? ?? 0,
+      totalQuestionsAnswered: map['totalQuestionsAnswered'] as int? ?? 0,
+      totalCorrectAnswers: map['totalCorrectAnswers'] as int? ?? 0,
+      averageTimePerQuestion: (map['averageTimePerQuestion'] as double?) ?? 0.0,
     );
   }
 
