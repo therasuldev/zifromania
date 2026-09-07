@@ -14,12 +14,12 @@ class CategoryStats extends CategoryStatsEntity {
     if (map == null) return const CategoryStats();
 
     return CategoryStats(
-      gamesPlayed: map['gamesPlayed'] ?? 0,
-      questionsAnswered: map['questionsAnswered'] ?? 0,
-      correctAnswers: map['correctAnswers'] ?? 0,
-      bestScore: map['bestScore'] ?? 0,
-      averageTimePerQuestion: (map['averageTimePerQuestion'] ?? 0.0).toDouble(),
-      totalTimeSpent: map['totalTimeSpent'] ?? 0,
+      gamesPlayed: map['gamesPlayed'] as int? ?? 0,
+      questionsAnswered: map['questionsAnswered'] as int? ?? 0,
+      correctAnswers: map['correctAnswers'] as int? ?? 0,
+      bestScore: map['bestScore'] as int? ?? 0,
+      averageTimePerQuestion: (map['averageTimePerQuestion'] as double?) ?? 0.0,
+      totalTimeSpent: map['totalTimeSpent'] as int? ?? 0,
     );
   }
 
