@@ -1,7 +1,7 @@
 import 'package:zifromania/features/user/data/models/game_update_data.dart';
 
-import '../models/subscription_model.dart';
-import '../models/user_model.dart';
+import 'package:zifromania/features/user/data/models/subscription_model.dart';
+import 'package:zifromania/features/user/data/models/user_model.dart';
 
 abstract interface class UserRemoteDataSource {
   // User
