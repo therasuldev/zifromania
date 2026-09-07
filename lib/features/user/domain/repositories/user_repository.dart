@@ -1,4 +1,4 @@
-import '../entities/user_entity.dart';
+import 'package:zifromania/features/user/domain/entities/user_entity.dart';
 
 abstract interface class UserRepository {
   Future<void> createUserProfile({required UserEntity user});
