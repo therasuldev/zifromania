@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:zifromania/features/user/domain/entities/user_entity.dart';
 
-import 'game_stats.dart';
-import 'subscription_model.dart';
+import 'package:zifromania/features/user/data/models/game_stats.dart';
+import 'package:zifromania/features/user/data/models/subscription_model.dart';
 
 class UserModel extends UserEntity {
   const UserModel({
@@ -35,21 +35,21 @@ class UserModel extends UserEntity {
     final map = profileMap ?? {};
     return UserModel(
       uid: user.uid,
-      displayName: user.displayName ?? map['displayName'],
-      email: user.email ?? map['email'],
-      photoUrl: user.photoURL ?? map['photoURL'],
-      coins: map['coins'] ?? 0,
-      level: map['level'] ?? 1,
-      xp: map['xp'] ?? 0,
-      xpForNextLevel: map['xpForNextLevel'] ?? 10,
-      hasActiveSubscription: map['hasActiveSubscription'] ?? false,
+      displayName: user.displayName ?? map['displayName'] as String? ?? 'username',
+      email: user.email ?? map['email'] as String? ?? 'user@example.com',
+      photoUrl: user.photoURL ?? map['photoURL'] as String? ?? '',
+      coins: map['coins'] as int? ?? 0,
+      level: map['level'] as int? ?? 1,
+      xp: map['xp'] as int? ?? 0,
+      xpForNextLevel: map['xpForNextLevel'] as int? ?? 10,
+      hasActiveSubscription: map['hasActiveSubscription'] as bool? ?? false,
       achievements: (map['achievements'] as List<dynamic>?)?.cast<String>() ?? const [],
       completedTasks: (map['completedTasks'] as List<dynamic>?)?.cast<String>() ?? const [],
-      subscription: SubscriptionModel.fromMap(map['subscription'] ?? {}),
+      subscription: SubscriptionModel.fromMap(map['subscription'] as Map<String, dynamic>? ?? {}),
       playedDates: (map['playedDates'] as List<dynamic>?)?.cast<String>() ?? const [],
-      currentStreak: map['currentStreak'] ?? 0,
-      longestStreak: map['longestStreak'] ?? 0,
-      gameStats: GameStats.fromMap(map['gameStats'] ?? {}),
+      currentStreak: map['currentStreak'] as int? ?? 0,
+      longestStreak: map['longestStreak'] as int? ?? 0,
+      gameStats: GameStats.fromMap(map['gameStats'] as Map<String, dynamic>? ?? {}),
     );
   }
 
@@ -97,22 +97,22 @@ class UserModel extends UserEntity {
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      uid: map['uid'] ?? '',
-      displayName: map['displayName'],
-      email: map['email'],
-      photoUrl: map['photoURL'],
-      coins: map['coins'] ?? 0,
-      level: map['level'] ?? 1,
-      xp: map['xp'] ?? 0,
-      xpForNextLevel: map['xpForNextLevel'] ?? 10,
-      hasActiveSubscription: map['hasActiveSubscription'] ?? false,
+      uid: map['uid'] as String? ?? '',
+      displayName: map['displayName'] as String? ?? '',
+      email: map['email'] as String? ?? '',
+      photoUrl: map['photoURL'] as String? ?? '',
+      coins: map['coins'] as int? ?? 0,
+      level: map['level'] as int? ?? 1,
+      xp: map['xp'] as int? ?? 0,
+      xpForNextLevel: map['xpForNextLevel'] as int? ?? 10,
+      hasActiveSubscription: map['hasActiveSubscription'] as bool? ?? false,
       achievements: (map['achievements'] as List<dynamic>?)?.cast<String>() ?? const [],
       completedTasks: (map['completedTasks'] as List<dynamic>?)?.cast<String>() ?? const [],
-      subscription: SubscriptionModel.fromMap(map['subscription'] ?? {}),
+      subscription: SubscriptionModel.fromMap(map['subscription'] as Map<String, dynamic>? ?? {}),
       playedDates: (map['playedDates'] as List<dynamic>?)?.cast<String>() ?? const [],
-      currentStreak: map['currentStreak'] ?? 0,
-      longestStreak: map['longestStreak'] ?? 0,
-      gameStats: GameStats.fromMap(map['gameStats'] ?? {}),
+      currentStreak: map['currentStreak'] as int? ?? 0,
+      longestStreak: map['longestStreak'] as int? ?? 0,
+      gameStats: GameStats.fromMap(map['gameStats'] as Map<String, dynamic>? ?? {}),
     );
   }
 
