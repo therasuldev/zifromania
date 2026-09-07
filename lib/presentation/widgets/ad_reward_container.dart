@@ -1,41 +1,33 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:zifromania/presentation/state-managment/ad_manager.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:zifromania/features/game_usage/presentation/providers/ad_reward_notifier.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
 import 'package:zifromania/presentation/widgets/dialogs/subscription_dialog.dart';
-import 'package:zifromania/services/game_limit_service.dart';
 
-class AdRewardContainer extends StatefulWidget {
-  final GameLimitService gameLimitService;
-  final AdManager adManager;
+class AdRewardContainer extends ConsumerStatefulWidget {
   final VoidCallback? onRewardEarned;
   final VoidCallback? onClose;
 
   const AdRewardContainer({
     super.key,
-    required this.gameLimitService,
-    required this.adManager,
     this.onRewardEarned,
     this.onClose,
   });
 
   @override
-  State<AdRewardContainer> createState() => _AdRewardContainerState();
+  ConsumerState<AdRewardContainer> createState() => _AdRewardContainerState();
 }
 
-class _AdRewardContainerState extends State<AdRewardContainer> with SingleTickerProviderStateMixin {
+class _AdRewardContainerState extends ConsumerState<AdRewardContainer> with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  Map<String, dynamic> _adStatus = {};
-
-  static const int _maxAdsForReward = 3;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
     _scaleAnimation = Tween<double>(
@@ -45,14 +37,6 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
-
-    _loadAdStatus();
-  }
-
-  void _loadAdStatus() {
-    setState(() {
-      _adStatus = widget.gameLimitService.getGlobalAdStatus();
-    });
   }
 
   @override
@@ -62,7 +46,7 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
   }
 
   void _watchAd() async {
-    if (_isLoading || !widget.gameLimitService.canWatchAdForReward()) {
+    if (_isLoading || !ref.read(adRewardProvider).canWatchMore) {
       return;
     }
 
@@ -71,46 +55,24 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
     });
 
     try {
-      // YENİ: AdManager-in yeni metodundan istifadə et
-      final success = await widget.adManager.showRewardedAdForFlexibleGames(
-        onRewardEarned: () {
-          setState(() {
-            _isLoading = false;
-          });
-
-          _animationController.forward().then((_) {
-            _animationController.reverse();
-          });
-
-          // Ad status-u yenilə
-          _loadAdStatus();
-
-          // Yenidən yoxla ki, mükafat verildinimi
-          final newStatus = widget.gameLimitService.getGlobalAdStatus();
-          if (newStatus['hasEarnedReward'] == true) {
-            _showRewardDialog();
-          }
-
-          // Callback-i çağır
-          widget.onRewardEarned?.call();
-        },
-        onError: (String error) {
-          setState(() {
-            _isLoading = false;
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error)),
-          );
-        },
-      );
-
-      if (!success) {
+      await ref.read(adRewardProvider.notifier).watchAd();
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
+
+        _animationController.forward().then((_) {
+          _animationController.reverse();
+        });
+
+        if (ref.read(adRewardProvider).hasEarnedReward) {
+          _showRewardDialog();
+        }
+
+        widget.onRewardEarned?.call();
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -121,15 +83,12 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
   }
 
   void _showRewardDialog() {
-    final flexibleGames = _adStatus['flexibleGames'] ?? 0;
-
-    showDialog(context: context, barrierDismissible: false, builder: (context) => AppDialog(message: 'extra_games_unlocked'.tr()));
+    showDialog<void>(context: context, barrierDismissible: false, builder: (context) => AppDialog(message: 'extra_games_unlocked'.tr()));
   }
 
   @override
   Widget build(BuildContext context) {
-    // Ad status-u hər build-də yenilə
-    _loadAdStatus();
+    final adStatus = ref.watch(adRewardProvider);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -187,7 +146,7 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: List.generate(
-                          _maxAdsForReward,
+                          adStatus.maxAds,
                           (index) => Container(
                             margin: const EdgeInsets.symmetric(horizontal: 8),
                             height: 50,
@@ -195,7 +154,7 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(30),
                               image: DecorationImage(
-                                image: index < (_adStatus['watchedAds'] ?? 0)
+                                image: index < adStatus.watchedAds
                                     ? const AssetImage('assets/icons/trending.png')
                                     : const AssetImage('assets/icons/play.png'),
                                 fit: BoxFit.cover,
@@ -207,8 +166,8 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
                       const SizedBox(height: 8),
                       Text(
                         'subscription.ad_status'.tr(namedArgs: {
-                          'watched': (_adStatus['watchedAds'] ?? 0).toString(),
-                          'max': _maxAdsForReward.toString(),
+                          'watched': adStatus.watchedAds.toString(),
+                          'max': adStatus.maxAds.toString(),
                         }),
                         style: const TextStyle(
                           color: Colors.white70,
@@ -219,7 +178,7 @@ class _AdRewardContainerState extends State<AdRewardContainer> with SingleTicker
                       const SizedBox(height: 16),
 
                       // Reklam izləmə düyməsi və ya nəticə
-                      if (!(_adStatus['hasEarnedReward'] ?? false))
+                      if (!adStatus.hasEarnedReward)
                         ScaleTransition(
                           scale: _scaleAnimation,
                           child: SizedBox(
