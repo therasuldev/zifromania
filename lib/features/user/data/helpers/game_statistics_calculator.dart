@@ -1,6 +1,6 @@
-import '../models/category_stats.dart';
-import '../models/game_stats.dart';
-import '../models/game_update_data.dart';
+import 'package:zifromania/features/user/data/models/category_stats.dart';
+import 'package:zifromania/features/user/data/models/game_stats.dart';
+import 'package:zifromania/features/user/data/models/game_update_data.dart';
 
 class GameStatisticsCalculator {
   const GameStatisticsCalculator();
