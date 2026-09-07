@@ -1,4 +1,4 @@
-import 'category_stats_entity.dart';
+import 'package:zifromania/features/user/domain/entities/category_stats_entity.dart';
 
 class GameStatsEntity {
   final Map<String, int> categoriesPlayed;
