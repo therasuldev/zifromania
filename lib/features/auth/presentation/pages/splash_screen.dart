@@ -62,6 +62,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
 
     _animationController.forward();
 
+    ref.listenManual<AsyncValue<UserModel?>>(
+      authNotifierProvider,
+      (previous, next) {
+        next.when(
+          loading: () {},
+          data: (user) {
+            _user = user;
+            _authResolved = true;
+            _tryNavigate();
+          },
+          error: (error, stackTrace) {
+            _user = null;
+            _authResolved = true;
+            _tryNavigate();
+          },
+        );
+      },
+      fireImmediately: true,
+    );
+
     // Splash minimum 2 seconds göstərilsin.
     _navigationTimer = Timer(
       const Duration(seconds: 2),
@@ -95,27 +115,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<UserModel?>>(
-      authNotifierProvider,
-      (previous, next) {
-        next.when(
-          loading: () {
-            // Authentication yoxlanılır.
-          },
-          data: (user) {
-            _user = user;
-            _authResolved = true;
-            _tryNavigate();
-          },
-          error: (error, stackTrace) {
-            _user = null;
-            _authResolved = true;
-            _tryNavigate();
-          },
-        );
-      },
-    );
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
