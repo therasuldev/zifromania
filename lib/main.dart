@@ -4,8 +4,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:zifromania/app.dart';
+import 'package:zifromania/core/config/app_config.dart';
 import 'package:zifromania/core/providers/shared_preferences_provider.dart';
 import 'package:zifromania/core/services/daily_reward_bg_service.dart';
 import 'package:zifromania/core/services/notification_service.dart';
@@ -16,6 +18,8 @@ import 'package:zifromania/firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+ 
+  await GoogleSignIn.instance.initialize(serverClientId: AppConfig.googleServerClientId);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await dotenv.load();
 
