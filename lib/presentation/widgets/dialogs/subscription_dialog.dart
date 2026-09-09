@@ -1,9 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:zifromania/core/router/route_names.dart';
 import 'package:zifromania/domain/entities/enums.dart';
-import 'package:zifromania/models/user_model.dart';
-import 'package:zifromania/presentation/screens/game_intro_screen.dart';
-import 'package:zifromania/presentation/screens/subscription_screen.dart';
+import 'package:zifromania/features/user/data/models/user_model.dart';
 import 'package:zifromania/presentation/widgets/animated_button.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
 
@@ -73,11 +74,8 @@ class SubscriptionDialog extends StatelessWidget {
                   const Spacer(),
                   AnimatedIconButton(
                     onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const GameIntroScreen()),
-                        (Route<dynamic> route) => false,
-                      );
+                      context.pop();
+                      context.go(RouteNames.home);
                     },
                     icon: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/delete.png')),
                   ),
@@ -98,9 +96,8 @@ class SubscriptionDialog extends StatelessWidget {
                     color: Colors.transparent,
                     borderColor: Colors.orange,
                     onTap: () {
-                      Navigator.of(context).pop();
-                      const page = SubscriptionScreen(tabType: TabType.subscription);
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => page));
+                      context.pop();
+                      context.push('${RouteNames.subscription}?tab=subscription');
                     },
                     fontSize: 18,
                     fontFamily: 'Scabber',
@@ -116,9 +113,8 @@ class SubscriptionDialog extends StatelessWidget {
                     color: Colors.transparent,
                     borderColor: Colors.deepPurpleAccent,
                     onTap: () {
-                      Navigator.of(context).pop();
-                      const page = SubscriptionScreen(tabType: TabType.coins);
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => page));
+                      context.pop();
+                      context.push('${RouteNames.subscription}?tab=coins');
                     },
                     fontSize: 18,
                     fontFamily: 'Scabber',
@@ -134,9 +130,8 @@ class SubscriptionDialog extends StatelessWidget {
                     color: Colors.transparent,
                     borderColor: Colors.green,
                     onTap: () {
-                      Navigator.of(context).pop();
-                      const page = SubscriptionScreen(tabType: TabType.coins);
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => page));
+                      context.pop();
+                      context.push('${RouteNames.subscription}?tab=coins');
                     },
                     fontSize: 18,
                     fontFamily: 'Scabber',
@@ -204,11 +199,8 @@ class AppDialog extends StatelessWidget {
                 children: [
                   AnimatedIconButton(
                     onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const GameIntroScreen()),
-                        (Route<dynamic> route) => false,
-                      );
+                      context.pop();
+                      context.go(RouteNames.home);
                     },
                     icon: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/delete.png')),
                   ),
