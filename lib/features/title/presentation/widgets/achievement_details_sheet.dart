@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:zifromania/features/title/presentation/widgets/achievement.dart';
 
@@ -318,7 +319,7 @@ class AchievementDetailsSheet extends StatelessWidget {
                   ),
                 ),
                 OutlinedButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => context.pop(),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.redAccent,
                     side: const BorderSide(color: Colors.redAccent),
