@@ -1,12 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zifromania/domain/entities/enums.dart';
-import 'package:zifromania/locator.dart';
+import 'package:zifromania/features/game_usage/game_usage_module.dart';
 import 'package:zifromania/presentation/widgets/animated_button.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
 import 'package:flutter/material.dart';
-import 'package:zifromania/services/game_limit_service.dart';
+import 'package:go_router/go_router.dart';
 
-class RulesDialog extends StatelessWidget {
+class RulesDialog extends ConsumerWidget {
   const RulesDialog({super.key, required this.gameCategory});
 
   final GameCategory gameCategory;
@@ -14,13 +15,13 @@ class RulesDialog extends StatelessWidget {
   /// The limit displays the maximum allowed count for the category and how many items are currently played.
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Get the appropriate rules based on category
     final List<Map<String, String>> rules = _getRulesForCategory(gameCategory, context: context);
-    final stats = locator.get<GameLimitService>().getCategoryStats(gameCategory);
-    final current = stats['dailyRequestCount'] as int;
-    final baseLimit = stats['categoryLimit'] as int;
-    final flexibleGames = stats['flexibleGamesAvailable'] as int;
+    final stats = ref.watch(categoryStatsProvider(gameCategory));
+    final current = stats.dailyRequestCount;
+    final baseLimit = stats.categoryLimit;
+    final flexibleGames = stats.flexibleGamesAvailable;
 
     // Limit text-ini düzgün format et
     String limitText;
@@ -94,7 +95,7 @@ class RulesDialog extends StatelessWidget {
                         ),
                       ),
                       AnimatedIconButton(
-                        onTap: () => Navigator.of(context).pop(),
+                        onTap: () => context.pop(),
                         icon: SizedBox(height: 32, width: 32, child: Image.asset('assets/icons/delete.png')),
                       ),
                     ],
@@ -137,7 +138,7 @@ class RulesDialog extends StatelessWidget {
               width: 200,
               title: '${context.tr('button.start_game')}\n$limitText',
               color: Colors.transparent,
-              onTap: () => Navigator.of(context).pop({'isTrue': true, 'paidWithCoin': false}),
+              onTap: () => context.pop({'isTrue': true, 'paidWithCoin': false}),
               fontSize: 22,
               fontFamily: 'Scabber',
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
@@ -149,7 +150,7 @@ class RulesDialog extends StatelessWidget {
                 width: 200,
                 title: context.tr('subscription.spend_coins_for_games'),
                 color: Colors.transparent,
-                onTap: () => Navigator.of(context).pop({'isTrue': true, 'paidWithCoin': true}),
+                onTap: () => context.pop({'isTrue': true, 'paidWithCoin': true}),
                 fontSize: 18,
                 fontFamily: 'Scabber',
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
