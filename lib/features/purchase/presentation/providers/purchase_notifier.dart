@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:zifromania/features/auth/auth_module.dart';
 import 'package:zifromania/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:zifromania/features/purchase/domain/entities/purchase_result_entity.dart';
 import 'package:zifromania/features/purchase/domain/usecases/buy_product.dart';
 import 'package:zifromania/features/purchase/domain/usecases/deliver_coins.dart';
 import 'package:zifromania/features/purchase/domain/usecases/listen_purchase_updates_usecase.dart';
@@ -12,7 +13,7 @@ import 'package:zifromania/features/purchase/presentation/providers/state/purcha
 import 'package:zifromania/features/purchase/purchase_module.dart';
 
 class PurchaseNotifier extends Notifier<PurchaseState> {
-  StreamSubscription? _purchaseSubscription;
+  StreamSubscription<PurchaseEntity>? _purchaseSubscription;
 
   @override
   PurchaseState build() {
@@ -64,7 +65,7 @@ class PurchaseNotifier extends Notifier<PurchaseState> {
           state = state.copyWith(isLoading: true);
         }
       },
-      onError: (error) {
+      onError: (dynamic error) {
         state = state.copyWith(
           isLoading: false,
           errorMessage: error.toString(),
