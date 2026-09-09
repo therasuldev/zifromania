@@ -3,10 +3,10 @@
 import 'dart:math' as math;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:zifromania/models/title_model.dart';
+import 'package:go_router/go_router.dart';
+import 'package:zifromania/features/title/data/models/title_model.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
-
-import '../fireworks_congratulations.dart';
+import 'package:zifromania/presentation/widgets/fireworks_congratulations.dart';
 
 class TitleRewardDialog extends StatefulWidget {
   final List<TitleModel> titles;
@@ -33,7 +33,7 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<Offset> _slideFromRightAnimation; // Sağdan sola animasiya
-  late Animation<Offset> _slideToLeftAnimation; // Soldan çıxış animasiyası
+// Soldan çıxış animasiyası
 
   int _currentTitleIndex = 0;
 
@@ -108,13 +108,6 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
     ));
 
     // Soldan çıxış animasiyası
-    _slideToLeftAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(-1.0, 0),
-    ).animate(CurvedAnimation(
-      parent: _transitionController,
-      curve: Curves.easeInCubic,
-    ));
 
     _startAnimationSequence();
   }
@@ -152,7 +145,7 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
         widget.onComplete!();
       } else {
         // Fallback: close dialog if no callback provided
-        Navigator.of(context).pop();
+        context.pop();
       }
     }
   }
@@ -367,8 +360,6 @@ class ParticlePainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final center = Offset(size.width / 2, size.height / 2);
-    final random = math.Random(42); // Fixed seed for consistent animation
-
     // Draw particles
     for (int i = 0; i < 15; i++) {
       final angle = (i / 15) * 2 * math.pi;
