@@ -1,15 +1,16 @@
-import 'package:zifromania/presentation/state-managment/game/game_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:zifromania/features/game_usage/presentation/providers/game_notifier.dart';
 
 class AnswerButton extends StatefulWidget {
   final int index;
   final VoidCallback onTap;
+  final GameState state;
 
   const AnswerButton({
     super.key,
     required this.index,
     required this.onTap,
+    required this.state,
   });
 
   @override
@@ -80,115 +81,110 @@ class _AnswerButtonState extends State<AnswerButton> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GameBloc, GameState>(
-      builder: (context, state) {
-        final question = state.currentQuestion;
-        if (question == null) {
-          return const SizedBox.shrink();
+    final state = widget.state;
+    final question = state.currentQuestion;
+    if (question == null) {
+      return const SizedBox.shrink();
+    }
+
+    // Get the answer options as a list of keys and values
+    final optionKeys = question.answerOptions.keys.toList();
+    // Check if the index is valid
+    if (widget.index >= optionKeys.length) {
+      return const SizedBox.shrink();
+    }
+
+    // Get the answer value for this index
+    final answerKey = optionKeys[widget.index];
+    final answerValue = question.answerOptions[answerKey]!;
+    final correctAnswer = question.correctAnswer;
+
+    return GestureDetector(
+      onTapDown: (_) => _scaleController.reverse(),
+      onTapUp: (_) {
+        _scaleController.forward();
+        if (state.lastAnsweredQuestionIndex != state.currentQuestionIndex) {
+          widget.onTap();
         }
-
-        // Get the answer options as a list of keys and values
-        final optionKeys = question.answerOptions.keys.toList();
-        final optionValues = question.answerOptions.values.toList();
-
-        // Check if the index is valid
-        if (widget.index >= optionKeys.length) {
-          return const SizedBox.shrink();
-        }
-
-        // Get the answer value for this index
-        final answerKey = optionKeys[widget.index];
-        final answerValue = question.answerOptions[answerKey]!;
-        final correctAnswer = question.correctAnswer;
-
-        return GestureDetector(
-          onTapDown: (_) => _scaleController.reverse(),
-          onTapUp: (_) {
-            _scaleController.forward();
-            if (state.lastAnsweredQuestionIndex != state.currentQuestionIndex) {
-              widget.onTap();
-            }
-          },
-          onTapCancel: () => _scaleController.forward(),
-          child: ScaleTransition(
-            scale: _scaleController,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: _getButtonColor(
-                      answerValue: answerValue,
-                      correctAnswer: correctAnswer,
-                      index: widget.index,
-                      currentQuestionIndex: state.currentQuestionIndex,
-                      state: state,
-                      lastSelectedAnswer: state.lastSelectedAnswer,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 2),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: state.lastSelectedAnswer != null ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Option key (A, B, C, D)
-
-                          // Answer value
-                          FittedBox(
-                            child: Text(
-                              answerValue,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontFamily: 'Scabber',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Option key (A, B, C, D)
-                Positioned(
-                  left: -10,
-                  top: -15,
-                  child: Container(
-                    padding: const EdgeInsets.all(5),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.2),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 2),
-                    ),
-                    child: Text(
-                      optionKeys[widget.index],
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Scabber',
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
       },
+      onTapCancel: () => _scaleController.forward(),
+      child: ScaleTransition(
+        scale: _scaleController,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: _getButtonColor(
+                  answerValue: answerValue,
+                  correctAnswer: correctAnswer,
+                  index: widget.index,
+                  currentQuestionIndex: state.currentQuestionIndex,
+                  state: state,
+                  lastSelectedAnswer: state.lastSelectedAnswer,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 2),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: state.lastSelectedAnswer != null ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Option key (A, B, C, D)
+
+                      // Answer value
+                      FittedBox(
+                        child: Text(
+                          answerValue,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontFamily: 'Scabber',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Option key (A, B, C, D)
+            Positioned(
+              left: -10,
+              top: -15,
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.2),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 2),
+                ),
+                child: Text(
+                  optionKeys[widget.index],
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Scabber',
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
