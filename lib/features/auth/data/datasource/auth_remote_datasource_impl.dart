@@ -17,11 +17,15 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   @override
   Future<UserModel> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
+      final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
+
+      if (googleUser == null) {
+        throw Exception("Daxil olma ləğv edildi.");
+      }
 
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.idToken,
         idToken: googleAuth.idToken,
       );
 
@@ -29,30 +33,33 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
       final user = userCredential.user;
 
       if (user == null) {
-        throw Exception("Failed to sign in with Google");
+        throw Exception("Firebase istifadəçisi tapılmadı.");
       }
 
       final docRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
       final docSnapshot = await docRef.get();
 
-      Map<String, dynamic>? profileMap;
-      if (docSnapshot.exists) {
-        profileMap = docSnapshot.data();
+      Map<String, dynamic> profileMap;
+      if (docSnapshot.exists && docSnapshot.data() != null) {
+        profileMap = docSnapshot.data()!;
       } else {
         profileMap = {
           'uid': user.uid,
-          'displayName': user.displayName,
-          'email': user.email,
-          'photoURL': user.photoURL,
+          'displayName': user.displayName ?? '',
+          'email': user.email ?? '',
+          'photoUrl': user.photoURL ?? '',
         };
 
         final fullUser = UserModel.fromFirebase(user: user, profileMap: profileMap);
         await docRef.set(fullUser.toMap());
+        return fullUser;
       }
 
       return UserModel.fromFirebase(user: user, profileMap: profileMap);
-    } catch (e) {
-      throw Exception("Google sign-in error: ${e.toString()}");
+    } catch (e, stackTrace) {
+      print('Google Sign-In Error: $e');
+      print('StackTrace: $stackTrace');
+      rethrow;
     }
   }
 
