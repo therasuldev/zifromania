@@ -20,25 +20,25 @@ abstract final class TitleEvaluator {
 
       switch (key) {
         case 'score':
-          if (score < value) return false;
+          if (score < (value as int)) return false;
         case 'level':
-          if (level < value) return false;
+          if (level < (value as int)) return false;
         case 'levelExact':
-          if (level != value) return false;
+          if (level != (value as int)) return false;
         case 'incorrectAnswers':
-          if (incorrectAnswers > value) return false;
+          if (incorrectAnswers > (value as int)) return false;
         case 'isPremium':
-          if (isPremium != value) return false;
+          if (isPremium != (value as bool)) return false;
         case 'averageTimePerQuestion':
-          if (averageTimePerQuestion > value) return false;
+          if (averageTimePerQuestion > (value as int)) return false;
         case 'questionsAnswered':
-          if (questionsAnswered < value) return false;
+          if (questionsAnswered < (value as int)) return false;
         case 'category':
-          if (category != value) return false;
+          if (category != (value as String)) return false;
         case 'distinctCategoriesPlayed':
-          if (distinctCategoriesPlayed.length < value) return false;
+          if (distinctCategoriesPlayed.length < (value as int)) return false;
         case 'dailyStreak':
-          if (dailyStreak < value) return false;
+          if (dailyStreak < (value as int)) return false;
         default:
           break;
       }
