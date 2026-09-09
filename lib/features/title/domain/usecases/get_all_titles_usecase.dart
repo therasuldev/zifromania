@@ -1,5 +1,5 @@
-import '../entities/title_entity.dart';
-import '../repositories/title_repository.dart';
+import 'package:zifromania/features/title/domain/entities/title_entity.dart';
+import 'package:zifromania/features/title/domain/repositories/title_repository.dart';
 
 final class GetAllTitlesUseCase {
   final TitleRepository titleRepository;
