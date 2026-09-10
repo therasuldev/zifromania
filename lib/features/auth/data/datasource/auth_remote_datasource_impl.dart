@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:zifromania/core/errors/exceptions.dart';
 import 'package:zifromania/core/services/secure_storage_service.dart';
 import 'package:zifromania/features/user/data/models/user_model.dart';
 
@@ -20,7 +21,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
       final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
 
       if (googleUser == null) {
-        throw Exception("Daxil olma ləğv edildi.");
+        throw const GoogleSignInCancelledException();
       }
 
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
