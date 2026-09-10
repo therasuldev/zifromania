@@ -8,6 +8,7 @@ import 'package:zifromania/features/auth/presentation/providers/auth_provider.da
 import 'package:zifromania/features/auth/presentation/widgets/sign_in_button.dart';
 
 import 'package:zifromania/core/router/route_names.dart';
+import 'package:zifromania/features/user/data/models/user_model.dart';
 
 /// Sign-in screen with mandatory Terms of Service acceptance.
 /// The Google button stays disabled until the checkbox is ticked.
@@ -49,11 +50,32 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   bool _acceptedTerms = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    ref.listenManual<AsyncValue<UserModel?>>(
+      authNotifierProvider,
+      (previous, next) {
+        if (!next.hasError) return;
+
+        final error = next.error.toString();
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
     final isLoading = authState.isLoading;
-
-    ref.listen<AsyncValue<dynamic>>(authNotifierProvider, _handleAuthError);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -82,17 +104,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  void _handleAuthError(AsyncValue<dynamic>? previous, AsyncValue<dynamic> next) {
-    if (!next.hasError) return;
-
-    final errorMessage = next.error.toString();
-    final message = errorMessage.isNotEmpty ? errorMessage : 'auth.google_sign_in_cancelled'.tr();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 }
