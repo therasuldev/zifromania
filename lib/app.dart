@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:zifromania/core/router/app_router.dart';
 import 'package:zifromania/domain/entities/constant.dart';
-import 'package:zifromania/features/auth/presentation/providers/auth_provider.dart';
 import 'package:zifromania/features/settings/settings_module.dart';
 import 'package:zifromania/features/sound/sound_module.dart';
 
@@ -56,14 +55,6 @@ class _ZifroManiaState extends ConsumerState<ZifroMania> with WidgetsBindingObse
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(authNotifierProvider, (previous, next) {
-      next.whenOrNull(
-        error: (error, stackTrace) => scaffoldMessengerKey.currentState?.showSnackBar(
-          SnackBar(content: Text(error.toString())),
-        ),
-      );
-    });
-
     return MaterialApp.router(
       title: 'ZifroMania',
       scaffoldMessengerKey: scaffoldMessengerKey,
