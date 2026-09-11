@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zifromania/core/errors/app_exception.dart';
 import 'package:zifromania/features/auth/presentation/providers/auth_provider.dart';
 import 'package:zifromania/features/auth/presentation/widgets/sign_in_button.dart';
 
@@ -50,30 +51,29 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   bool _acceptedTerms = false;
 
   @override
-  void initState() {
-    super.initState();
-
-    ref.listenManual<AsyncValue<UserModel?>>(
+  Widget build(BuildContext context) {
+    ref.listen<AsyncValue<UserModel?>>(
       authNotifierProvider,
       (previous, next) {
-        if (!next.hasError) return;
+        // isRefreshing və ya holds error yoxlanışı
+        if (next.hasError && !next.isRefreshing) {
+          final error = next.error;
 
-        final error = next.error.toString();
+          final String errorMessage = error is AppException ? error.message : error.toString();
 
-        if (!mounted) return;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error),
-            backgroundColor: Colors.red,
-          ),
-        );
+          // Köhnə SnackBar-ı təmizləyib yenisini anında göstəririk
+          ScaffoldMessenger.of(context)
+            ..showSnackBar(
+              SnackBar(
+                content: Text(errorMessage),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+        }
       },
     );
-  }
 
-  @override
-  Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
     final isLoading = authState.isLoading;
 
