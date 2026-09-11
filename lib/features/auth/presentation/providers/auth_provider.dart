@@ -11,6 +11,8 @@ class AuthNotifier extends AsyncNotifier<UserModel?> {
   }
 
   Future<void> signInWithGoogle() async {
+    if (state.isLoading) return;
+
     state = const AsyncLoading();
 
     try {
@@ -18,22 +20,24 @@ class AuthNotifier extends AsyncNotifier<UserModel?> {
       final user = await usecase.call();
 
       state = AsyncData(user);
-    } on GoogleSignInCancelledException {
-      // user canceled the sign-in process, so we can just set the state to null or handle it accordingly
-      // this is not an error.
-      state = const AsyncData(null);
-    } catch (e, st) {
+    }
+    // on GoogleSignInCancelledException catch (e, st) {
+    // const İSTİFADƏ ETMİRİK ki, hər dəfə yeni referans yaransın
+    // və Riverpod eyni AsyncError-u "dəyişməyib" hesab etməsin
+    //   state = AsyncError(const GoogleSignInCancelledException(), st);
+    // }
+    catch (e, st) {
       state = AsyncError(e, st);
     }
   }
 
   Future<void> signOut() async {
+    if (state.isLoading) return;
     state = const AsyncLoading();
 
     state = await AsyncValue.guard(() async {
       final usecase = ref.read(signOutUseCaseProvider);
       await usecase.call();
-
       return null;
     });
   }
