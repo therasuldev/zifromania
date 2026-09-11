@@ -21,7 +21,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
       final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
 
       if (googleUser == null) {
-        throw const GoogleSignInCancelledException();
+        throw GoogleSignInCancelledException();
       }
 
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
@@ -58,6 +58,16 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
 
       return UserModel.fromFirebase(user: user, profileMap: profileMap);
     } catch (e, stackTrace) {
+      // Android tərəfdən gələn 'GoogleSignInException' xətasını tuturuq:
+      if (e is GoogleSignInException && e.code == GoogleSignInExceptionCode.canceled) {
+        throw GoogleSignInCancelledException();
+      }
+
+      // Əgər istifadəçi öz exception sinfini yazmayıbsa və ya artıq fırladılıbsa:
+      if (e is GoogleSignInCancelledException) {
+        rethrow;
+      }
+
       print('Google Sign-In Error: $e');
       print('StackTrace: $stackTrace');
       rethrow;
