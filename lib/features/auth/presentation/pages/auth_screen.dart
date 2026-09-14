@@ -4,12 +4,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:zifromania/core/errors/app_exception.dart';
-import 'package:zifromania/features/auth/presentation/providers/auth_provider.dart';
-import 'package:zifromania/features/auth/presentation/widgets/sign_in_button.dart';
 
+import 'package:zifromania/core/errors/app_exception.dart';
+import 'package:zifromania/features/auth/presentation/providers/auth_action_notifier.dart';
+import 'package:zifromania/features/auth/presentation/widgets/sign_in_button.dart';
 import 'package:zifromania/core/router/route_names.dart';
-import 'package:zifromania/features/user/data/models/user_model.dart';
 
 /// Sign-in screen with mandatory Terms of Service acceptance.
 /// The Google button stays disabled until the checkbox is ticked.
@@ -50,48 +49,50 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   bool _acceptedTerms = false;
 
+  Future<void> _handleGoogleSignIn() async {
+    final error = await ref.read(authActionNotifierProvider.notifier).signInWithGoogle();
+
+    if (!mounted || error == null) return;
+
+    _showErrorSnackBar(error);
+  }
+
+  void _showErrorSnackBar(AppException error) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(error.message),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<UserModel?>>(
-      authNotifierProvider,
-      (previous, next) {
-        // isRefreshing və ya holds error yoxlanışı
-        if (next.hasError && !next.isRefreshing) {
-          final error = next.error;
-
-          final String errorMessage = error is AppException ? error.message : error.toString();
-
-          // Köhnə SnackBar-ı təmizləyib yenisini anında göstəririk
-          ScaffoldMessenger.of(context)
-            ..showSnackBar(
-              SnackBar(
-                content: Text(errorMessage),
-                backgroundColor: Colors.red,
-                duration: const Duration(seconds: 3),
-              ),
-            );
-        }
-      },
-    );
-
-    final authState = ref.watch(authNotifierProvider);
-    final isLoading = authState.isLoading;
+    final isLoading = ref.watch(authActionNotifierProvider).isLoading;
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset('assets/images/scaffold.jpg', fit: BoxFit.cover),
+          Image.asset(
+            'assets/images/scaffold.jpg',
+            fit: BoxFit.cover,
+          ),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding),
+              padding: const EdgeInsets.symmetric(
+                horizontal: _horizontalPadding,
+              ),
               child: Stack(
                 children: [
                   _MainContent(
                     acceptedTerms: _acceptedTerms,
                     onTermsChanged: (value) => setState(() => _acceptedTerms = value ?? false),
-                    onGoogleSignIn: () => ref.read(authNotifierProvider.notifier).signInWithGoogle(),
+                    onGoogleSignIn: _handleGoogleSignIn,
                     titleStyle: _titleStyle,
                     subtitleStyle: _subtitleStyle,
                     termsTextStyle: _termsTextStyle,
@@ -133,11 +134,21 @@ class _MainContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Spacer(flex: 2),
-        const Center(child: _FadedLogo()),
+        const Center(
+          child: _FadedLogo(),
+        ),
         const SizedBox(height: 32),
-        Text('ZifroMania', textAlign: TextAlign.center, style: titleStyle),
+        Text(
+          'ZifroMania',
+          textAlign: TextAlign.center,
+          style: titleStyle,
+        ),
         const SizedBox(height: 16),
-        Text('auth.sign_in_prompt'.tr(), textAlign: TextAlign.center, style: subtitleStyle),
+        Text(
+          'auth.sign_in_prompt'.tr(),
+          textAlign: TextAlign.center,
+          style: subtitleStyle,
+        ),
         const Spacer(flex: 2),
         SignInButton(
           text: 'auth.continue_with_google'.tr(),
@@ -165,12 +176,14 @@ class _FadedLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShaderMask(
-      shaderCallback: (bounds) => const RadialGradient(
-        center: Alignment.center,
-        radius: 0.55,
-        colors: [Colors.white, Colors.white, Colors.transparent],
-        stops: [0.6, 0.6, 1.0],
-      ).createShader(bounds),
+      shaderCallback: (bounds) {
+        return const RadialGradient(
+          center: Alignment.center,
+          radius: 0.55,
+          colors: [Colors.white, Colors.white, Colors.transparent],
+          stops: [0.6, 0.6, 1.0],
+        ).createShader(bounds);
+      },
       blendMode: BlendMode.dstIn,
       child: Image.asset(
         'assets/images/zifromania.png',
@@ -224,18 +237,30 @@ class _TermsRow extends StatelessWidget {
   }
 
   List<InlineSpan> _buildTermsSpans(BuildContext context) {
-    final template = 'auth.termsCombined'.tr().replaceAll('{terms}', '[[TERMS]]').replaceAll('{privacy}', '[[PRIVACY]]');
+    final template = 'auth.termsCombined'
+        .tr()
+        .replaceAll('{terms}', '[[TERMS]]')
+        .replaceAll('{privacy}', '[[PRIVACY]]');
 
     final spans = <InlineSpan>[];
 
     template.splitMapJoin(
       _placeholderPattern,
       onMatch: (match) {
-        spans.add(_buildLink(context, match.group(1)!));
+        spans.add(
+          _buildLink(
+            context,
+            match.group(1)!,
+          ),
+        );
+
         return '';
       },
       onNonMatch: (text) {
-        spans.add(TextSpan(text: text));
+        spans.add(
+          TextSpan(text: text),
+        );
+
         return '';
       },
     );
@@ -243,13 +268,21 @@ class _TermsRow extends StatelessWidget {
     return spans;
   }
 
-  TextSpan _buildLink(BuildContext context, String type) {
+  TextSpan _buildLink(
+    BuildContext context,
+    String type,
+  ) {
     final isTerms = type == 'TERMS';
 
     return TextSpan(
       text: isTerms ? 'auth.termsOfService'.tr() : 'auth.privacyPolicy'.tr(),
       style: linkStyle,
-      recognizer: TapGestureRecognizer()..onTap = () => context.push(isTerms ? RouteNames.terms : RouteNames.privacy),
+      recognizer: TapGestureRecognizer()
+        ..onTap = () {
+          context.push(
+            isTerms ? RouteNames.terms : RouteNames.privacy,
+          );
+        },
     );
   }
 }
@@ -266,7 +299,10 @@ class _LoadingOverlay extends StatelessWidget {
           color: Colors.black54,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const CupertinoActivityIndicator(radius: 16, color: Colors.white),
+        child: const CupertinoActivityIndicator(
+          radius: 16,
+          color: Colors.white,
+        ),
       ),
     );
   }
