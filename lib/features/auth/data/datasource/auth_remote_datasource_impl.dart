@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:zifromania/core/errors/exceptions.dart';
+import 'package:zifromania/core/errors/app_exception.dart';
+import 'package:zifromania/core/errors/auth_exception.dart';
+import 'package:zifromania/core/errors/domain_exception.dart';
 import 'package:zifromania/core/services/secure_storage_service.dart';
 import 'package:zifromania/features/user/data/models/user_model.dart';
 
@@ -34,7 +36,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
       final user = userCredential.user;
 
       if (user == null) {
-        throw Exception("Firebase istifadəçisi tapılmadı.");
+        throw FirebaseUserNotFoundException();
       }
 
       final docRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
@@ -57,20 +59,18 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
       }
 
       return UserModel.fromFirebase(user: user, profileMap: profileMap);
-    } catch (e, stackTrace) {
-      // Android tərəfdən gələn 'GoogleSignInException' xətasını tuturuq:
+    } catch (e, st) {
+      // Catch the 'GoogleSignInException' coming from Android:
       if (e is GoogleSignInException && e.code == GoogleSignInExceptionCode.canceled) {
-        throw GoogleSignInCancelledException();
+        throw GoogleSignInCancelledException(error: e, stackTrace: st);
       }
 
-      // Əgər istifadəçi öz exception sinfini yazmayıbsa və ya artıq fırladılıbsa:
-      if (e is GoogleSignInCancelledException) {
+      // Preserve errors that already expose a user-facing message.
+      if (e is AppException) {
         rethrow;
       }
 
-      print('Google Sign-In Error: $e');
-      print('StackTrace: $stackTrace');
-      rethrow;
+      throw UnknownException(error: e, stackTrace: st);
     }
   }
 
