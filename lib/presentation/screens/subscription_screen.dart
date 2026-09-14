@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:zifromania/domain/entities/constant.dart';
-import 'package:zifromania/features/auth/presentation/providers/auth_provider.dart';
+import 'package:zifromania/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:zifromania/features/purchase/domain/entities/subscription_plan.dart';
 import 'package:zifromania/features/purchase/presentation/enum/tab_type.dart';
 import 'package:zifromania/features/purchase/presentation/providers/purchase_notifier.dart';
