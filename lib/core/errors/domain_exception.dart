@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:zifromania/core/errors/app_exception.dart';
 
 sealed class DomainException extends AppException {
@@ -5,33 +6,33 @@ sealed class DomainException extends AppException {
 }
 
 class DailyLimitReachedException extends DomainException {
-  const DailyLimitReachedException({
-    String message = 'Günlük limitə çatdınız.',
-    Object? error,
-    StackTrace? stackTrace,
-  }) : super(message, error: error, stackTrace: stackTrace);
+  DailyLimitReachedException({
+    String? message,
+    super.error,
+    super.stackTrace,
+  }) : super(message ?? 'error.daily_limit_reached'.tr());
 }
 
 class InsufficientCoinsException extends DomainException {
   final int? requiredCoins;
   final int? currentCoins;
 
-  const InsufficientCoinsException({
+  InsufficientCoinsException({
+    String? message,
     this.requiredCoins,
     this.currentCoins,
-    String message = 'Kifayət qədər balans yoxdur.',
-    Object? error,
-    StackTrace? stackTrace,
-  }) : super(message, error: error, stackTrace: stackTrace);
+    super.error,
+    super.stackTrace,
+  }) : super(message ?? 'coin.notEnoughCoins'.tr());
 
   @override
   List<Object?> get props => [...super.props, requiredCoins, currentCoins];
 }
 
 class UnknownException extends AppException {
-  const UnknownException({
-    String message = 'Bilinməyən xəta baş verdi.',
-    Object? error,
-    StackTrace? stackTrace,
-  }) : super(message, error: error, stackTrace: stackTrace);
+  UnknownException({
+    String? message,
+    super.error,
+    super.stackTrace,
+  }) : super(message ?? 'error.unknown'.tr());
 }
