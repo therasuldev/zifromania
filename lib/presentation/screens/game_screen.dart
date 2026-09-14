@@ -9,7 +9,7 @@ import 'package:zifromania/core/errors/exceptions.dart';
 import 'package:zifromania/domain/entities/constant.dart';
 import 'package:zifromania/domain/entities/enums.dart';
 import 'package:zifromania/domain/entities/math_question.dart';
-import 'package:zifromania/features/auth/presentation/providers/auth_provider.dart';
+import 'package:zifromania/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:zifromania/features/game_usage/presentation/providers/game_notifier.dart';
 import 'package:zifromania/features/title/data/models/title_model.dart';
 import 'package:zifromania/presentation/widgets/dialogs/result_dialog.dart';
