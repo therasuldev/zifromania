@@ -18,7 +18,7 @@ import 'package:zifromania/firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
- 
+
   await GoogleSignIn.instance.initialize(serverClientId: AppConfig.googleServerClientId);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await dotenv.load();
