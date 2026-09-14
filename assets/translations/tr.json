@@ -369,6 +369,8 @@
         "network_error": "İnternet bağlantınızı kontrol edin ve tekrar deneyin.",
         "file_load_error": "Dosya yüklenirken bir hata oluştu. Lütfen tekrar deneyin.",
         "invalid_json": "Geçersiz veri formatı. Lütfen tekrar deneyin.",
+        "google_sign_in_cancelled": "Google ile oturum açma iptal edildi.",
+        "firebase_user_not_found": "Firebase kullanıcısı bulunamadı.",
         "unknown": "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin."
     },
     "titles": {
