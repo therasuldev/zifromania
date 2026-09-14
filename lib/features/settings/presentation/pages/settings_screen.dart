@@ -6,7 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:zifromania/core/router/route_names.dart';
 import 'package:zifromania/domain/entities/constant.dart';
-import 'package:zifromania/features/auth/presentation/providers/auth_provider.dart';
+import 'package:zifromania/features/auth/presentation/providers/auth_action_notifier.dart';
+import 'package:zifromania/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:zifromania/features/settings/presentation/providers/language_notifier.dart';
 import 'package:zifromania/features/settings/presentation/providers/music_notifier.dart';
 import 'package:zifromania/features/settings/presentation/providers/sound_notifier.dart';
@@ -411,7 +412,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           leading: Image.asset('assets/icons/logout.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
           title: context.tr('logout'),
           onTap: () async {
-            await ref.read(authNotifierProvider.notifier).signOut();
+            await ref.read(authActionNotifierProvider.notifier).signOut();
           },
         ),
         SettingsTile(
