@@ -369,6 +369,8 @@
         "network_error": "Please check your internet connection and try again.",
         "file_load_error": "An error occurred while loading the file. Please try again.",
         "invalid_json": "Invalid data format. Please try again.",
+        "google_sign_in_cancelled": "Google sign-in was cancelled.",
+        "firebase_user_not_found": "Firebase user not found.",
         "unknown": "An unexpected error occurred. Please try again."
     },
     "titles": {
