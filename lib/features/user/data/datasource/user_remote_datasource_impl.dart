@@ -35,7 +35,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       await docRef.update({
         'displayName': user.displayName ?? data['displayName'],
         'email': user.email ?? data['email'],
-        'photoUrl': user.photoUrl ?? data['photoUrl'],
+        'photoURL': user.photoURL ?? data['photoURL'],
       });
 
       return;

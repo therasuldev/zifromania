@@ -80,7 +80,7 @@ class GameIntroScreen extends ConsumerWidget {
         child: Center(
           child: SafeArea(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 20),
                 GameCategoryButton(

@@ -250,8 +250,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                       CircleAvatar(
                         radius: 20,
                         backgroundColor: Colors.white,
-                        backgroundImage: user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
-                        child: user.photoUrl == null
+                        backgroundImage: user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+                        child: user.photoURL == null
                             ? Text(
                                 user.displayName?.isNotEmpty == true ? user.displayName![0].toUpperCase() : '?',
                                 style: TextStyle(

@@ -50,7 +50,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
           'uid': user.uid,
           'displayName': user.displayName ?? '',
           'email': user.email ?? '',
-          'photoUrl': user.photoURL ?? '',
+          'photoURL': user.photoURL ?? '',
         };
 
         final fullUser = UserModel.fromFirebase(user: user, profileMap: profileMap);

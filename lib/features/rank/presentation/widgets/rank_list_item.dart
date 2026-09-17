@@ -171,8 +171,8 @@ class _Avatar extends StatelessWidget {
           child: CircleAvatar(
             radius: 18,
             backgroundColor: Colors.white10,
-            backgroundImage: (user.photoUrl?.isNotEmpty ?? false) ? CachedNetworkImageProvider(user.photoUrl!) : null,
-            child: (user.photoUrl?.isEmpty ?? true) ? const Icon(Icons.person, size: 22, color: Colors.white70) : null,
+            backgroundImage: (user.photoURL?.isNotEmpty ?? false) ? CachedNetworkImageProvider(user.photoURL!) : null,
+            child: (user.photoURL?.isEmpty ?? true) ? const Icon(Icons.person, size: 22, color: Colors.white70) : null,
           ),
         ),
         if (isPremium)

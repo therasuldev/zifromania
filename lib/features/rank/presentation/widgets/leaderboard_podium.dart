@@ -28,7 +28,7 @@ class LeaderboardPodium extends StatelessWidget {
         UserModel(
           uid: 'empty${users.length}',
           displayName: 'N/A',
-          photoUrl: '',
+          photoURL: '',
           level: 0,
           xp: 0,
           subscription: const SubscriptionModel(),
@@ -115,8 +115,8 @@ class PodiumUserItem extends StatelessWidget {
             child: CircleAvatar(
               radius: scale * 30,
               backgroundColor: Colors.white24,
-              backgroundImage: (user.photoUrl?.isNotEmpty ?? false) ? CachedNetworkImageProvider(user.photoUrl!) : null,
-              child: (user.photoUrl?.isEmpty ?? true) ? Icon(Icons.person, size: scale * 35, color: Colors.white70) : null,
+              backgroundImage: (user.photoURL?.isNotEmpty ?? false) ? CachedNetworkImageProvider(user.photoURL!) : null,
+              child: (user.photoURL?.isEmpty ?? true) ? Icon(Icons.person, size: scale * 35, color: Colors.white70) : null,
             ),
           ),
           const SizedBox(height: 8),

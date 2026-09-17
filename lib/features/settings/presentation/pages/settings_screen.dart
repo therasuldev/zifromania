@@ -152,11 +152,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           child: CircleAvatar(
               radius: 35,
               backgroundColor: Colors.blue.shade200,
-              backgroundImage: switch (user.photoUrl) {
+              backgroundImage: switch (user.photoURL) {
                 null => null,
-                _ => NetworkImage(user.photoUrl!),
+                _ => NetworkImage(user.photoURL!),
               },
-              child: switch (user.photoUrl) {
+              child: switch (user.photoURL) {
                 null => Text(
                     user.displayName != null && user.displayName!.isNotEmpty ? user.displayName![0].toUpperCase() : '?',
                     style: TextStyle(

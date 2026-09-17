@@ -6,7 +6,7 @@ class UserEntity {
 
   final String? displayName;
   final String? email;
-  final String? photoUrl;
+  final String? photoURL;
 
   final int coins;
   final int level;
@@ -31,7 +31,7 @@ class UserEntity {
     required this.uid,
     this.displayName,
     this.email,
-    this.photoUrl,
+    this.photoURL,
     required this.coins,
     required this.level,
     required this.xp,
