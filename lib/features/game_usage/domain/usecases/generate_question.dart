@@ -30,10 +30,10 @@ final class GenerateQuestionsUseCase {
     bool paidWithCoin = false,
     int coinCost = 10,
   }) async {
-    // 1. Əməliyyatın başında yoxlanış
+    // 1. Check at the beginning of the operation
     cancelToken?.throwIfCancelled();
 
-    // 2. Oynamaq hüququnun yoxlanılması
+    // 2. Check whether the user can play
     final canPlay = canPlayGameUseCase(gameCategory, willPayWithCoin: paidWithCoin);
     if (!canPlay) {
       throw DailyLimitReachedException(
@@ -41,30 +41,29 @@ final class GenerateQuestionsUseCase {
       );
     }
 
-    // 3. Sualları öncədən yükləyirik (pul çıxılmadan öncə)
+    // 3. Preload questions before deducting coins
     final allQuestions = await questionRepository.getQuestions(gameCategory);
     cancelToken?.throwIfCancelled();
 
-    // 4. 7 saniyəlik süni gözləmə
-    // Qeyd: 70 dəfə loop yerinə təkrarlanan hissəni sadələşdirə bilərsiniz
-    for (int i = 0; i < 70; i++) {
+    // 4. Brief artificial delay
+    for (int i = 0; i < 30; i++) {
       if (cancelToken?.isCancelled == true) {
         throw const OperationCanceledException();
       }
       await Future<void>.delayed(const Duration(milliseconds: 100));
     }
 
-    // Pul çıxılmadan sonuncu yoxlanış
+    // Final check before deducting coins
     cancelToken?.throwIfCancelled();
 
-    // 5. YALNIZ hər şey uğurla tamamlandıqdan sonra Coin çıxılır və istifadə statistikası yenilənir
+    // 5. Deduct coins and update usage statistics only after everything succeeds
     if (paidWithCoin) {
       await userRepository.spendCoins(uid: userId, amount: coinCost);
     }
 
     await playGameUseCase(gameCategory, paidWithCoin: paidWithCoin);
 
-    // 6. Sualları qaytarmaq
+    // 6. Return the questions
     final list = List<MathQuestion>.from(allQuestions)..shuffle();
     return list.take(questionCount).toList();
   }
