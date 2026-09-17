@@ -16,7 +16,8 @@ class GameConfig {
   final bool paidWithCoin;
 
   @override
-  bool operator ==(Object other) => other is GameConfig && other.category == category && other.paidWithCoin == paidWithCoin;
+  bool operator ==(Object other) =>
+      other is GameConfig && other.category == category && other.paidWithCoin == paidWithCoin;
 
   @override
   int get hashCode => Object.hash(category, paidWithCoin);
@@ -57,7 +58,8 @@ class GameState {
   final GameCategory? gameCategory;
   final List<TitleModel> newlyEarnedTitles;
 
-  MathQuestion? get currentQuestion => currentQuestionIndex < questions.length ? questions[currentQuestionIndex] : null;
+  MathQuestion? get currentQuestion =>
+      currentQuestionIndex < questions.length ? questions[currentQuestionIndex] : null;
 
   GameState copyWith({
     List<MathQuestion>? questions,
@@ -109,7 +111,8 @@ class GameNotifier extends Notifier<GameState> {
     return const GameState();
   }
 
-  Future<void> start(String userId, {required GameCategory category, required bool paidWithCoin}) async {
+  Future<void> start(String userId,
+      {required GameCategory category, required bool paidWithCoin}) async {
     _config = GameConfig(category: category, paidWithCoin: paidWithCoin);
     _timer?.cancel();
     _cancelToken?.cancel();
@@ -124,18 +127,27 @@ class GameNotifier extends Notifier<GameState> {
             paidWithCoin: paidWithCoin,
           );
       if (token.isCancelled) return;
-      state = state.copyWith(questions: questions, isLoading: false, isGameActive: true, gameStartTime: DateTime.now());
+      ref.invalidate(categoryStatsProvider(category));
+      state = state.copyWith(
+          questions: questions,
+          isLoading: false,
+          isGameActive: true,
+          gameStartTime: DateTime.now());
       if (category != GameCategory.training) _startTimer();
     } on AppException catch (error) {
       if (!token.isCancelled) state = state.copyWith(isLoading: false, appException: error);
     } catch (error) {
-      if (!token.isCancelled) state = state.copyWith(isLoading: false, appException: UnknownException(message: error.toString()));
+      if (!token.isCancelled)
+        state = state.copyWith(
+            isLoading: false, appException: UnknownException(message: error.toString()));
     }
   }
 
   void checkAnswer(int selectedAnswerIndex) {
     final question = state.currentQuestion;
-    if (!state.isGameActive || question == null || state.lastAnsweredQuestionIndex == state.currentQuestionIndex) return;
+    if (!state.isGameActive ||
+        question == null ||
+        state.lastAnsweredQuestionIndex == state.currentQuestionIndex) return;
 
     final values = question.answerOptions.values.toList();
     final selectedValue = values[selectedAnswerIndex];
@@ -151,7 +163,8 @@ class GameNotifier extends Notifier<GameState> {
     );
 
     Future<void>.delayed(const Duration(milliseconds: 700), () {
-      if (state.isGameActive && state.lastAnsweredQuestionIndex == state.currentQuestionIndex) _nextQuestion();
+      if (state.isGameActive && state.lastAnsweredQuestionIndex == state.currentQuestionIndex)
+        _nextQuestion();
     });
   }
 
@@ -167,7 +180,7 @@ class GameNotifier extends Notifier<GameState> {
   }
 
   int get _startingSeconds => switch (_config!.category) {
-        GameCategory.trueOrFalse => 3,
+        GameCategory.trueOrFalse => 5,
         GameCategory.expert => 120,
         GameCategory.training => 0,
         _ => 60,
@@ -176,10 +189,19 @@ class GameNotifier extends Notifier<GameState> {
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (state.secondsRemaining <= 1) {
-        _timer?.cancel();
-        _finishGame();
+        if (_config?.category == GameCategory.trueOrFalse) {
+          _nextQuestion();
+        } else {
+          _timer?.cancel();
+          _finishGame();
+        }
       } else {
-        state = state.copyWith(secondsRemaining: state.secondsRemaining - 1);
+        state = state.copyWith(
+          secondsRemaining: state.secondsRemaining - 1,
+          lastSelectedAnswer: state.lastSelectedAnswer,
+          lastAnsweredQuestionIndex: state.lastAnsweredQuestionIndex,
+          isLastAnswerCorrect: state.isLastAnswerCorrect,
+        );
       }
     });
   }
@@ -189,7 +211,11 @@ class GameNotifier extends Notifier<GameState> {
       _finishGame();
       return;
     }
-    state = state.copyWith(currentQuestionIndex: state.currentQuestionIndex + 1);
+    state = state.copyWith(
+      currentQuestionIndex: state.currentQuestionIndex + 1,
+      secondsRemaining:
+          _config?.category == GameCategory.trueOrFalse ? _startingSeconds : state.secondsRemaining,
+    );
   }
 
   void _finishGame() {
