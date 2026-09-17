@@ -20,7 +20,7 @@ class GameStats extends GameStatsEntity {
     }
 
     return GameStats(
-      categoriesPlayed: Map<String, int>.from(map['categoriesPlayed'] as Map<String, int>? ?? {}),
+      categoriesPlayed: Map<String, int>.from(map['categoriesPlayed'] as Map? ?? {}),
       categoryStats: (map['categoryStats'] as Map<String, dynamic>?)?.map(
             (key, value) => MapEntry(key, CategoryStats.fromMap(value as Map<String, dynamic>)),
           ) ??
