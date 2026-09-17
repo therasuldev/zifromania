@@ -1,5 +1,5 @@
 abstract interface class GameUsageLocalDataSource {
-// Device
+  // Device
   String? getDeviceId();
   Future<void> setDeviceId(String id);
   int? getInstallDate();
