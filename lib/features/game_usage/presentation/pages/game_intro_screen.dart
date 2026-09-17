@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:zifromania/core/router/route_names.dart';
 import 'package:zifromania/domain/entities/enums.dart';
-import 'package:zifromania/features/auth/presentation/providers/auth_provider.dart';
+import 'package:zifromania/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:zifromania/features/user/presentation/providers/user/user_notifier.dart';
 import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
 import 'package:zifromania/presentation/widgets/coin_display.dart';
@@ -82,23 +82,6 @@ class GameIntroScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text(
-                  'ZIFRO\nMANIA',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 50,
-                    letterSpacing: 5.0,
-                    fontFamily: 'Brawler',
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 10.0,
-                        color: Colors.green.shade900,
-                        offset: const Offset(5.0, 5.0),
-                      ),
-                    ],
-                  ),
-                ),
                 const SizedBox(height: 20),
                 GameCategoryButton(
                   title: context.tr('game_categories.quick_thinking'),
@@ -155,11 +138,13 @@ class GameIntroScreen extends ConsumerWidget {
             children: [
               AnimatedIconButton(
                 onTap: () => context.push(RouteNames.achievements),
-                icon: SizedBox(height: 64, width: 64, child: Image.asset('assets/icons/achievements.png')),
+                icon: SizedBox(
+                    height: 64, width: 64, child: Image.asset('assets/icons/achievements.png')),
               ),
               AnimatedIconButton(
                 onTap: () => context.push(RouteNames.settings),
-                icon: SizedBox(height: 64, width: 64, child: Image.asset('assets/icons/settings.png')),
+                icon: SizedBox(
+                    height: 64, width: 64, child: Image.asset('assets/icons/settings.png')),
               ),
             ],
           ),
