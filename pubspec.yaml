@@ -104,6 +104,11 @@ dev_dependencies:
 
   # ==================== IN-APP PURCHASE TESTING / PLATFORM ====================
   in_app_purchase_platform_interface: ^1.4.1
+  
+  # ==================== CODE GENERATION ====================
+  freezed: ^4.0.1
+  freezed_annotation: ^3.1.0
+  build_runner: ^2.16.1
 
 
 flutter:
