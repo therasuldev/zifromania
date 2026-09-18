@@ -10,6 +10,7 @@ import 'package:zifromania/domain/entities/constant.dart';
 import 'package:zifromania/domain/entities/enums.dart';
 import 'package:zifromania/domain/entities/math_question.dart';
 import 'package:zifromania/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:zifromania/features/game_usage/domain/entities/game_state.dart';
 import 'package:zifromania/features/game_usage/presentation/providers/game_notifier.dart';
 import 'package:zifromania/features/title/data/models/title_model.dart';
 import 'package:zifromania/presentation/widgets/dialogs/result_dialog.dart';
@@ -49,7 +50,9 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
       final user = ref.read(authNotifierProvider).value;
       if (!mounted) return;
       if (user != null) {
-        ref.read(gameProvider.notifier).start(user.uid, category: widget.gameCategory, paidWithCoin: widget.paidWithCoin);
+        ref
+            .read(gameProvider.notifier)
+            .start(user.uid, category: widget.gameCategory, paidWithCoin: widget.paidWithCoin);
       }
     });
   }
@@ -236,7 +239,11 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
     }
   }
 
-  void _showTitleRewardAnimation(BuildContext context, List<TitleModel> newTitles, GameState state) {
+  void _showTitleRewardAnimation(
+    BuildContext context,
+    List<TitleModel> newTitles,
+    GameState state,
+  ) {
     showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -406,13 +413,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
       height: 300,
       child: Stack(
         children: [
-          // True button - sol tərəfdə yuxarıda
           Positioned(
             top: 20,
             left: 0,
-            right: MediaQuery.of(context).size.width * 0.3, // Sağ tərəfi boş saxla
+            right: MediaQuery.of(context).size.width * 0.3,
             child: Transform.rotate(
-              angle: -0.07, // Yüngül meyillik
+              angle: -0.07,
               child: AnswerButton(
                 index: 0,
                 state: state,
@@ -422,13 +428,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
               ),
             ),
           ),
-          // False button - sağ tərəfdə aşağıda
           Positioned(
             bottom: 20,
             right: 0,
-            left: MediaQuery.of(context).size.width * 0.3, // Sol tərəfi boş saxla
+            left: MediaQuery.of(context).size.width * 0.3,
             child: Transform.rotate(
-              angle: 0.07, // Əks istiqamətdə yüngül meyillik
+              angle: 0.07,
               child: AnswerButton(
                 index: 1,
                 state: state,
@@ -446,7 +451,6 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
   Widget _buildMultipleChoiceLayout(BuildContext context, GameState state, MathQuestion question) {
     return Column(
       children: [
-        // Birinci sıra - 2 button
         Row(
           children: [
             Expanded(
@@ -475,7 +479,6 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
             ),
           ],
         ),
-        // İkinci sıra - 2 button
         Row(
           children: [
             Expanded(
@@ -504,7 +507,6 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
             ),
           ],
         ),
-        // SizedBox(height: 56),
       ],
     );
   }
