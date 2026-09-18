@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zifromania/features/game_usage/presentation/providers/game_notifier.dart';
+import 'package:zifromania/features/game_usage/domain/entities/game_state.dart';
 
 class AnswerButton extends StatefulWidget {
   final int index;
@@ -70,10 +70,10 @@ class _AnswerButtonState extends State<AnswerButton> with SingleTickerProviderSt
 
     // Color logic
     if (isCorrectAnswer) {
-      return const Color.fromARGB(50, 50, 255, 153); // Green for correct
+      return const Color.fromARGB(50, 50, 255, 153);
     }
     if (lastSelectedAnswer == index) {
-      return const Color.fromARGB(50, 255, 50, 50); // Red for selected wrong
+      return const Color.fromARGB(50, 255, 50, 50);
     }
 
     return Colors.transparent;
@@ -132,15 +132,14 @@ class _AnswerButtonState extends State<AnswerButton> with SingleTickerProviderSt
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: state.lastSelectedAnswer != null ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
+                    color: state.lastSelectedAnswer != null
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Option key (A, B, C, D)
-
-                      // Answer value
                       FittedBox(
                         child: Text(
                           answerValue,
