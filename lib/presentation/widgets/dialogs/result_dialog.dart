@@ -1,8 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:zifromania/features/game_usage/presentation/providers/game_notifier.dart';
-import 'package:zifromania/presentation/widgets/animated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:zifromania/features/game_usage/domain/entities/game_state.dart';
+import 'package:zifromania/presentation/widgets/animated_button.dart';
 
 class ResultDialog extends StatelessWidget {
   final int score;
