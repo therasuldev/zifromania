@@ -21,7 +21,7 @@ class PurchaseNotifier extends Notifier<PurchaseState> {
       _purchaseSubscription?.cancel();
     });
 
-    _init();
+    Future<void>.microtask(_init);
     return const PurchaseState();
   }
 
@@ -54,7 +54,8 @@ class PurchaseNotifier extends Notifier<PurchaseState> {
   void _listenToPurchases() {
     _purchaseSubscription = _listenPurchaseUpdatesUseCase().listen(
       (purchase) async {
-        if (purchase.status == PurchaseStatus.purchased || purchase.status == PurchaseStatus.restored) {
+        if (purchase.status == PurchaseStatus.purchased ||
+            purchase.status == PurchaseStatus.restored) {
           await _handleSuccessfulPurchase(purchase.productId);
         } else if (purchase.status == PurchaseStatus.error) {
           state = state.copyWith(
