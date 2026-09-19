@@ -123,9 +123,7 @@ flutter:
     - assets/lotties/timer.json
     - assets/translations/
     - assets/html/
-    - assets/zifromania-service-account.json
     - assets/questions/
-    - .env
 
   # ==================== FONTS ====================
   fonts:
