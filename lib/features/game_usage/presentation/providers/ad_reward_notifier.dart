@@ -39,6 +39,7 @@ class AdRewardNotifier extends Notifier<GlobalAdStatus> {
       await repository.setFlexibleGamesCount(today, flexibleGames + 3);
     }
 
+    ref.invalidate(categoryStatsProvider);
     state = _readStatus();
   }
 
