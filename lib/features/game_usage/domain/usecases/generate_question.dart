@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:zifromania/core/utils/cancel_token.dart';
-import 'package:zifromania/domain/entities/enums.dart';
-import 'package:zifromania/domain/entities/math_question.dart';
+import 'package:zifromania/features/game_usage/domain/entities/game_category.dart';
+import 'package:zifromania/features/game_usage/domain/entities/math_question.dart';
 import 'package:zifromania/features/game_usage/domain/repositories/question_repository.dart';
 import 'package:zifromania/features/user/domain/repositories/user_repository.dart';
 
