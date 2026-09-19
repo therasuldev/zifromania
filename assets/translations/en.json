@@ -106,6 +106,8 @@
             "reward_time_ready": "Ready"
         },
         "notEnoughCoins": "Not enough coins!",
+        "insufficient_for_game": "You need at least 10 coins to start this game.",
+        "return_home": "Back to Home",
         "coin_balance_update_error": "An error occurred while updating the coin balance.",
         "purchase": "Purchase Coins"
     },

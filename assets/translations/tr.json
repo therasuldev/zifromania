@@ -106,6 +106,8 @@
             "reward_time_ready": "Hazır"
         },
         "notEnoughCoins": "Yeterli miktarda coin yok.",
+        "insufficient_for_game": "Bu oyunu başlatmak için en az 10 coin gerekir.",
+        "return_home": "Ana Sayfaya Dön",
         "coin_balance_update_error": "Coin bakiyesi güncellenirken bir hata oluştu.",
         "purchase": "Coin Satın Al"
     },
