@@ -5,17 +5,9 @@ final class GameUsageLocalDataSourceImpl implements GameUsageLocalDataSource {
   const GameUsageLocalDataSourceImpl({required this.sharedPreferences});
 
   final PreferencesService sharedPreferences;
-  static const String _dailyRequestCountPrefix = 'daily_request_count_';
   static const String _deviceIdPrefix = 'device_id_';
   static const String _installDatePrefix = 'install_date_';
   static const String _subscriptionTypePrefix = 'subscription_type_';
-
-  // Flexible Games üçün key-lər
-  static const String _flexibleGamesCountPrefix = 'flexible_games_count_';
-
-  // Ümumi reklam sayğacları üçün key-lər
-  static const String _globalAdWatchedCountPrefix = 'global_ad_watched_count_';
-  static const String _globalAdRewardEarnedPrefix = 'global_ad_reward_earned_';
 
   // Device
   @override
