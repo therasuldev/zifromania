@@ -51,3 +51,6 @@ firebase_options.dart
 .env
 zifromania-service-account.json
 upload_certificate.pem
+
+# Git Auto Commit Generator learned data
+.git-auto-commit/
