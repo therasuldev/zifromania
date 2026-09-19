@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zifromania/domain/entities/constant.dart';
+import 'package:zifromania/shared/constants/app_constants.dart';
 
 class SettingsTile extends StatelessWidget {
   final Widget leading;
