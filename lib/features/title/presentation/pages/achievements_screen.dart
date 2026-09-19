@@ -9,9 +9,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import 'package:zifromania/domain/entities/constant.dart';
+import 'package:zifromania/shared/constants/app_constants.dart';
 import 'package:zifromania/features/title/presentation/providers/all_titles_provider.dart';
-import 'package:zifromania/presentation/common/back_button.dart';
+import 'package:zifromania/shared/widgets/back_button.dart';
 
 import 'package:zifromania/features/title/domain/entities/title_entity.dart';
 import 'package:zifromania/features/title/presentation/widgets/achievement.dart';
