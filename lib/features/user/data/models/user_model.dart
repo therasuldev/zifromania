@@ -100,7 +100,7 @@ class UserModel extends UserEntity {
       uid: map['uid'] as String? ?? '',
       displayName: map['displayName'] as String? ?? '',
       email: map['email'] as String? ?? '',
-      photoURL: map['photoUrl'] as String? ?? '',
+      photoURL: map['photoURL'] as String? ?? '',
       coins: map['coins'] as int? ?? 0,
       level: map['level'] as int? ?? 1,
       xp: map['xp'] as int? ?? 0,
