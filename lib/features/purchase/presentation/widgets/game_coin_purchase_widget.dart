@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zifromania/features/purchase/domain/entities/coin_pack.dart';
 import 'package:zifromania/features/purchase/domain/entities/store_product_entity.dart';
-import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
+import 'package:zifromania/shared/widgets/animated_icon_button.dart';
 
 class GameCoinPurchaseWidget extends StatefulWidget {
   const GameCoinPurchaseWidget({
