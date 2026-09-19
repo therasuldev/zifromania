@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:zifromania/domain/entities/constant.dart';
+import 'package:zifromania/shared/constants/app_constants.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'dart:convert';
 
-import 'package:zifromania/presentation/common/back_button.dart';
+import 'package:zifromania/shared/widgets/back_button.dart';
 
 class TermsOfServiceScreen extends StatefulWidget {
   const TermsOfServiceScreen({super.key});
