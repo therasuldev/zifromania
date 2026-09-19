@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:zifromania/core/errors/app_exception.dart';
-import 'package:zifromania/domain/entities/enums.dart';
-import 'package:zifromania/domain/entities/math_question.dart';
+import 'package:zifromania/features/game_usage/domain/entities/game_category.dart';
+import 'package:zifromania/features/game_usage/domain/entities/math_question.dart';
 import 'package:zifromania/features/title/data/models/title_model.dart';
 
 part 'game_state.freezed.dart';
