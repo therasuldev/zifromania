@@ -4,15 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:zifromania/core/providers/firebase_provider.dart';
-import 'package:zifromania/domain/entities/constant.dart';
+import 'package:zifromania/shared/constants/app_constants.dart';
 import 'package:zifromania/features/rank/presentation/providers/rank_providers.dart';
 import 'package:zifromania/features/rank/presentation/widgets/leaderboard_list_shimmer.dart';
 import 'package:zifromania/features/rank/presentation/widgets/leaderboard_podium.dart';
 import 'package:zifromania/features/rank/presentation/widgets/leaderboard_top3_shimmer.dart';
 import 'package:zifromania/features/rank/presentation/widgets/rank_list_item.dart';
 import 'package:zifromania/features/user/data/models/user_model.dart';
-import 'package:zifromania/presentation/common/back_button.dart';
-import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
+import 'package:zifromania/shared/widgets/back_button.dart';
+import 'package:zifromania/shared/widgets/animated_icon_button.dart';
 
 class LeaderboardScreen extends ConsumerWidget {
   const LeaderboardScreen({super.key});
