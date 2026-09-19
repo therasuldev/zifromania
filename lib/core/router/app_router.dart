@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:zifromania/core/router/route_names.dart';
 import 'package:zifromania/core/widgets/versionarte_gate.dart';
-import 'package:zifromania/domain/entities/constant.dart';
-import 'package:zifromania/domain/entities/enums.dart';
+import 'package:zifromania/shared/constants/app_constants.dart';
+import 'package:zifromania/features/game_usage/domain/entities/game_category.dart';
 import 'package:zifromania/features/auth/presentation/pages/auth_screen.dart';
 import 'package:zifromania/features/auth/presentation/pages/splash_screen.dart';
 import 'package:zifromania/features/auth/presentation/providers/auth_notifier.dart';
@@ -18,8 +18,8 @@ import 'package:zifromania/features/settings/presentation/pages/privacy_policy.d
 import 'package:zifromania/features/settings/presentation/pages/settings_screen.dart';
 import 'package:zifromania/features/settings/presentation/pages/terms_of_service.dart';
 import 'package:zifromania/features/title/presentation/pages/achievements_screen.dart';
-import 'package:zifromania/presentation/screens/game_screen.dart';
-import 'package:zifromania/presentation/screens/subscription_screen.dart';
+import 'package:zifromania/features/game_usage/presentation/pages/game_screen.dart';
+import 'package:zifromania/features/purchase/presentation/pages/subscription_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refreshNotifier = _RouterRefreshNotifier(ref);
