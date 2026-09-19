@@ -1,77 +1,143 @@
-# Zifromania
+# ZifroMania
 
-Zifromania is a dynamic math puzzle game designed to boost your brainpower. It's a mobile game built with Flutter, offering a fresh challenge every time you play. Engage your mind, improve your problem-solving skills, and experience a fun way to enhance cognitive agility.
+<p align="center">
+   <img src="assets/images/zifromania.png" alt="ZifroMania logo" width="140" />
+</p>
 
-## Features
+<p align="center">
+   A fast, colorful math game for building calculation speed, accuracy, and consistency.
+</p>
 
-- Engaging math puzzles
-- Multiple categories
-- Diverse mathematical operations
-- User authentication (Firebase Auth)
-- Leaderboards (Cloud Firestore)
-- Achievements
-- In-app purchases / subscriptions
-- Customizable settings (e.g., sound, notifications)
-- Daily rewards
-- Localization (multiple language support)
+<p align="center">
+   <a href="https://flutter.dev">Flutter</a> |
+   <a href="https://firebase.google.com">Firebase</a> |
+   <a href="https://github.com/therasuldev/equation-quest/issues">Issues</a>
+</p>
 
-## Technologies Used
+ZifroMania is a cross-platform Flutter game where players solve short math challenges, build daily progress, and compete through scores, achievements, and leaderboards. The project is designed around quick sessions: choose a category, answer a focused set of questions, and improve over time.
 
-- Flutter (for cross-platform mobile development)
-- Dart
-- Firebase (Authentication, Cloud Firestore, Remote Config)
-- Bloc (for state management)
-- Google Mobile Ads
+## What is included
 
-## Project Structure
+- Five game categories: Quick Thinking, Multiply / Divide, True or False, Expert, and Training.
+- Large local question banks for fast offline question loading.
+- Firebase Authentication with Google Sign-In.
+- Cloud Firestore-backed user profiles, progress, achievements, and leaderboards.
+- Daily limits, flexible games, ad rewards, and coin-based extra games.
+- Subscription and in-app coin purchases through the platform stores.
+- Daily rewards, sound effects, background music, vibration, and notifications.
+- English and Turkish localization.
+- Responsive game feedback with animations, result states, and answer validation.
 
-- `lib/`: Contains the Dart code for the application.
-    - `main.dart`: Entry point of the application.
-    - `app.dart`: Root widget of the application.
-    - `core/`: Core utilities, constants, and theme.
-    - `data/`: Data layer (models, repositories).
-    - `domain/`: Domain layer (entities, usecases, repository contracts).
-    - `presentation/`: Presentation layer (screens, widgets, state management).
-    - `services/`: Various application services (auth, ads, audio, etc.).
-- `assets/`: Contains static assets like images, fonts, sounds, and translations.
-- `android/`, `ios/`, `linux/`, `macos/`, `web/`, `windows/`: Platform-specific code.
-- `test/`: Contains application tests.
+## Screens and game flow
 
-## Getting Started
+1. Sign in with Google.
+2. Select a category from the game home screen.
+3. Read the category rules and start a round.
+4. Answer the generated question set before the timer ends.
+5. Review the result, XP, achievements, and leaderboard progress.
 
-### Prerequisites
+## Tech stack
 
-- Flutter SDK: [Install Flutter](https://flutter.dev/docs/get-started/install)
-- An IDE like Android Studio or VS Code with the Flutter plugin.
+- Flutter and Dart
+- Riverpod 3 for state management and dependency wiring
+- GoRouter for navigation
+- Firebase Auth, Cloud Firestore, Firebase Messaging, and Remote Config
+- Google Mobile Ads and rewarded ads
+- `in_app_purchase` for subscriptions and coin packs
+- Easy Localization for English and Turkish
+- WorkManager and local notifications for scheduled rewards
 
-### Steps
+## Project structure
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/zifromania.git
-   cd zifromania
-   ```
-2. **Install dependencies:**
-   ```bash
-   flutter pub get
-   ```
-3. **Firebase Setup:**
-   - Create a Firebase project at [https://console.firebase.google.com/](https://console.firebase.google.com/).
-   - Add an Android app and an iOS app to your Firebase project.
-   - Follow the Firebase console instructions to download the `google-services.json` file for Android and the `GoogleService-Info.plist` file for iOS.
-   - Place `google-services.json` into the `android/app/` directory.
-   - Place `GoogleService-Info.plist` into the `ios/Runner/` directory (use Xcode to add this file).
-   - Ensure you have configured Firebase Authentication, Cloud Firestore, and Remote Config in your Firebase project.
+```text
+lib/
+   core/       App configuration, routing, services, theme, and technical utilities
+   features/   Feature-first modules with data, domain, and presentation layers
+                     (auth, daily_reward, game_usage, purchase, rank, settings, sound, task, title, user)
+   shared/     Cross-feature constants and reusable presentation widgets
+assets/
+   questions/ Question banks by category
+   translations/ English and Turkish strings
+   images/ icons/ sounds/ fonts/ lotties/ UI assets
+android/      Android application and store configuration
+ios/          iOS application and Xcode configuration
+test/          Flutter tests
+```
 
-4. **Run the app:**
-   ```bash
-   flutter run
-   ```
+## Requirements
+
+- Flutter SDK compatible with Dart `^3.6.1`.
+- Android Studio or VS Code with the Flutter and Dart plugins.
+- An Android emulator, iOS simulator, or physical device.
+- A Firebase project for authentication and cloud-backed features.
+
+## Run locally
+
+```bash
+git clone https://github.com/therasuldev/equation-quest.git
+cd equation-quest
+flutter pub get
+flutter analyze
+flutter run
+```
+
+## Firebase setup
+
+Create a Firebase project and register the Android and iOS applications using the package and bundle identifiers in this repository. Configure:
+
+- Google Authentication
+- Cloud Firestore
+- Firebase Cloud Messaging, if notifications are enabled
+- Remote Config, if remote configuration is used
+- App Check and restrictive Firestore/Storage security rules before production release
+
+Use the platform client configuration files generated by Firebase for local development:
+
+- Android: `android/app/google-services.json`
+- iOS: `GoogleService-Info.plist` added to the Runner target through Xcode
+
+Never add service-account JSON files, private keys, signing keystores, Gmail passwords, or `.env` files to Git or Flutter assets. A Firebase service-account key belongs on a trusted backend, never inside a mobile application.
+
+## Development checks
+
+Run these before opening a pull request:
+
+```bash
+flutter pub get
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze
+flutter test
+```
+
+Store integrations and Firebase services may require platform credentials and emulators, so test those flows on a configured device as well.
 
 ## Contributing
 
-Contributions are welcome! Please follow standard GitHub flow: Fork, Branch, Commit, Pull Request.
+Contributions are welcome. For a focused change:
+
+1. Open an issue describing the problem or proposed improvement.
+2. Create a branch from `main`.
+3. Keep the change scoped and add tests when behavior changes.
+4. Run formatting, analysis, and tests.
+5. Open a pull request with the user-facing result and verification steps.
+
+Please do not include credentials, production data, generated build output, or store signing files in pull requests.
+
+## Security
+
+Please report suspected credential exposure or a security vulnerability privately to the repository maintainer rather than opening a public issue with sensitive details. Before publishing a build, rotate any credential that has appeared in a previous APK, IPA, local asset bundle, commit, log, or screenshot.
+
+## Roadmap ideas
+
+- Add automated CI for formatting, analysis, tests, and secret scanning.
+- Add screenshot and gameplay GIF coverage for the store and repository pages.
+- Move feedback email delivery to a backend endpoint instead of client-side SMTP credentials.
+- Add more question packs and a public challenge mode.
+
+## Help the project grow
+
+The most useful ways to support ZifroMania are to try it, report reproducible bugs, suggest good question packs, improve translations, and share the repository with people who enjoy educational games. A clear issue, a tested pull request, or a thoughtful review is more valuable than artificial stars or automated activity.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE.md file for details. (Note: LICENSE.md file not yet created)
+No license file is currently included. Until a license is added, the source should be treated as all rights reserved. Add an explicit license before accepting external reuse or redistribution.
