@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
-import 'package:zifromania/domain/entities/enums.dart';
-import 'package:zifromania/domain/entities/math_question.dart';
+import 'package:zifromania/features/game_usage/domain/entities/game_category.dart';
+import 'package:zifromania/features/game_usage/domain/entities/math_question.dart';
 import 'package:zifromania/core/errors/exceptions.dart';
 import 'package:zifromania/features/game_usage/data/datasource/question_local_datasource.dart';
 
@@ -57,11 +56,12 @@ final class QuestionLocalDataSourceImpl implements QuestionLocalDataSource {
         final options = Map<String, dynamic>.from(questionData['options'] as Map<String, dynamic>);
         final correctOptionKey = questionData['correct_option'];
 
-        bool isTrueFalse = gameCategory == GameCategory.trueOrFalse ||
-            (options.containsKey('A') && options['A'] == tr('title.true') && options.containsKey('B') && options['B'] == tr('title.false'));
+        final optionValues = options.values.map((value) => value.toString()).toSet();
+        final isTrueFalse = gameCategory == GameCategory.trueOrFalse ||
+            (optionValues.contains('True') && optionValues.contains('False'));
 
         if (isTrueFalse) {
-          int correctAnswerValue = options[correctOptionKey] == tr('title.true') ? 1 : 0;
+          final correctAnswerValue = options[correctOptionKey] == 'True' ? 1 : 0;
           Map<String, String> answerOptions = {};
 
           options.forEach((key, value) {
