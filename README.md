@@ -1,102 +1,137 @@
-# ZifroMania
+<h1 align="center">ZifroMania</h1>
 
 <p align="center">
-   <img src="assets/images/zifromania.png" alt="ZifroMania logo" width="140" />
+  <img src="assets/images/zifromania.png" alt="ZifroMania logo" width="140" />
 </p>
 
 <p align="center">
-   A fast, colorful math game for building calculation speed, accuracy, and consistency.
+  <b>A fast, colorful mental-math game that builds calculation speed, accuracy, and consistency.</b>
 </p>
 
 <p align="center">
-   <a href="https://flutter.dev">Flutter</a> |
-   <a href="https://firebase.google.com">Firebase</a> |
-   <a href="https://github.com/therasuldev/zifromania/issues">Issues</a>
+  <a href="https://play.google.com/store/apps/details?id=com.zifro.mania">
+    <img alt="Get it on Google Play" src="https://img.shields.io/badge/Google%20Play-Download-3DDC84?logo=googleplay&logoColor=white" />
+  </a>
+  <img alt="Flutter" src="https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white" />
+  <img alt="Dart" src="https://img.shields.io/badge/Dart-%5E3.6.1-0175C2?logo=dart&logoColor=white" />
+  <img alt="Firebase" src="https://img.shields.io/badge/Firebase-Auth%20%7C%20Firestore-FFCA28?logo=firebase&logoColor=black" />
+  <a href="https://github.com/ramikhanov/zifromania/issues">
+    <img alt="Issues" src="https://img.shields.io/github/issues/ramikhanov/zifromania" />
+  </a>
+  <a href="https://github.com/ramikhanov/zifromania/stargazers">
+    <img alt="Stars" src="https://img.shields.io/github/stars/ramikhanov/zifromania?style=flat" />
+  </a>
 </p>
 
-ZifroMania is a cross-platform Flutter game where players solve short math challenges, build daily progress, and compete through scores, achievements, and leaderboards. The project is designed around quick sessions: choose a category, answer a focused set of questions, and improve over time.
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.zifro.mania"><b>Download on Google Play</b></a>
+  &nbsp;|&nbsp;
+  <a href="#features">Features</a>
+  &nbsp;|&nbsp;
+  <a href="#getting-started">Getting started</a>
+  &nbsp;|&nbsp;
+  <a href="#contributing">Contributing</a>
+</p>
 
-## What is included
+---
 
-- Five game categories: Quick Thinking, Multiply / Divide, True or False, Expert, and Training.
-- Large local question banks for fast offline question loading.
-- Firebase Authentication with Google Sign-In.
-- Cloud Firestore-backed user profiles, progress, achievements, and leaderboards.
-- Daily limits, flexible games, ad rewards, and coin-based extra games.
-- Subscription and in-app coin purchases through the platform stores.
-- Daily rewards, sound effects, background music, vibration, and notifications.
-- English and Turkish localization.
-- Responsive game feedback with animations, result states, and answer validation.
+## Overview
 
-## Screens and game flow
+ZifroMania is a cross-platform Flutter game where players solve short math challenges, build daily progress, and compete through scores, achievements, and leaderboards. It is designed around quick sessions: pick a category, answer a focused set of questions against the clock, and improve over time.
+
+<!-- Add screenshots or a gameplay GIF here. Example:
+<p align="center">
+  <img src="docs/screenshots/home.png" width="220" />
+  <img src="docs/screenshots/game.png" width="220" />
+  <img src="docs/screenshots/leaderboard.png" width="220" />
+</p>
+-->
+
+## Features
+
+- **Five game categories:** Quick Thinking, Multiply / Divide, True or False, Expert, and Training.
+- **Offline question banks:** large local question sets for instant loading.
+- **Authentication:** Firebase Authentication with Google Sign-In.
+- **Cloud sync:** Cloud Firestore-backed profiles, progress, achievements, and leaderboards.
+- **Game economy:** daily limits, flexible games, rewarded ads, and coin-based extra games.
+- **Purchases:** subscriptions and in-app coin packs via the platform stores.
+- **Engagement:** daily rewards, sound effects, background music, vibration, and notifications.
+- **Localization:** English and Turkish.
+- **Polished feedback:** animations, result states, and answer validation.
+
+## How it works
 
 1. Sign in with Google.
-2. Select a category from the game home screen.
+2. Choose a category on the game home screen.
 3. Read the category rules and start a round.
 4. Answer the generated question set before the timer ends.
-5. Review the result, XP, achievements, and leaderboard progress.
+5. Review your result, XP, achievements, and leaderboard position.
 
 ## Tech stack
 
-- Flutter and Dart
-- Riverpod 3 for state management and dependency wiring
-- GoRouter for navigation
-- Firebase Auth, Cloud Firestore, Firebase Messaging, and Remote Config
-- Google Mobile Ads and rewarded ads
-- `in_app_purchase` for subscriptions and coin packs
-- Easy Localization for English and Turkish
-- WorkManager and local notifications for scheduled rewards
+| Area | Technology |
+| --- | --- |
+| Framework | Flutter, Dart |
+| State management | Riverpod 3 |
+| Navigation | GoRouter |
+| Backend | Firebase Auth, Cloud Firestore, Firebase Messaging, Remote Config |
+| Monetization | Google Mobile Ads (rewarded), `in_app_purchase` |
+| Localization | Easy Localization (EN / TR) |
+| Background work | WorkManager, local notifications |
 
 ## Project structure
 
 ```text
 lib/
-   core/       App configuration, routing, services, theme, and technical utilities
-   features/   Feature-first modules with data, domain, and presentation layers
-                     (auth, daily_reward, game_usage, purchase, rank, settings, sound, task, title, user)
-   shared/     Cross-feature constants and reusable presentation widgets
+  core/        App configuration, routing, services, theme, technical utilities
+  features/    Feature-first modules (data / domain / presentation)
+               auth, daily_reward, game_usage, purchase, rank,
+               settings, sound, task, title, user
+  shared/      Cross-feature constants and reusable widgets
 assets/
-   questions/ Question banks by category
-   translations/ English and Turkish strings
-   images/ icons/ sounds/ fonts/ lotties/ UI assets
-android/      Android application and store configuration
-ios/          iOS application and Xcode configuration
+  questions/     Question banks by category
+  translations/  English and Turkish strings
+  images/ icons/ sounds/ fonts/ lotties/
+android/       Android application and store configuration
+ios/           iOS application and Xcode configuration
 test/          Flutter tests
 ```
 
-## Requirements
+## Getting started
 
-- Flutter SDK compatible with Dart `^3.6.1`.
-- Android Studio or VS Code with the Flutter and Dart plugins.
-- An Android emulator, iOS simulator, or physical device.
-- A Firebase project for authentication and cloud-backed features.
+### Requirements
 
-## Run locally
+- Flutter SDK compatible with Dart `^3.6.1`
+- Android Studio or VS Code with the Flutter and Dart plugins
+- An Android emulator, iOS simulator, or physical device
+- A Firebase project (for authentication and cloud-backed features)
+
+### Run locally
 
 ```bash
-git clone git@github.com:ramikhanov/zifromania.git
+git clone https://github.com/ramikhanov/zifromania.git
 cd zifromania
 flutter pub get
 flutter analyze
 flutter run
 ```
 
-## Firebase setup
+### Firebase setup
 
-Create a Firebase project and register the Android and iOS applications using the package and bundle identifiers in this repository. Configure:
+Create a Firebase project and register the Android and iOS apps using the package and bundle identifiers in this repository. Then configure:
 
 - Google Authentication
 - Cloud Firestore
-- Firebase Cloud Messaging, if notifications are enabled
-- Remote Config, if remote configuration is used
+- Firebase Cloud Messaging (if notifications are enabled)
+- Remote Config (if remote configuration is used)
 - App Check and restrictive Firestore/Storage security rules before production release
 
-Use the platform client configuration files generated by Firebase for local development:
+Add the client configuration files generated by Firebase:
 
 - Android: `android/app/google-services.json`
-- iOS: `GoogleService-Info.plist` added to the Runner target through Xcode
+- iOS: `GoogleService-Info.plist`, added to the Runner target in Xcode
 
-Never add service-account JSON files, private keys, signing keystores, Gmail passwords, or `.env` files to Git or Flutter assets. A Firebase service-account key belongs on a trusted backend, never inside a mobile application.
+> **Security note:** never commit service-account JSON files, private keys, signing keystores, passwords, or `.env` files to Git or Flutter assets. Service-account keys belong on a trusted backend, never inside a mobile app.
 
 ## Development checks
 
@@ -109,35 +144,43 @@ flutter analyze
 flutter test
 ```
 
-Store integrations and Firebase services may require platform credentials and emulators, so test those flows on a configured device as well.
+Store integrations and Firebase services require platform credentials, so test those flows on a configured device as well.
+
+## Roadmap
+
+- [ ] CI for formatting, analysis, tests, and secret scanning
+- [ ] Screenshots and gameplay GIFs for the store listing and this repository
+- [ ] Move feedback delivery to a backend endpoint
+- [ ] More question packs
+- [ ] Public challenge mode (play against friends)
+- [ ] Additional languages
 
 ## Contributing
 
-Contributions are welcome. For a focused change:
+Contributions are welcome, including bug reports, question packs, and translations.
 
-1. Open an issue describing the problem or proposed improvement.
+1. Open an issue describing the problem or proposal.
 2. Create a branch from `main`.
-3. Keep the change scoped and add tests when behavior changes.
+3. Keep the change focused and add tests when behavior changes.
 4. Run formatting, analysis, and tests.
-5. Open a pull request with the user-facing result and verification steps.
+5. Open a pull request describing the user-facing result and how you verified it.
 
-Please do not include credentials, production data, generated build output, or store signing files in pull requests.
+Issues labeled `good first issue` are a great place to start. Please do not include credentials, production data, build output, or signing files in pull requests.
 
 ## Security
 
-Please report suspected credential exposure or a security vulnerability privately to the repository maintainer rather than opening a public issue with sensitive details. Before publishing a build, rotate any credential that has appeared in a previous APK, IPA, local asset bundle, commit, log, or screenshot.
+Please report suspected credential exposure or security vulnerabilities privately to the repository maintainer rather than in a public issue. Before publishing a build, rotate any credential that has appeared in a previous APK, IPA, asset bundle, commit, log, or screenshot.
 
-## Roadmap ideas
+## Support the project
 
-- Add automated CI for formatting, analysis, tests, and secret scanning.
-- Add screenshot and gameplay GIF coverage for the store and repository pages.
-- Move feedback email delivery to a backend endpoint instead of client-side SMTP credentials.
-- Add more question packs and a public challenge mode.
+If you enjoy ZifroMania, you can help by:
 
-## Help the project grow
-
-The most useful ways to support ZifroMania are to try it, report reproducible bugs, suggest good question packs, improve translations, and share the repository with people who enjoy educational games. A clear issue, a tested pull request, or a thoughtful review is more valuable than artificial stars or automated activity.
+- Starring the repository
+- Rating the app on [Google Play](https://play.google.com/store/apps/details?id=com.zifro.mania)
+- Reporting reproducible bugs
+- Suggesting question packs or improving translations
+- Sharing the game with friends who enjoy educational games
 
 ## License
 
-No license file is currently included. Until a license is added, the source should be treated as all rights reserved. Add an explicit license before accepting external reuse or redistribution.
+This project is licensed under the [MIT License](LICENSE). *(Add a `LICENSE` file to the repository root; until one exists, the source is all rights reserved.)*
