@@ -40,19 +40,13 @@
 ZifroMania is a cross-platform Flutter game where players solve short math challenges, build daily progress, and compete through scores, achievements, and leaderboards. It is designed around quick sessions: pick a category, answer a focused set of questions against the clock, and improve over time.
 
 <p align="center">
-  <img src="https://placehold.co/240x480/png?text=Home+Screen" alt="Home screen" width="200" />
+  <img src="https://github.com/user-attachments/assets/20ca62bf-a73c-46bb-8fa0-dfc08ad71494" alt="Main menu" width="200" />
   &nbsp;
-  <img src="https://placehold.co/240x480/png?text=Gameplay" alt="Gameplay" width="200" />
+  <img src="https://github.com/user-attachments/assets/746069a9-6bc4-44a9-8509-644e8035bf46" alt="Achievements" width="200" />
   &nbsp;
-  <img src="https://placehold.co/240x480/png?text=Results" alt="Results" width="200" />
+  <img src="https://github.com/user-attachments/assets/655040b1-ae09-43f8-8c67-fdf96289924a" alt="Coins" width="200" />
   &nbsp;
-  <img src="https://placehold.co/240x480/png?text=Leaderboard" alt="Leaderboard" width="200" />
-</p>
-
-<!-- TODO: replace the placeholder URLs above with real screenshots, e.g. docs/screenshots/home.png -->
-
-<p align="center">
-  <img src="https://placehold.co/600x300/gif?text=Gameplay+GIF" alt="Gameplay preview" width="480" />
+  <img src="https://github.com/user-attachments/assets/dec6cf35-6edd-496e-bb65-e777c4335a14" alt="Leaderboard" width="200" />
 </p>
 
 ## Features
