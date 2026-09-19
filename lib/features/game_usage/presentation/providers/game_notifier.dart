@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:zifromania/core/errors/exceptions.dart';
 import 'package:zifromania/core/utils/cancel_token.dart';
-import 'package:zifromania/domain/entities/enums.dart';
+import 'package:zifromania/features/game_usage/domain/entities/game_category.dart';
 import 'package:zifromania/features/game_usage/domain/entities/game_config.dart';
 import 'package:zifromania/features/game_usage/domain/entities/game_state.dart';
 import 'package:zifromania/features/game_usage/game_usage_module.dart';
