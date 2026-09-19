@@ -19,9 +19,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
+  await dotenv.load().catchError((_) {});
   await GoogleSignIn.instance.initialize(serverClientId: AppConfig.googleServerClientId);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await dotenv.load();
 
   // Initialize SharedPreferences
   final sharedPreferences = PreferencesService();
