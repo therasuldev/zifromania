@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zifromania/core/providers/shared_preferences_provider.dart';
-import 'package:zifromania/domain/entities/enums.dart';
+import 'package:zifromania/features/game_usage/domain/entities/game_category.dart';
 import 'package:zifromania/features/user/user_module.dart';
 
 import 'package:zifromania/features/game_usage/data/datasource/game_usage_local_datasource.dart';
