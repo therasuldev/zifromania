@@ -1,5 +1,5 @@
 // domain/repositories/game_usage_repository.dart
-import 'package:zifromania/domain/entities/enums.dart';
+import 'package:zifromania/features/game_usage/domain/entities/game_category.dart';
 import 'package:zifromania/features/user/domain/entities/subscription_entity.dart';
 
 abstract interface class GameUsageRepository {
