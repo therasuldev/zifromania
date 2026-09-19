@@ -11,7 +11,7 @@
 <p align="center">
    <a href="https://flutter.dev">Flutter</a> |
    <a href="https://firebase.google.com">Firebase</a> |
-   <a href="https://github.com/therasuldev/equation-quest/issues">Issues</a>
+   <a href="https://github.com/therasuldev/zifromania/issues">Issues</a>
 </p>
 
 ZifroMania is a cross-platform Flutter game where players solve short math challenges, build daily progress, and compete through scores, achievements, and leaderboards. The project is designed around quick sessions: choose a category, answer a focused set of questions, and improve over time.
@@ -74,8 +74,8 @@ test/          Flutter tests
 ## Run locally
 
 ```bash
-git clone https://github.com/therasuldev/equation-quest.git
-cd equation-quest
+git clone git@github.com:ramikhanov/zifromania.git
+cd zifromania
 flutter pub get
 flutter analyze
 flutter run
