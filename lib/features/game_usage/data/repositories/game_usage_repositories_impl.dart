@@ -1,7 +1,7 @@
 // data/repositories/game_usage_repository_impl.dart
 import 'dart:math';
 import 'package:crypto/crypto.dart';
-import 'package:zifromania/domain/entities/enums.dart';
+import 'package:zifromania/features/game_usage/domain/entities/game_category.dart';
 import 'package:zifromania/features/game_usage/data/datasource/game_usage_local_datasource.dart';
 import 'package:zifromania/features/game_usage/domain/repositories/game_usage_repositories.dart';
 import 'package:zifromania/features/user/domain/entities/subscription_entity.dart';
