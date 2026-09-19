@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:zifromania/core/router/route_names.dart';
-import 'package:zifromania/domain/entities/enums.dart';
+import 'package:zifromania/features/game_usage/domain/entities/game_category.dart';
 import 'package:zifromania/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:zifromania/features/user/presentation/providers/user/user_notifier.dart';
-import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
-import 'package:zifromania/presentation/widgets/coin_display.dart';
-import 'package:zifromania/presentation/widgets/game_category_button.dart';
+import 'package:zifromania/shared/widgets/animated_icon_button.dart';
+import 'package:zifromania/shared/widgets/coin_display.dart';
+import 'package:zifromania/features/game_usage/presentation/widgets/game_category_button.dart';
 // TODO TEKRARLANMA - STATIC LSIT YARADIB BUILDER ISTIFADE ETMEK OLAR
 
 /* final categories = [
