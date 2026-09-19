@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:zifromania/core/router/route_names.dart';
-import 'package:zifromania/domain/entities/constant.dart';
+import 'package:zifromania/shared/constants/app_constants.dart';
 import 'package:zifromania/features/auth/presentation/providers/auth_action_notifier.dart';
 import 'package:zifromania/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:zifromania/features/settings/presentation/providers/language_notifier.dart';
@@ -16,7 +16,7 @@ import 'package:zifromania/features/settings/presentation/widgets/settings_secti
 import 'package:zifromania/features/settings/presentation/widgets/settings_tile.dart';
 import 'package:zifromania/features/user/domain/entities/user_entity.dart';
 import 'package:zifromania/features/user/presentation/providers/user/user_notifier.dart';
-import 'package:zifromania/presentation/common/back_button.dart';
+import 'package:zifromania/shared/widgets/back_button.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
