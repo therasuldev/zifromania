@@ -9,9 +9,9 @@ import 'package:mailer/smtp_server.dart';
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 
-import 'package:zifromania/domain/entities/constant.dart';
-import 'package:zifromania/presentation/common/back_button.dart';
-import 'package:zifromania/presentation/widgets/animated_icon_button.dart';
+import 'package:zifromania/shared/constants/app_constants.dart';
+import 'package:zifromania/shared/widgets/back_button.dart';
+import 'package:zifromania/shared/widgets/animated_icon_button.dart';
 
 class FeedbackScreen extends StatefulWidget {
   const FeedbackScreen({super.key});
@@ -80,7 +80,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     try {
       final email = dotenv.env['GMAIL_USER'];
       final password = dotenv.env['GMAIL_PASS'];
-      final smtpServer = gmail(email!, password!);
+      if (email == null || email.isEmpty || password == null || password.isEmpty) {
+        _showSnackBar(tr('feedback.feedback_error'), isError: true);
+        return;
+      }
+      final smtpServer = gmail(email, password);
 
       final message = Message()
         ..from = Address(
