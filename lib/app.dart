@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:zifromania/core/router/app_router.dart';
-import 'package:zifromania/domain/entities/constant.dart';
 import 'package:zifromania/features/settings/settings_module.dart';
 import 'package:zifromania/features/sound/sound_module.dart';
 
@@ -57,7 +56,6 @@ class _ZifroManiaState extends ConsumerState<ZifroMania> with WidgetsBindingObse
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'ZifroMania',
-      scaffoldMessengerKey: scaffoldMessengerKey,
       routerConfig: ref.watch(appRouterProvider),
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
