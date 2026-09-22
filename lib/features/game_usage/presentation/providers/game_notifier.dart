@@ -8,11 +8,13 @@ import 'package:zifromania/features/game_usage/domain/entities/game_category.dar
 import 'package:zifromania/features/game_usage/domain/entities/game_config.dart';
 import 'package:zifromania/features/game_usage/domain/entities/game_state.dart';
 import 'package:zifromania/features/game_usage/game_usage_module.dart';
+import 'package:zifromania/features/user/user_module.dart';
 
 class GameNotifier extends Notifier<GameState> {
   Timer? _timer;
   CancelToken? _cancelToken;
   GameConfig? _config;
+  String? _userId;
 
   @override
   GameState build() {
@@ -28,6 +30,7 @@ class GameNotifier extends Notifier<GameState> {
     required GameCategory category,
     required bool paidWithCoin,
   }) async {
+    _userId = userId;
     _config = (category: category, paidWithCoin: paidWithCoin);
 
     _timer?.cancel();
@@ -45,17 +48,20 @@ class GameNotifier extends Notifier<GameState> {
       if (token.isCancelled) return;
       ref.invalidate(categoryStatsProvider(category));
       state = state.copyWith(
-          questions: questions,
-          isLoading: false,
-          isGameActive: true,
-          gameStartTime: DateTime.now());
+        questions: questions,
+        isLoading: false,
+        isGameActive: true,
+        gameStartTime: DateTime.now(),
+      );
       if (category != GameCategory.training) _startTimer();
     } on AppException catch (error) {
       if (!token.isCancelled) state = state.copyWith(isLoading: false, appException: error);
     } catch (error) {
       if (!token.isCancelled)
         state = state.copyWith(
-            isLoading: false, appException: UnknownException(message: error.toString()));
+          isLoading: false,
+          appException: UnknownException(message: error.toString()),
+        );
     }
   }
 
@@ -134,9 +140,34 @@ class GameNotifier extends Notifier<GameState> {
     );
   }
 
-  void _finishGame() {
+  Future<void> _finishGame() async {
+    if (!state.isGameActive) return;
+
     _timer?.cancel();
-    state = state.copyWith(isGameActive: false, showResultDialog: true);
+    state = state.copyWith(isGameActive: false);
+
+    try {
+      final userId = _userId;
+      if (userId == null) {
+        throw UnknownException(message: 'Cannot update XP without an authenticated user.');
+      }
+
+      await ref.read(addXpUseCaseProvider).call(
+            uid: userId,
+            xp: state.xpEarned,
+          );
+      state = state.copyWith(showResultDialog: true);
+    } on AppException catch (error) {
+      state = state.copyWith(
+        showResultDialog: true,
+        appException: error,
+      );
+    } catch (error) {
+      state = state.copyWith(
+        showResultDialog: true,
+        appException: UnknownException(message: error.toString()),
+      );
+    }
   }
 }
 
