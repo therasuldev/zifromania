@@ -21,6 +21,15 @@ import 'package:zifromania/features/title/presentation/pages/achievements_screen
 import 'package:zifromania/features/game_usage/presentation/pages/game_screen.dart';
 import 'package:zifromania/features/purchase/presentation/pages/subscription_screen.dart';
 
+/// Routes that can be opened without being authenticated.
+const _publicRoutes = <String>{
+  RouteNames.splash,
+  RouteNames.login,
+  RouteNames.terms,
+  RouteNames.privacy,
+  // RouteNames.about,
+};
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refreshNotifier = _RouterRefreshNotifier(ref);
   ref.onDispose(refreshNotifier.dispose);
@@ -35,6 +44,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final location = state.uri.path;
       final isSplash = location == RouteNames.splash;
       final isLogin = location == RouteNames.login;
+      final isPublic = _publicRoutes.contains(location);
 
       // Only wait for the initial authentication check.
       if (authState.isLoading) {
@@ -46,8 +56,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return RouteNames.home;
       }
 
-      // Unauthenticated user cannot access protected routes.
-      if (authState.value == null && !isSplash && !isLogin) {
+      // Unauthenticated user can only access public routes.
+      if (authState.value == null && !isPublic) {
         return RouteNames.login;
       }
 
