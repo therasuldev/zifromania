@@ -10,7 +10,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:zifromania/shared/constants/app_constants.dart';
+import 'package:zifromania/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:zifromania/features/title/presentation/providers/all_titles_provider.dart';
+import 'package:zifromania/features/user/presentation/providers/user/user_notifier.dart';
 import 'package:zifromania/shared/widgets/back_button.dart';
 
 import 'package:zifromania/features/title/domain/entities/title_entity.dart';
@@ -81,15 +83,19 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
     };
   }
 
-  void _showTitleDetails(BuildContext context, TitleEntity title) {
+  void _showTitleDetails(
+    BuildContext context,
+    TitleEntity title, {
+    required bool isUnlocked,
+  }) {
     final achievement = Achievement(
       title: title.name,
       description: context.tr(title.description),
       icon: getTitleIconAsset(title.key),
       color: _getTitleColor(title.key),
       titleKey: title.key,
-      isUnlocked: true,
-      unlockedDate: DateTime.now(),
+      isUnlocked: isUnlocked,
+      unlockedDate: isUnlocked ? DateTime.now() : null,
     );
 
     showModalBottomSheet<void>(
@@ -164,10 +170,28 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
                         );
                       }
 
-                      // TODO: istifadəçinin qazandığı title-ları göstərmək üçün
-                      // userTitlesProvider(userId) ilə müqayisə edib isUnlocked
-                      // dəyərini ona görə hesablamaq olar.
-                      return _buildTitleGrid(titles);
+                      final authUser = ref.watch(authNotifierProvider).value;
+                      if (authUser == null) {
+                        return _buildEmptyState(
+                          icon: 'assets/icons/empty.png',
+                          message: 'achievements.no_titles'.tr(),
+                          noButton: true,
+                        );
+                      }
+
+                      final userAsync = ref.watch(userProvider(authUser.uid));
+                      return userAsync.when(
+                        loading: () => Center(child: CircularProgressIndicator(color: lightIndigoColor)),
+                        error: (error, stackTrace) => _buildEmptyState(
+                          icon: 'assets/icons/empty.png',
+                          message: 'achievements.no_titles'.tr(),
+                          noButton: true,
+                        ),
+                        data: (user) => _buildTitleGrid(
+                          titles,
+                          earnedTitleIds: user.achievements.toSet(),
+                        ),
+                      );
                     },
                   );
                 },
@@ -219,7 +243,10 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
   }
 
   /// Title grid
-  Widget _buildTitleGrid(List<TitleEntity> titles) {
+  Widget _buildTitleGrid(
+    List<TitleEntity> titles, {
+    required Set<String> earnedTitleIds,
+  }) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -231,6 +258,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
       itemCount: titles.length,
       itemBuilder: (context, i) {
         final title = titles[i];
+        final isUnlocked = earnedTitleIds.contains(title.id);
 
         final achievement = Achievement(
           title: title.name,
@@ -238,12 +266,12 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen> {
           icon: getTitleIconAsset(title.key),
           titleKey: title.key,
           color: _getTitleColor(title.key),
-          isUnlocked: true,
+          isUnlocked: isUnlocked,
         );
 
         return AchievementCard(
           achievement: achievement,
-          onTap: () => _showTitleDetails(context, title),
+          onTap: () => _showTitleDetails(context, title, isUnlocked: isUnlocked),
           backgroundColor: backgroundColor,
           textColor: _textColor,
           subTextColor: _subTextColor,
