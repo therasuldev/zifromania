@@ -195,7 +195,7 @@ class _FadedLogo extends StatelessWidget {
 }
 
 /// Checkbox + "I agree to Terms & Privacy Policy" text row.
-class _TermsRow extends StatelessWidget {
+class _TermsRow extends StatefulWidget {
   const _TermsRow({
     required this.accepted,
     required this.onChanged,
@@ -208,9 +208,24 @@ class _TermsRow extends StatelessWidget {
   final TextStyle textStyle;
   final TextStyle linkStyle;
 
+  @override
+  State<_TermsRow> createState() => _TermsRowState();
+}
+
+class _TermsRowState extends State<_TermsRow> {
   // RegExp is required here because the placeholders are matched by pattern.
   // ignore: deprecated_member_use
   static final Pattern _placeholderPattern = RegExp(r'\[\[(TERMS|PRIVACY)\]\]');
+
+  final List<TapGestureRecognizer> _recognizers = [];
+
+  @override
+  void dispose() {
+    for (final r in _recognizers) {
+      r.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -220,14 +235,14 @@ class _TermsRow extends StatelessWidget {
         Checkbox(
           fillColor: WidgetStateProperty.all(Colors.white),
           checkColor: Colors.green,
-          value: accepted,
-          onChanged: onChanged,
+          value: widget.accepted,
+          onChanged: widget.onChanged,
         ),
         Flexible(
           child: RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
-              style: textStyle,
+              style: widget.textStyle,
               children: _buildTermsSpans(context),
             ),
           ),
@@ -237,6 +252,12 @@ class _TermsRow extends StatelessWidget {
   }
 
   List<InlineSpan> _buildTermsSpans(BuildContext context) {
+    // Clear old recognizers before rebuilding.
+    for (final r in _recognizers) {
+      r.dispose();
+    }
+    _recognizers.clear();
+
     final template = 'auth.termsCombined'
         .tr()
         .replaceAll('{terms}', '[[TERMS]]')
@@ -274,15 +295,19 @@ class _TermsRow extends StatelessWidget {
   ) {
     final isTerms = type == 'TERMS';
 
+    final recognizer = TapGestureRecognizer()
+      ..onTap = () {
+        context.push(
+          isTerms ? RouteNames.terms : RouteNames.privacy,
+        );
+      };
+
+    _recognizers.add(recognizer);
+
     return TextSpan(
       text: isTerms ? 'auth.termsOfService'.tr() : 'auth.privacyPolicy'.tr(),
-      style: linkStyle,
-      recognizer: TapGestureRecognizer()
-        ..onTap = () {
-          context.push(
-            isTerms ? RouteNames.terms : RouteNames.privacy,
-          );
-        },
+      style: widget.linkStyle,
+      recognizer: recognizer,
     );
   }
 }
