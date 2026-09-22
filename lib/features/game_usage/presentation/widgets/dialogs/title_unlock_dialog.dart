@@ -26,14 +26,13 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
   late AnimationController _mainController;
   late AnimationController _particleController;
   late AnimationController _textController;
-  late AnimationController _transitionController; // Yeni controller
+  late AnimationController _transitionController;
 
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotationAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  late Animation<Offset> _slideFromRightAnimation; // Sağdan sola animasiya
-// Soldan çıxış animasiyası
+  late Animation<Offset> _slideFromRightAnimation;
 
   int _currentTitleIndex = 0;
 
@@ -98,7 +97,6 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
       curve: Curves.easeOutCubic,
     ));
 
-    // Sağdan sola animasiya
     _slideFromRightAnimation = Tween<Offset>(
       begin: const Offset(1.0, 0),
       end: Offset.zero,
@@ -106,8 +104,6 @@ class _TitleRewardDialogState extends State<TitleRewardDialog> with TickerProvid
       parent: _transitionController,
       curve: Curves.easeOutCubic,
     ));
-
-    // Soldan çıxış animasiyası
 
     _startAnimationSequence();
   }
