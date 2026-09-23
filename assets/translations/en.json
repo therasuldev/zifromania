@@ -1,5 +1,12 @@
 {
     "settings": "Settings",
+    "edit_username": "Edit username",
+    "username": "Username",
+    "username_required": "Username is required",
+    "username_too_short": "Username must be at least 3 characters",
+    "username_update_error": "Could not update username",
+    "cancel": "Cancel",
+    "save": "Save",
     "level_progress": "Level Progress",
     "xp": "XP : {} / {}",
     "earned_xp": "XP: {}",

@@ -1,5 +1,12 @@
 {
     "settings": "Ayarlar",
+    "edit_username": "Kullanıcı adını düzenle",
+    "username": "Kullanıcı adı",
+    "username_required": "Kullanıcı adı gerekli",
+    "username_too_short": "Kullanıcı adı en az 3 karakter olmalı",
+    "username_update_error": "Kullanıcı adı güncellenemedi",
+    "cancel": "İptal",
+    "save": "Kaydet",
     "level_progress": "Seviye İlerlemesi",
     "xp": "XP : {} / {}",
     "earned_xp": "XP: {}",
