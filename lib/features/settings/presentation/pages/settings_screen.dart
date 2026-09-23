@@ -72,8 +72,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+    return SafeArea(
+      bottom: false,
       child: Row(
         children: [
           CustomBackButton(color: lightBrownColor),
@@ -150,23 +150,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ],
           ),
           child: CircleAvatar(
-              radius: 35,
-              backgroundColor: Colors.blue.shade200,
-              backgroundImage: switch (user.photoURL) {
-                null => null,
-                _ => NetworkImage(user.photoURL!),
-              },
-              child: switch (user.photoURL) {
-                null => Text(
-                    user.displayName != null && user.displayName!.isNotEmpty ? user.displayName![0].toUpperCase() : '?',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade700,
-                    ),
+            radius: 35,
+            backgroundColor: Colors.blue.shade200,
+            backgroundImage: switch (user.photoURL) {
+              null => null,
+              _ => NetworkImage(user.photoURL!),
+            },
+            child: switch (user.photoURL) {
+              null => Text(
+                  user.displayName != null && user.displayName!.isNotEmpty
+                      ? user.displayName![0].toUpperCase()
+                      : '?',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade700,
                   ),
-                _ => null,
-              }),
+                ),
+              _ => null,
+            },
+          ),
         ),
         const SizedBox(width: 16),
 
@@ -175,46 +178,212 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                user.displayName ?? 'Player',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontFamily: 'Scabber',
-                  fontWeight: FontWeight.bold,
-                  color: transparentIndigoColor,
-                ),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      user.displayName ?? 'Player',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: 'Scabber',
+                        fontWeight: FontWeight.bold,
+                        color: transparentIndigoColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      onTap: () => _showEditUsernameDialog(
+                        uid: user.uid,
+                        currentUsername: user.displayName ?? '',
+                      ),
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.28),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: lightBrownColor.withValues(alpha: 0.35),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.25),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.edit_rounded,
+                          size: 16,
+                          color: lightBrownColor.withValues(alpha: 0.9),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                user.email ?? '',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: 'Scabber',
-                  color: Colors.indigo.shade50.withValues(alpha: .5),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black26,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                child: Text(
+                  'Lv. $userLevel',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Scabber',
+                    fontWeight: FontWeight.bold,
+                    color: softRedColor.withValues(alpha: 0.7),
+                  ),
                 ),
               ),
             ],
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.black26,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          child: Text(
-            'Lv. $userLevel',
-            style: TextStyle(
-              fontSize: 16,
-              fontFamily: 'Scabber',
-              fontWeight: FontWeight.bold,
-              color: softRedColor.withValues(alpha: 0.7),
-            ),
-          ),
-        )
       ],
     );
+  }
+
+  Future<void> _showEditUsernameDialog({
+    required String uid,
+    required String currentUsername,
+  }) async {
+    final controller = TextEditingController(text: currentUsername);
+    final formKey = GlobalKey<FormState>();
+
+    try {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) {
+          var isSaving = false;
+          String? errorMessage;
+
+          return StatefulBuilder(
+            builder: (context, setDialogState) {
+              return AlertDialog(
+                backgroundColor: Colors.indigo.shade900.withValues(alpha: .95),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                title: Text(
+                  context.tr('edit_username'),
+                  style: TextStyle(
+                    fontFamily: 'Scabber',
+                    color: lightBrownColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                content: Form(
+                  key: formKey,
+                  child: TextFormField(
+                    controller: controller,
+                    autofocus: true,
+                    maxLength: 30,
+                    enabled: !isSaving,
+                    style: const TextStyle(
+                      fontFamily: 'Scabber',
+                      color: Colors.white,
+                    ),
+                    decoration: InputDecoration(
+                      labelText: context.tr('username'),
+                      labelStyle: TextStyle(color: Colors.indigo.shade100),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: lightBrownColor),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: softRedColor),
+                      ),
+                      errorText: errorMessage,
+                    ),
+                    validator: (value) {
+                      final username = value?.trim() ?? '';
+                      if (username.isEmpty) {
+                        return context.tr('username_required');
+                      }
+                      if (username.length < 3) {
+                        return context.tr('username_too_short');
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: isSaving ? null : () => Navigator.pop(dialogContext),
+                    child: Text(
+                      context.tr('cancel'),
+                      style: TextStyle(
+                        fontFamily: 'Scabber',
+                        color: lightBrownColor,
+                      ),
+                    ),
+                  ),
+                  FilledButton(
+                    onPressed: isSaving
+                        ? null
+                        : () async {
+                            if (!formKey.currentState!.validate()) return;
+
+                            final username = controller.text.trim();
+                            if (username == currentUsername.trim()) {
+                              Navigator.pop(dialogContext);
+                              return;
+                            }
+
+                            setDialogState(() {
+                              isSaving = true;
+                              errorMessage = null;
+                            });
+
+                            await ref.read(userActionsProvider.notifier).updateUsername(
+                                  uid: uid,
+                                  username: username,
+                                );
+
+                            if (!context.mounted) return;
+                            final actionState = ref.read(userActionsProvider);
+                            if (actionState.hasError) {
+                              setDialogState(() {
+                                isSaving = false;
+                                errorMessage = context.tr('username_update_error');
+                              });
+                              return;
+                            }
+
+                            Navigator.pop(dialogContext);
+                          },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: softRedColor,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: isSaving
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            context.tr('save'),
+                            style: const TextStyle(fontFamily: 'Scabber'),
+                          ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    } finally {
+      controller.dispose();
+    }
   }
 
   Widget _buildLevelProgressSection(int userXP, int xpForNextLevel) {
@@ -318,7 +487,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       children: [
         SettingsSectionTitle(title: context.tr('sound_and_feedback')),
         SettingsTile(
-          leading: Image.asset('assets/icons/volume.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          leading: Image.asset(
+            'assets/icons/volume.png',
+            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+          ),
           title: context.tr('sound_effects'),
           trailing: Switch.adaptive(
             value: soundEnabled,
@@ -329,7 +501,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         ),
         SettingsTile(
-          leading: Image.asset('assets/icons/music.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          leading: Image.asset(
+            'assets/icons/music.png',
+            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+          ),
           title: context.tr('background_music'),
           trailing: Switch.adaptive(
             value: musicEnabled,
@@ -340,7 +515,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         ),
         SettingsTile(
-          leading: Image.asset('assets/icons/vibrate.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          leading: Image.asset(
+            'assets/icons/vibrate.png',
+            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+          ),
           title: context.tr('vibration'),
           trailing: Switch.adaptive(
             value: vibrationEnabled,
@@ -351,7 +529,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         ),
         SettingsTile(
-          leading: Image.asset('assets/icons/feedback.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          leading: Image.asset(
+            'assets/icons/feedback.png',
+            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+          ),
           title: context.tr('send_feedback'),
           onTap: () {
             context.push(RouteNames.feedback);
@@ -366,21 +547,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       children: [
         SettingsSectionTitle(title: context.tr('about')),
         SettingsTile(
-          leading: Image.asset('assets/icons/information.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          leading: Image.asset(
+            'assets/icons/information.png',
+            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+          ),
           title: context.tr('about_zifromania'),
           onTap: () {
             context.push(RouteNames.about);
           },
         ),
         SettingsTile(
-          leading: Image.asset('assets/icons/privacy.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          leading: Image.asset(
+            'assets/icons/privacy.png',
+            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+          ),
           title: context.tr('privacy_policy'),
           onTap: () {
             context.push(RouteNames.privacy);
           },
         ),
         SettingsTile(
-          leading: Image.asset('assets/icons/service.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          leading: Image.asset(
+            'assets/icons/service.png',
+            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+          ),
           title: context.tr('terms_of_service'),
           onTap: () {
             context.push(RouteNames.terms);
@@ -397,7 +587,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       children: [
         SettingsSectionTitle(title: context.tr('account_and_app')),
         SettingsTile(
-          leading: Image.asset('assets/icons/language.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          leading: Image.asset(
+            'assets/icons/language.png',
+            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+          ),
           title: context.tr('languages'),
           trailing: IconButton(
             key: languageButtonKey,
@@ -409,14 +602,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         ),
         SettingsTile(
-          leading: Image.asset('assets/icons/logout.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          leading: Image.asset(
+            'assets/icons/logout.png',
+            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+          ),
           title: context.tr('logout'),
           onTap: () async {
             await ref.read(authActionNotifierProvider.notifier).signOut();
           },
         ),
         SettingsTile(
-          leading: Image.asset('assets/icons/quit.png', opacity: Animation.fromValueListenable(ValueNotifier(0.7))),
+          leading: Image.asset(
+            'assets/icons/quit.png',
+            opacity: Animation.fromValueListenable(ValueNotifier(0.7)),
+          ),
           title: context.tr('quit'),
           onTap: () async {
             await SystemNavigator.pop();
@@ -446,7 +645,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             children: [
               const Text('🇺🇸', style: TextStyle(fontSize: 20)),
               const SizedBox(width: 12),
-              Text(context.tr('langs.en'), style: const TextStyle(fontFamily: 'Scabber', fontSize: 16)),
+              Text(
+                context.tr('langs.en'),
+                style: const TextStyle(fontFamily: 'Scabber', fontSize: 16),
+              ),
             ],
           ),
         ),
@@ -456,7 +658,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             children: [
               const Text('🇹🇷', style: TextStyle(fontSize: 20)),
               const SizedBox(width: 12),
-              Text(context.tr('langs.tr'), style: const TextStyle(fontFamily: 'Scabber', fontSize: 16)),
+              Text(
+                context.tr('langs.tr'),
+                style: const TextStyle(fontFamily: 'Scabber', fontSize: 16),
+              ),
             ],
           ),
         ),
