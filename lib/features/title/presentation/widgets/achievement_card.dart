@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -29,12 +31,16 @@ class AchievementCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: achievement.isUnlocked ? achievement.color.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.1),
+              color: achievement.isUnlocked
+                  ? achievement.color.withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
           ],
-          border: achievement.isUnlocked ? Border.all(color: achievement.color.withValues(alpha: 0.5), width: 2) : null,
+          border: achievement.isUnlocked
+              ? Border.all(color: achievement.color.withValues(alpha: 0.5), width: 2)
+              : null,
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
@@ -72,7 +78,9 @@ class AchievementCard extends StatelessWidget {
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: achievement.isUnlocked ? achievement.color.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.05),
+                            color: achievement.isUnlocked
+                                ? achievement.color.withValues(alpha: 0.1)
+                                : Colors.grey.withValues(alpha: 0.05),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -80,23 +88,46 @@ class AchievementCard extends StatelessWidget {
                           width: 100,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: achievement.isUnlocked ? achievement.color.withValues(alpha: 0.15) : Colors.grey.withValues(alpha: 0.08),
+                            color: achievement.isUnlocked
+                                ? achievement.color.withValues(alpha: 0.15)
+                                : Colors.grey.withValues(alpha: 0.08),
                             shape: BoxShape.circle,
                           ),
                         ),
-                        achievement.isUnlocked
-                            ? ClipOval(
-                                child: Image.asset(
-                                  getTitleIconAsset(achievement.titleKey!),
-                                  width: 80,
-                                  height: 80,
-                                ),
-                              )
-                            : Icon(
-                                Icons.lock,
-                                size: 32,
-                                color: Colors.grey.withValues(alpha: 0.5),
+                        if (achievement.isUnlocked)
+                          ClipOval(
+                            child: Image.asset(
+                              getTitleIconAsset(achievement.titleKey!),
+                              width: 80,
+                              height: 80,
+                            ),
+                          )
+                        else
+                          ClipOval(
+                            child: SizedBox(
+                              width: 80,
+                              height: 80,
+                              child: Stack(
+                                fit: StackFit.expand,
+                                alignment: Alignment.center,
+                                children: [
+                                  ImageFiltered(
+                                    imageFilter: ui.ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+                                    child: Image.asset(
+                                      getTitleIconAsset(achievement.titleKey!),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Container(color: Colors.black.withValues(alpha: 0.48)),
+                                  Icon(
+                                    Icons.lock,
+                                    size: 32,
+                                    color: Colors.white.withValues(alpha: 0.82),
+                                  ),
+                                ],
                               ),
+                            ),
+                          ),
                         if (achievement.isUnlocked && achievement.score != null)
                           Positioned(
                             bottom: 0,
@@ -137,7 +168,9 @@ class AchievementCard extends StatelessWidget {
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Scabber',
-                        color: achievement.isUnlocked ? achievement.color : Colors.grey.withValues(alpha: 0.8),
+                        color: achievement.isUnlocked
+                            ? achievement.color
+                            : Colors.grey.withValues(alpha: 0.8),
                       ),
                     ),
 
