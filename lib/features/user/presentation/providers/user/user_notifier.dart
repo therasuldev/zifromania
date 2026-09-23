@@ -27,6 +27,19 @@ class UserActionsNotifier extends AsyncNotifier<void> {
     });
   }
 
+  Future<void> updateUsername({
+    required String uid,
+    required String username,
+  }) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(updateUsernameUseCaseProvider).call(
+            uid: uid,
+            username: username,
+          );
+    });
+  }
+
   Future<void> addCoins({required String uid, required int amount}) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -56,4 +69,6 @@ class UserActionsNotifier extends AsyncNotifier<void> {
   }
 }
 
-final userActionsProvider = AsyncNotifierProvider<UserActionsNotifier, void>(UserActionsNotifier.new);
+final userActionsProvider = AsyncNotifierProvider<UserActionsNotifier, void>(
+  UserActionsNotifier.new,
+);
