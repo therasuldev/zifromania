@@ -12,7 +12,6 @@ import 'package:zifromania/features/game_usage/domain/entities/math_question.dar
 import 'package:zifromania/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:zifromania/features/game_usage/domain/entities/game_state.dart';
 import 'package:zifromania/features/game_usage/presentation/providers/game_notifier.dart';
-import 'package:zifromania/features/title/data/models/title_model.dart';
 import 'package:zifromania/features/game_usage/presentation/widgets/dialogs/result_dialog.dart';
 import 'package:zifromania/features/purchase/presentation/widgets/dialogs/subscription_dialog.dart';
 import 'package:zifromania/features/game_usage/presentation/widgets/dialogs/title_unlock_dialog.dart';
@@ -20,6 +19,9 @@ import 'package:zifromania/features/game_usage/presentation/widgets/game/answer_
 import 'package:zifromania/features/game_usage/presentation/widgets/game/question_container.dart';
 import 'package:zifromania/features/game_usage/presentation/widgets/game/score_indicator.dart';
 import 'package:zifromania/features/game_usage/presentation/widgets/game/timer_indicator.dart';
+import 'package:zifromania/features/title/data/models/title_model.dart';
+import 'package:zifromania/features/title/presentation/providers/check_and_award_titles_notifier.dart';
+import 'package:zifromania/features/title/title_module.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
   const GameScreen({super.key, required this.gameCategory, this.paidWithCoin = false});
@@ -33,6 +35,7 @@ class GameScreen extends ConsumerStatefulWidget {
 
 class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStateMixin {
   late AnimationController buttonAnimationController;
+  bool _resultDialogClosedByPlayAgain = false;
 
   @override
   void initState() {
@@ -63,7 +66,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
     super.dispose();
   }
 
-  void showResultDialog(int score, GameState state) async {
+  Future<void> showResultDialog(int score, GameState state) async {
     final buildDialog = ResultDialog(score: score, state: state, onPlayAgain: onPlayAgain);
     await showDialog<void>(
       context: context,
@@ -91,6 +94,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
   }
 
   void onPlayAgain() async {
+    _resultDialogClosedByPlayAgain = true;
     context.pop();
 
     final user = ref.read(authNotifierProvider).value;
@@ -231,18 +235,56 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
   }
 
   // Add this method to your widget class
-  void _handleGameEnd(BuildContext context, GameState state) {
-    if (state.newlyEarnedTitles.isNotEmpty) {
-      _showTitleRewardAnimation(context, state.newlyEarnedTitles, state);
-    } else {
-      _showResultDialog(context, state);
+  Future<void> _handleGameEnd(BuildContext context, GameState state) async {
+    _resultDialogClosedByPlayAgain = false;
+    final newTitles = await _awardTitles(state);
+    if (!mounted) return;
+
+    await showResultDialog(state.score, state);
+    if (!mounted || _resultDialogClosedByPlayAgain || newTitles.isEmpty) return;
+
+    _showTitleRewardAnimation(context, newTitles);
+  }
+
+  Future<List<TitleModel>> _awardTitles(GameState state) async {
+    final user = ref.read(authNotifierProvider).value;
+    final questionsAnswered = (state.lastAnsweredQuestionIndex ?? -1) + 1;
+    if (user == null || questionsAnswered <= 0 || state.gameCategory == null) {
+      return const [];
     }
+
+    final elapsedSeconds =
+        state.gameStartTime == null ? 0 : DateTime.now().difference(state.gameStartTime!).inSeconds;
+    final newTitleIds = await ref.read(checkAndAwardTitlesProvider.notifier).check(
+          userId: user.uid,
+          lastGameScore: state.score,
+          incorrectAnswers: questionsAnswered - state.score,
+          averageTimePerQuestion: elapsedSeconds ~/ questionsAnswered,
+          questionsAnswered: questionsAnswered,
+          category: state.gameCategory!.toTextWithUnderscores(),
+        );
+
+    if (newTitleIds.isEmpty) return const [];
+
+    final titles = await ref.read(getAllTitlesUseCaseProvider).call();
+    return titles
+        .where((title) => newTitleIds.contains(title.id))
+        .map(
+          (title) => TitleModel(
+            id: title.id,
+            key: title.key,
+            name: title.name,
+            description: title.description,
+            iconUrl: title.iconUrl,
+            requirements: title.requirements,
+          ),
+        )
+        .toList();
   }
 
   void _showTitleRewardAnimation(
     BuildContext context,
     List<TitleModel> newTitles,
-    GameState state,
   ) {
     showDialog<void>(
       context: context,
@@ -250,16 +292,8 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
       barrierColor: Colors.black87,
       builder: (context) => TitleRewardDialog(
         titles: newTitles,
-        onComplete: () {
-          context.pop(); // Close title dialog
-          _showResultDialog(context, state); // Show result dialog last
-        },
       ),
     );
-  }
-
-  void _showResultDialog(BuildContext context, GameState state) {
-    showResultDialog(state.score, state);
   }
 
   Widget _buildLoadingState() {
