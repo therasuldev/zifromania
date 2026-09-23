@@ -3,6 +3,11 @@ import 'package:zifromania/features/user/domain/entities/user_entity.dart';
 abstract interface class UserRepository {
   Future<void> createUserProfile({required UserEntity user});
 
+  Future<UserEntity> updateUsername({
+    required String uid,
+    required String username,
+  });
+
   Future<UserEntity> getUser({required String uid});
 
   Stream<UserEntity> watchUser({required String uid});
