@@ -30,6 +30,7 @@ import 'package:zifromania/features/user/domain/usecases/user/delete_user.dart';
 import 'package:zifromania/features/user/domain/usecases/user/get_user.dart';
 import 'package:zifromania/features/user/domain/usecases/user/spend_coins.dart';
 import 'package:zifromania/features/user/domain/usecases/user/watch_user.dart';
+import 'package:zifromania/features/user/domain/usecases/user/update_username.dart';
 
 final gameStatisticsCalculatorProvider = Provider<GameStatisticsCalculator>((ref) {
   return const GameStatisticsCalculator();
@@ -38,8 +39,13 @@ final gameStatisticsCalculatorProvider = Provider<GameStatisticsCalculator>((ref
 // User Remote Data Source, Repository and Use Case Providers
 final userRemoteDataSourceProvider = Provider<UserRemoteDataSource>((ref) {
   final firestore = ref.watch(firebaseFirestoreProvider);
+  final auth = ref.watch(authProvider);
   final calculator = ref.watch(gameStatisticsCalculatorProvider);
-  return UserRemoteDataSourceImpl(firestore: firestore, calculator: calculator);
+  return UserRemoteDataSourceImpl(
+    firestore: firestore,
+    auth: auth,
+    calculator: calculator,
+  );
 });
 
 final userLocalDataSourceProvider = Provider<UserLocalDataSource>((ref) {
@@ -81,6 +87,10 @@ final createUserProfileUseCaseProvider = Provider<CreateUserProfileUseCase>((ref
   return CreateUserProfileUseCase(ref.watch(userRepositoryProvider));
 });
 
+final updateUsernameUseCaseProvider = Provider<UpdateUsernameUseCase>((ref) {
+  return UpdateUsernameUseCase(ref.watch(userRepositoryProvider));
+});
+
 // User Statistics Repository and Use Case Providers
 final userStatisticsRepositoryProvider = Provider<UserStatisticsRepository>((ref) {
   final remoteDataSource = ref.watch(userRemoteDataSourceProvider);
@@ -99,7 +109,9 @@ final getCurrentStreakUseCaseProvider = Provider<GetCurrentStreakUseCase>((ref) 
   return GetCurrentStreakUseCase(ref.watch(userStatisticsRepositoryProvider));
 });
 
-final getDistinctCategoriesPlayedUseCaseProvider = Provider<GetDistinctCategoriesPlayedUseCase>((ref) {
+final getDistinctCategoriesPlayedUseCaseProvider = Provider<GetDistinctCategoriesPlayedUseCase>((
+  ref,
+) {
   return GetDistinctCategoriesPlayedUseCase(ref.watch(userStatisticsRepositoryProvider));
 });
 
