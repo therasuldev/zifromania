@@ -8,6 +8,11 @@ abstract interface class UserRemoteDataSource {
 
   Future<void> createUserProfile({required UserModel user});
 
+  Future<UserModel> updateUsername({
+    required String uid,
+    required String username,
+  });
+
   Future<UserModel> getUser({required String uid});
 
   Stream<UserModel> watchUser({required String uid});
