@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:zifromania/core/services/xp_service.dart';
 import 'package:zifromania/features/user/data/helpers/game_statistics_calculator.dart';
@@ -11,7 +12,11 @@ import 'package:zifromania/features/user/data/models/user_model.dart';
 import 'package:zifromania/features/user/data/datasource/user_remote_datasource.dart';
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
-  const UserRemoteDataSourceImpl({required this.firestore, required this.calculator});
+  const UserRemoteDataSourceImpl({
+    required this.firestore,
+    required this.auth,
+    required this.calculator,
+  });
 
   static const String usersCollection = 'users';
 
@@ -22,6 +27,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   }
 
   final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
   final GameStatisticsCalculator calculator;
 
   @override
@@ -42,6 +48,21 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     }
 
     await docRef.set(user.toMap());
+  }
+
+  @override
+  Future<UserModel> updateUsername({
+    required String uid,
+    required String username,
+  }) async {
+    await _userDoc(uid).update({'displayName': username});
+
+    final currentUser = auth.currentUser;
+    if (currentUser?.uid == uid) {
+      await currentUser!.updateDisplayName(username);
+    }
+
+    return getUser(uid: uid);
   }
 
   @override
@@ -243,7 +264,9 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       playedDates,
     );
 
-    final longestStreak = currentStreak > ((data['longestStreak'] as int?) ?? 0) ? currentStreak : data['longestStreak'] ?? 0;
+    final longestStreak = currentStreak > ((data['longestStreak'] as int?) ?? 0)
+        ? currentStreak
+        : data['longestStreak'] ?? 0;
 
     await _userDoc(uid).update({
       'playedDates': playedDates,
