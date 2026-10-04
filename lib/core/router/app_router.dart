@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:zifromania/core/router/route_names.dart';
-import 'package:zifromania/core/widgets/versionarte_gate.dart';
 import 'package:zifromania/shared/constants/app_constants.dart';
 import 'package:zifromania/features/game_usage/domain/entities/game_category.dart';
 import 'package:zifromania/features/auth/presentation/pages/auth_screen.dart';
@@ -66,9 +65,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: RouteNames.splash,
-        builder: (context, state) => const VersionarteGate(
-          child: SplashScreen(),
-        ),
+        builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
         path: RouteNames.login,
