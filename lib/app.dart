@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:zifromania/core/router/app_router.dart';
+import 'package:zifromania/core/vergate/vergate_setup.dart';
 import 'package:zifromania/features/settings/settings_module.dart';
 import 'package:zifromania/features/sound/sound_module.dart';
+import 'package:zifromania/shared/constants/app_constants.dart';
 
 class ZifroMania extends ConsumerStatefulWidget {
   const ZifroMania({super.key});
@@ -19,9 +21,10 @@ class _ZifroManiaState extends ConsumerState<ZifroMania> with WidgetsBindingObse
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    // Arxa fon musiqisini başlatmaq
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(soundRepositoryProvider).playBackgroundMusic('sounds/zifromania_background.mp3');
+      if (ref.read(settingsRepositoryProvider).getMusicEnabled()) {
+        ref.read(soundRepositoryProvider).playBackgroundMusic(backgroundMusicAsset);
+      }
     });
   }
 
@@ -40,6 +43,8 @@ class _ZifroManiaState extends ConsumerState<ZifroMania> with WidgetsBindingObse
       case AppLifecycleState.resumed:
         if (settingsRepo.getMusicEnabled()) {
           soundRepo.resumeBackgroundMusic();
+        } else {
+          soundRepo.stopBackgroundMusic();
         }
         break;
     }
@@ -48,7 +53,6 @@ class _ZifroManiaState extends ConsumerState<ZifroMania> with WidgetsBindingObse
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    // Sound lifecycle cleanup ref.onDispose daxilində idarə olunmalıdır
     super.dispose();
   }
 
@@ -56,6 +60,7 @@ class _ZifroManiaState extends ConsumerState<ZifroMania> with WidgetsBindingObse
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'ZifroMania',
+      builder: buildVergateGate,
       routerConfig: ref.watch(appRouterProvider),
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
