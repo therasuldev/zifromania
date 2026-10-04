@@ -33,6 +33,9 @@ class UserModel extends UserEntity {
     Map<String, dynamic>? profileMap,
   }) {
     final map = profileMap ?? {};
+    final subscription = SubscriptionModel.fromMap(
+      map['subscription'] as Map<String, dynamic>? ?? {},
+    );
     return UserModel(
       uid: user.uid,
       displayName: user.displayName ?? map['displayName'] as String? ?? 'username',
@@ -42,10 +45,10 @@ class UserModel extends UserEntity {
       level: map['level'] as int? ?? 1,
       xp: map['xp'] as int? ?? 0,
       xpForNextLevel: map['xpForNextLevel'] as int? ?? 10,
-      hasActiveSubscription: map['hasActiveSubscription'] as bool? ?? false,
+      hasActiveSubscription: subscription.isActive,
       achievements: (map['achievements'] as List<dynamic>?)?.cast<String>() ?? const [],
       completedTasks: (map['completedTasks'] as List<dynamic>?)?.cast<String>() ?? const [],
-      subscription: SubscriptionModel.fromMap(map['subscription'] as Map<String, dynamic>? ?? {}),
+      subscription: subscription,
       playedDates: (map['playedDates'] as List<dynamic>?)?.cast<String>() ?? const [],
       currentStreak: map['currentStreak'] as int? ?? 0,
       longestStreak: map['longestStreak'] as int? ?? 0,
@@ -96,6 +99,9 @@ class UserModel extends UserEntity {
   }
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
+    final subscription = SubscriptionModel.fromMap(
+      map['subscription'] as Map<String, dynamic>? ?? {},
+    );
     return UserModel(
       uid: map['uid'] as String? ?? '',
       displayName: map['displayName'] as String? ?? '',
@@ -105,10 +111,10 @@ class UserModel extends UserEntity {
       level: map['level'] as int? ?? 1,
       xp: map['xp'] as int? ?? 0,
       xpForNextLevel: map['xpForNextLevel'] as int? ?? 10,
-      hasActiveSubscription: map['hasActiveSubscription'] as bool? ?? false,
+      hasActiveSubscription: subscription.isActive,
       achievements: (map['achievements'] as List<dynamic>?)?.cast<String>() ?? const [],
       completedTasks: (map['completedTasks'] as List<dynamic>?)?.cast<String>() ?? const [],
-      subscription: SubscriptionModel.fromMap(map['subscription'] as Map<String, dynamic>? ?? {}),
+      subscription: subscription,
       playedDates: (map['playedDates'] as List<dynamic>?)?.cast<String>() ?? const [],
       currentStreak: map['currentStreak'] as int? ?? 0,
       longestStreak: map['longestStreak'] as int? ?? 0,
