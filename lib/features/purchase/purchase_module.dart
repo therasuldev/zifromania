@@ -8,6 +8,7 @@ import 'package:zifromania/features/purchase/data/repositories/store_repository_
 import 'package:zifromania/features/purchase/domain/repositories/store_repository.dart';
 import 'package:zifromania/features/purchase/domain/usecases/activate_subscription.dart';
 import 'package:zifromania/features/purchase/domain/usecases/buy_product.dart';
+import 'package:zifromania/features/purchase/domain/usecases/complete_purchase.dart';
 import 'package:zifromania/features/purchase/domain/usecases/deliver_coins.dart';
 import 'package:zifromania/features/purchase/domain/usecases/listen_purchase_updates_usecase.dart';
 import 'package:zifromania/features/purchase/domain/usecases/load_products.dart';
@@ -27,6 +28,10 @@ final storeRepositoryProvider = Provider<StoreRepository>((ref) {
 
 final activateSubscriptionUseCaseProvider = Provider<ActivateSubscriptionUseCase>((ref) {
   return ActivateSubscriptionUseCase(repository: ref.watch(subscriptionRepositoryProvider));
+});
+
+final completePurchaseUseCaseProvider = Provider<CompletePurchaseUseCase>((ref) {
+  return CompletePurchaseUseCase(repository: ref.watch(storeRepositoryProvider));
 });
 
 final buyProductUseCaseProvider = Provider<BuyProductUseCase>((ref) {
