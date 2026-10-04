@@ -10,5 +10,7 @@ abstract interface class StoreRepository {
 
   Future<void> restorePurchases();
 
+  Future<void> completePurchase(PurchaseEntity purchase);
+
   Stream<PurchaseEntity> watchPurchases();
 }
