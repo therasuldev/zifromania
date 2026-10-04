@@ -413,5 +413,22 @@
     "close": "Close",
     "congratulations": "Congratulations!",
     "new_title_unlocked": "New Title Unlocked!",
-    "extra_games_unlocked": "You've earned 2 extra game chances in all categories by watching 3 ads. Enjoy your games!"
+    "extra_games_unlocked": "You've earned 2 extra game chances in all categories by watching 3 ads. Enjoy your games!",
+
+    "vergate":{
+        "updateTitle": "New version available",
+        "forceUpdateMessage": "We've improved the app. Please update to continue using it.",
+        "softUpdateMessage": "Version {version} is available. Update to get the latest improvements and fixes.",
+        "updateNow": "Update now",
+        "remindLater": "Remind me later",
+        "skipVersion": "Skip this version",
+        "whatsNew": "What's new",
+        "bannerTitle": "New version available",
+        "bannerAction": "Update",
+        "dismissLabel": "Close",
+        "maintenanceTitle": "Maintenance in progress",
+        "maintenanceMessage": "The app is currently undergoing maintenance. Thank you for your patience. Please check again a little later.",
+        "maintenanceCountdownLabel": "Estimated time remaining",
+        "daysSuffix": "d"
+    }
 }

@@ -413,5 +413,22 @@
     "close": "Kapat",
     "congratulations": "Tebrikler!",
     "new_title_unlocked": "Yeni Unvan Kilidi Açıldı!",
-    "extra_games_unlocked": "3 reklam izleyerek tüm kategorilerde 2 ekstra oyun hakkı kazandınız. İyi oyunlar!"
+    "extra_games_unlocked": "3 reklam izleyerek tüm kategorilerde 2 ekstra oyun hakkı kazandınız. İyi oyunlar!",
+
+    "vergate":{
+        "updateTitle": "Yeni sürüm mevcut",
+        "forceUpdateMessage": "Uygulamayı geliştirdik. Kullanmaya devam etmek için lütfen güncelleyin.",
+        "softUpdateMessage": "{version} sürümü mevcut. En son iyileştirmeleri ve düzeltmeleri almak için güncelleyin.",
+        "updateNow": "Şimdi güncelle",
+        "remindLater": "Daha sonra hatırlat",
+        "skipVersion": "Bu sürümü atla",
+        "whatsNew": "Yenilikler",
+        "bannerTitle": "Yeni sürüm mevcut",
+        "bannerAction": "Güncelle",
+        "dismissLabel": "Kapat",
+        "maintenanceTitle": "Bakım çalışması var",
+        "maintenanceMessage": "Uygulama şu anda bakımda. Anlayışınız için teşekkür ederiz. Lütfen biraz sonra tekrar kontrol edin.",
+        "maintenanceCountdownLabel": "Tahmini kalan süre",
+        "daysSuffix": "g"
+    }
 }
