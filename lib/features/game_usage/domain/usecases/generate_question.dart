@@ -4,6 +4,7 @@ import 'package:zifromania/features/game_usage/domain/entities/game_category.dar
 import 'package:zifromania/features/game_usage/domain/entities/math_question.dart';
 import 'package:zifromania/features/game_usage/domain/repositories/question_repository.dart';
 import 'package:zifromania/features/user/domain/repositories/user_repository.dart';
+import 'package:zifromania/features/user/domain/entities/subscription_entity.dart';
 
 import 'package:zifromania/core/errors/exceptions.dart';
 import 'package:zifromania/features/game_usage/domain/usecases/can_play_game_usecase.dart';
@@ -33,8 +34,16 @@ final class GenerateQuestionsUseCase {
     // 1. Check at the beginning of the operation
     cancelToken?.throwIfCancelled();
 
-    // 2. Check whether the user can play
-    final canPlay = canPlayGameUseCase(gameCategory, willPayWithCoin: paidWithCoin);
+    // 2. Use the server-backed entitlement so a newly purchased or expired
+    // subscription takes effect without relying on stale local storage.
+    final user = await userRepository.getUser(uid: userId);
+    final subscriptionType =
+        user.subscription.isActive ? user.subscription.type : SubscriptionTypeEntity.free;
+    final canPlay = canPlayGameUseCase(
+      gameCategory,
+      willPayWithCoin: paidWithCoin,
+      subscriptionType: subscriptionType,
+    );
     if (!canPlay) {
       throw DailyLimitReachedException(
         message: 'game.limit_reached'.tr(),
