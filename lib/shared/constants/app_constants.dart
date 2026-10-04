@@ -45,6 +45,9 @@ ZifroMania ilə riyaziyyat daha əyləncəli və həyəcanlıdır. İndi qoşulu
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
+const String backgroundMusicAsset = 'sounds/zifromania_background.mp3';
+
+
 const Color backgroundColor = Colors.black54;
 final Color lightBlueGray = Colors.blueGrey.shade300;
 final Color lightIndigoColor = Colors.indigo.shade100;
