@@ -14,12 +14,14 @@ class DailyRewardWidget extends ConsumerWidget {
   const DailyRewardWidget({super.key, this.user});
   final UserModel? user;
 
-  int get _coinsPerClaim => switch (user?.subscription.type) {
-        SubscriptionTypeEntity.oneMonth => 15,
-        SubscriptionTypeEntity.threeMonths => 20,
-        SubscriptionTypeEntity.sixMonths => 30,
-        _ => 7,
-      };
+  int get _coinsPerClaim => user?.subscription.isActive != true
+      ? 7
+      : switch (user?.subscription.type) {
+          SubscriptionTypeEntity.oneMonth => 15,
+          SubscriptionTypeEntity.threeMonths => 20,
+          SubscriptionTypeEntity.sixMonths => 30,
+          _ => 7,
+        };
 
   Future<void> _claimReward(BuildContext context, WidgetRef ref) async {
     final currentUser = user;
@@ -80,7 +82,9 @@ class DailyRewardWidget extends ConsumerWidget {
       child: Row(
         children: [
           Image.asset(
-            rewardState.isReady ? 'assets/icons/gift_not_opened.png' : 'assets/icons/gift_opened.png',
+            rewardState.isReady
+                ? 'assets/icons/gift_not_opened.png'
+                : 'assets/icons/gift_opened.png',
             height: 60,
             width: 60,
           ),
