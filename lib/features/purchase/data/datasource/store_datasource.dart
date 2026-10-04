@@ -9,5 +9,7 @@ abstract interface class StoreDataSource {
 
   Future<void> restorePurchases();
 
+  Future<void> completePurchase(PurchaseDetails purchase);
+
   Stream<List<PurchaseDetails>> get purchaseStream;
 }
