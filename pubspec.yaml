@@ -29,11 +29,13 @@ dependencies:
   go_router: ^18.0.0
 
   # ==================== FIREBASE ====================
-  firebase_core: ^4.9.0
-  firebase_auth: 6.5.0
-  cloud_firestore: 6.4.0
-  firebase_remote_config: 6.5.1
-  firebase_messaging: 16.2.1
+  firebase_core: ^3.12.1
+  firebase_auth: ^5.5.1
+  cloud_firestore: ^5.6.5
+  firebase_remote_config: ^5.4.5
+  firebase_messaging: ^15.2.5
+  firebase_analytics: ^11.4.3
+  firebase_crashlytics: ^4.3.3
 
   # ==================== AUTHENTICATION ====================
   google_sign_in: ^7.2.0
@@ -91,7 +93,7 @@ dependencies:
 
   # ==================== CONFIGURATION ====================
   flutter_dotenv: ^6.0.1
-  versionarte: ^2.1.2
+  vergate: ^0.1.0
 
 
 dev_dependencies:
