@@ -67,8 +67,16 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     ref.listenManual<PurchaseState>(purchaseNotifierProvider, (previous, next) {
       if (!mounted) return;
       if (next.successMessage != null && next.successMessage != previous?.successMessage) {
+        setState(() {
+          _isPurchasing = false;
+          _purchasingProductId = null;
+        });
         _showResultDialog(success: true, message: next.successMessage!);
       } else if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
+        setState(() {
+          _isPurchasing = false;
+          _purchasingProductId = null;
+        });
         _showResultDialog(success: false, message: next.errorMessage!);
       }
     });
