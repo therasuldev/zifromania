@@ -259,131 +259,136 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final controller = TextEditingController(text: currentUsername);
     final formKey = GlobalKey<FormState>();
 
-    try {
-      await showDialog<void>(
-        context: context,
-        builder: (dialogContext) {
-          var isSaving = false;
-          String? errorMessage;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        var isSaving = false;
+        String? errorMessage;
 
-          return StatefulBuilder(
-            builder: (context, setDialogState) {
-              return AlertDialog(
-                backgroundColor: Colors.indigo.shade900.withValues(alpha: .95),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: Colors.indigo.shade900.withValues(alpha: .95),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                context.tr('edit_username'),
+                style: TextStyle(
+                  fontFamily: 'Scabber',
+                  color: lightBrownColor,
+                  fontWeight: FontWeight.bold,
                 ),
-                title: Text(
-                  context.tr('edit_username'),
-                  style: TextStyle(
+              ),
+              content: Form(
+                key: formKey,
+                child: TextFormField(
+                  controller: controller,
+                  autofocus: true,
+                  maxLength: 30,
+                  enabled: !isSaving,
+                  style: const TextStyle(
                     fontFamily: 'Scabber',
-                    color: lightBrownColor,
-                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
+                  decoration: InputDecoration(
+                    labelText: context.tr('username'),
+                    labelStyle: TextStyle(color: Colors.indigo.shade100),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: lightBrownColor),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: softRedColor),
+                    ),
+                    errorText: errorMessage,
+                  ),
+                  validator: (value) {
+                    final username = value?.trim() ?? '';
+                    if (username.isEmpty) {
+                      return context.tr('username_required');
+                    }
+                    if (username.length < 3) {
+                      return context.tr('username_too_short');
+                    }
+                    return null;
+                  },
                 ),
-                content: Form(
-                  key: formKey,
-                  child: TextFormField(
-                    controller: controller,
-                    autofocus: true,
-                    maxLength: 30,
-                    enabled: !isSaving,
-                    style: const TextStyle(
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isSaving
+                      ? null
+                      : () {
+                          Navigator.pop(dialogContext);
+                        },
+                  child: Text(
+                    context.tr('cancel'),
+                    style: TextStyle(
                       fontFamily: 'Scabber',
-                      color: Colors.white,
+                      color: lightBrownColor,
                     ),
-                    decoration: InputDecoration(
-                      labelText: context.tr('username'),
-                      labelStyle: TextStyle(color: Colors.indigo.shade100),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: lightBrownColor),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: softRedColor),
-                      ),
-                      errorText: errorMessage,
-                    ),
-                    validator: (value) {
-                      final username = value?.trim() ?? '';
-                      if (username.isEmpty) {
-                        return context.tr('username_required');
-                      }
-                      if (username.length < 3) {
-                        return context.tr('username_too_short');
-                      }
-                      return null;
-                    },
                   ),
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: isSaving ? null : () => Navigator.pop(dialogContext),
-                    child: Text(
-                      context.tr('cancel'),
-                      style: TextStyle(
-                        fontFamily: 'Scabber',
-                        color: lightBrownColor,
-                      ),
-                    ),
-                  ),
-                  FilledButton(
-                    onPressed: isSaving
-                        ? null
-                        : () async {
-                            if (!formKey.currentState!.validate()) return;
+                FilledButton(
+                  onPressed: isSaving
+                      ? null
+                      : () async {
+                          if (!formKey.currentState!.validate()) return;
 
-                            final username = controller.text.trim();
-                            if (username == currentUsername.trim()) {
-                              Navigator.pop(dialogContext);
-                              return;
-                            }
-
-                            setDialogState(() {
-                              isSaving = true;
-                              errorMessage = null;
-                            });
-
-                            await ref.read(userActionsProvider.notifier).updateUsername(
-                                  uid: uid,
-                                  username: username,
-                                );
-
-                            if (!context.mounted) return;
-                            final actionState = ref.read(userActionsProvider);
-                            if (actionState.hasError) {
-                              setDialogState(() {
-                                isSaving = false;
-                                errorMessage = context.tr('username_update_error');
-                              });
-                              return;
-                            }
-
+                          final username = controller.text.trim();
+                          if (username == currentUsername.trim()) {
                             Navigator.pop(dialogContext);
-                          },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: softRedColor,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: isSaving
-                        ? const SizedBox(
-                            height: 18,
-                            width: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(
-                            context.tr('save'),
-                            style: const TextStyle(fontFamily: 'Scabber'),
-                          ),
+                            return;
+                          }
+
+                          setDialogState(() {
+                            isSaving = true;
+                            errorMessage = null;
+                          });
+
+                          await ref.read(userActionsProvider.notifier).updateUsername(
+                                uid: uid,
+                                username: username,
+                              );
+
+                          if (!context.mounted) return;
+                          final actionState = ref.read(userActionsProvider);
+                          if (actionState.hasError) {
+                            setDialogState(() {
+                              isSaving = false;
+                              errorMessage = context.tr('username_update_error');
+                            });
+                            return;
+                          }
+
+                          Navigator.pop(dialogContext);
+                        },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: softRedColor,
+                    foregroundColor: Colors.white,
                   ),
-                ],
-              );
-            },
-          );
-        },
-      );
-    } finally {
+                  child: isSaving
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(
+                          context.tr('save'),
+                          style: const TextStyle(fontFamily: 'Scabber'),
+                        ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    // Safely dispose controller after the dialog close transition completes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.dispose();
-    }
+    });
   }
 
   Widget _buildLevelProgressSection(int userXP, int xpForNextLevel) {
