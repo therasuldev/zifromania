@@ -11,6 +11,9 @@ class StoreDataSourceImpl implements StoreDataSource {
     '550_coin',
     '1200_coin',
     '5000_coin',
+    'subscription_monthly',
+    'subscription_quarterly',
+    'subscription_semiannual',
   };
 
   @override
@@ -45,13 +48,20 @@ class StoreDataSourceImpl implements StoreDataSource {
     final product = response.productDetails.first;
     final purchaseParam = PurchaseParam(productDetails: product);
 
-    return inAppPurchase.buyConsumable(
-      purchaseParam: purchaseParam,
-    );
+    if (productId.startsWith('subscription_')) {
+      return inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
+    }
+
+    return inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
   }
 
   @override
   Future<void> restorePurchases() {
     return inAppPurchase.restorePurchases();
+  }
+
+  @override
+  Future<void> completePurchase(PurchaseDetails purchase) {
+    return inAppPurchase.completePurchase(purchase);
   }
 }
