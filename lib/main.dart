@@ -13,6 +13,7 @@ import 'package:zifromania/core/services/daily_reward_bg_service.dart';
 import 'package:zifromania/core/services/notification_service.dart';
 import 'package:zifromania/core/services/rewarded_ad_service.dart';
 import 'package:zifromania/core/services/shared_preferences_service.dart';
+import 'package:zifromania/core/vergate/vergate_setup.dart';
 import 'package:zifromania/firebase_options.dart';
 
 void main() async {
@@ -42,6 +43,8 @@ void main() async {
   await container.read(notificationServiceProvider).init();
   // Initialize DailyRewardBgService to set up background tasks and notifications.
   await DailyRewardBgService.initWorkManager();
+
+  vergate.start();
 
   runApp(
     UncontrolledProviderScope(
