@@ -47,6 +47,11 @@ class StoreRepositoryImpl implements StoreRepository {
   }
 
   @override
+  Future<void> completePurchase(PurchaseEntity purchase) {
+    return storeDataSource.completePurchase(purchase.details);
+  }
+
+  @override
   Stream<PurchaseEntity> watchPurchases() {
     return storeDataSource.purchaseStream.expand(
       (purchaseList) => purchaseList.map(
@@ -54,6 +59,7 @@ class StoreRepositoryImpl implements StoreRepository {
           productId: purchase.productID,
           purchaseId: purchase.purchaseID,
           status: purchase.status,
+          details: purchase,
         ),
       ),
     );
