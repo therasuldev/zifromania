@@ -10,6 +10,7 @@ import 'package:zifromania/features/purchase/presentation/enum/tab_type.dart';
 import 'package:zifromania/features/purchase/presentation/providers/purchase_notifier.dart';
 import 'package:zifromania/features/purchase/presentation/providers/state/purchase_state.dart';
 import 'package:zifromania/features/purchase/presentation/widgets/game_coin_purchase_widget.dart';
+import 'package:zifromania/features/user/presentation/providers/user/user_notifier.dart';
 import 'package:zifromania/shared/widgets/back_button.dart';
 import 'package:zifromania/features/daily_reward/presentation/widgets/ad_reward_container.dart';
 import 'package:zifromania/features/daily_reward/presentation/widgets/daily_reward.dart';
@@ -76,7 +77,11 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   Future<void> _handleBuy(String productId) async {
     if (_isPurchasing) return;
 
-    final product = ref.read(purchaseNotifierProvider).products.where((item) => item.id == productId).firstOrNull;
+    final product = ref
+        .read(purchaseNotifierProvider)
+        .products
+        .where((item) => item.id == productId)
+        .firstOrNull;
     if (product == null) {
       _showResultDialog(
         success: false,
@@ -111,7 +116,9 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          success ? 'subscription.dialog_success_title'.tr() : 'subscription.dialog_error_title'.tr(),
+          success
+              ? 'subscription.dialog_success_title'.tr()
+              : 'subscription.dialog_error_title'.tr(),
           style: TextStyle(
             fontFamily: 'Scabber',
             fontWeight: FontWeight.bold,
@@ -180,7 +187,9 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
             children: [
               _buildHeader(),
               Builder(builder: (ctx) {
-                final user = ref.watch(authNotifierProvider).value;
+                final authUser = ref.watch(authNotifierProvider).value;
+                final userAsync = authUser == null ? null : ref.watch(userProvider(authUser.uid));
+                final user = userAsync?.value ?? authUser;
                 if (user == null) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -250,10 +259,13 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                       CircleAvatar(
                         radius: 20,
                         backgroundColor: Colors.white,
-                        backgroundImage: user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+                        backgroundImage:
+                            user.photoURL != null ? NetworkImage(user.photoURL!) : null,
                         child: user.photoURL == null
                             ? Text(
-                                user.displayName?.isNotEmpty == true ? user.displayName![0].toUpperCase() : '?',
+                                user.displayName?.isNotEmpty == true
+                                    ? user.displayName![0].toUpperCase()
+                                    : '?',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -427,7 +439,9 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isSelected ? Colors.teal.shade400.withValues(alpha: 0.8) : Colors.teal.shade100.withValues(alpha: 0.3),
+                      color: isSelected
+                          ? Colors.teal.shade400.withValues(alpha: 0.8)
+                          : Colors.teal.shade100.withValues(alpha: 0.3),
                       width: isSelected ? 2 : 1,
                     ),
                     color: isSelected ? backgroundColor.withValues(alpha: 0.2) : Colors.transparent,
@@ -439,7 +453,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                         children: [
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 16) + const EdgeInsets.only(top: 24, bottom: 6.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 16) +
+                                const EdgeInsets.only(top: 24, bottom: 6.0),
                             decoration: const BoxDecoration(
                               color: Colors.white12,
                               borderRadius: BorderRadius.only(
@@ -520,7 +535,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                                   border: Border.all(color: Colors.green.shade300),
                                 ),
                                 child: Text(
-                                  'subscription.save_percentage'.tr(args: [plan.savePercentage.toString()]),
+                                  'subscription.save_percentage'
+                                      .tr(args: [plan.savePercentage.toString()]),
                                   style: const TextStyle(
                                     fontFamily: 'Scabber',
                                     fontSize: 12,
@@ -534,7 +550,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Icon(Icons.check_circle, size: 18, color: Colors.green.shade500),
+                                      Icon(Icons.check_circle,
+                                          size: 18, color: Colors.green.shade500),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
@@ -553,12 +570,16 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: (isSelected && !_isPurchasing) ? () => _handleBuy(plan.productId) : null,
+                                onPressed: (isSelected && !_isPurchasing)
+                                    ? () => _handleBuy(plan.productId)
+                                    : null,
                                 style: ElevatedButton.styleFrom(
-                                  disabledBackgroundColor: Colors.teal.shade300.withValues(alpha: 0.3),
+                                  disabledBackgroundColor:
+                                      Colors.teal.shade300.withValues(alpha: 0.3),
                                   backgroundColor: Colors.teal.shade600.withValues(alpha: 0.7),
                                   padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
                                   elevation: isSelected ? 2 : 0,
                                   shadowColor: Colors.indigo.shade200,
                                 ),
@@ -566,13 +587,18 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                                     ? const SizedBox(
                                         height: 18,
                                         width: 18,
-                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2, color: Colors.white),
                                       )
                                     : Text(
-                                        isSelected ? 'subscription.subscribe'.tr() : 'subscription.select_plan'.tr(),
+                                        isSelected
+                                            ? 'subscription.subscribe'.tr()
+                                            : 'subscription.select_plan'.tr(),
                                         style: TextStyle(
                                           fontFamily: 'Scabber',
-                                          color: isSelected ? Colors.teal.shade100 : Colors.teal.shade100.withValues(alpha: 0.5),
+                                          color: isSelected
+                                              ? Colors.teal.shade100
+                                              : Colors.teal.shade100.withValues(alpha: 0.5),
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -621,7 +647,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                ...List.generate(5, (index) => _buildBenefitItem('subscription.premium_benefits.$index'.tr())),
+                ...List.generate(
+                    5, (index) => _buildBenefitItem('subscription.premium_benefits.$index'.tr())),
               ],
             ),
           ),
