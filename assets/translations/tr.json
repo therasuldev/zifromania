@@ -399,7 +399,7 @@
         "service_unavailable": "Oyun limit servisi kullanılamıyor",
         "daily_ads_limit_reached": "Bugün tüm reklamları zaten izlediniz",
         "ad_not_ready": "Reklam hazır değil. Lütfen biraz bekleyin.",
-        "ad_failed": "Reklam gösterilirken bir hata oluştu: {}"
+        "ad_failed": "Reklam gösterilemedi. Lütfen tekrar deneyin."
     },
     "auth": {
         "google_sign_in_cancelled": "Google ile oturum açma iptal edildi.",
