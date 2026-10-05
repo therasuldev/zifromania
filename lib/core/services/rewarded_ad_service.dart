@@ -68,16 +68,18 @@ class RewardedAdService {
   }
 
   /// Rewarded reklamı göstərmək
-  void showRewardedAd({
+  bool showRewardedAd({
     required OnUserEarnedRewardCallback onUserEarnedReward,
     VoidCallback? onAdNotReady,
   }) {
     if (_isRewardedAdReady && _rewardedAd != null) {
       _rewardedAd!.show(onUserEarnedReward: onUserEarnedReward);
+      return true;
     } else {
       debugPrint('Rewarded ad is not ready yet. Reloading...');
       onAdNotReady?.call();
       loadRewardedAd();
+      return false;
     }
   }
 
