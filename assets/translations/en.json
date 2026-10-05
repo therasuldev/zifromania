@@ -399,7 +399,7 @@
         "service_unavailable": "Game limit service is unavailable",
         "daily_ads_limit_reached": "You have already watched all ads for today",
         "ad_not_ready": "Ad is not ready. Please wait a moment.",
-        "ad_failed": "An error occurred while showing the ad: {}"
+        "ad_failed": "The ad could not be shown. Please try again."
     },
     "auth": {
         "google_sign_in_cancelled": "Google sign‑in was cancelled.",
