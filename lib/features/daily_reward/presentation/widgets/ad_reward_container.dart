@@ -53,13 +53,21 @@ class _AdRewardContainerState extends ConsumerState<AdRewardContainer> with Sing
     setState(() {
       _isLoading = true;
     });
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
 
     try {
-      await ref.read(adRewardProvider.notifier).watchAd();
+      final rewarded = await ref.read(adRewardProvider.notifier).watchAd();
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
+
+        if (!rewarded) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('ad.ad_not_ready'.tr())),
+          );
+          return;
+        }
 
         _animationController.forward().then((_) {
           _animationController.reverse();
@@ -77,7 +85,7 @@ class _AdRewardContainerState extends ConsumerState<AdRewardContainer> with Sing
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Reklam göstərilmədi. Yenidən cəhd edin.')),
+        SnackBar(content: Text('ad.ad_failed'.tr())),
       );
     }
   }
