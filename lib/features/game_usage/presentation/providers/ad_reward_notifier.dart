@@ -12,11 +12,11 @@ class AdRewardNotifier extends Notifier<GlobalAdStatus> {
   @override
   GlobalAdStatus build() => _readStatus();
 
-  Future<void> watchAd() async {
-    if (!state.canWatchMore) return;
+  Future<bool> watchAd() async {
+    if (!state.canWatchMore) return false;
 
     final completed = Completer<bool>();
-    ref.read(rewardedAdServiceProvider).showRewardedAd(
+    final adShown = ref.read(rewardedAdServiceProvider).showRewardedAd(
       onUserEarnedReward: (_, __) {
         if (!completed.isCompleted) completed.complete(true);
       },
@@ -25,8 +25,10 @@ class AdRewardNotifier extends Notifier<GlobalAdStatus> {
       },
     );
 
+    if (!adShown) return false;
+
     final rewarded = await completed.future;
-    if (!rewarded) return;
+    if (!rewarded) return false;
 
     final repository = ref.read(gameUsageRepositoryProvider);
     final today = DateTime.now();
@@ -41,6 +43,7 @@ class AdRewardNotifier extends Notifier<GlobalAdStatus> {
 
     ref.invalidate(categoryStatsProvider);
     state = _readStatus();
+    return true;
   }
 
   GlobalAdStatus _readStatus() {
